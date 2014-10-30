@@ -2,7 +2,7 @@
   <div class="span12">
     <h6>{{instance.type}} Folder <i class="grcicon-help-black" style="margin-top:0px;" rel="tooltip" data-original-title="If selected, all {{instance.type}} attachments go here."></i></h6>
     <p class="oneline">
-      {{#if instance._folder_change_pendign}}
+      {{#if instance._folder_change_pending}}
         <span {{attach_spinner '{ "radius": 2.5, "length": 2.5, "width": 2 }' 'display:inline-block; top: -5px; left: 8px;' }}></span>
       {{else}}
         {{#with_mapping 'folders' instance}}

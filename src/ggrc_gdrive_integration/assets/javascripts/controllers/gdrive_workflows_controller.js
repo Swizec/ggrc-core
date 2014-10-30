@@ -819,11 +819,12 @@ can.Control("GGRC.Controllers.GDriveWorkflow", {
       }).then(function() {
         object.attr('_folder_change_pending', false);
       });
+    } else {
+      GRC.Controllers.GDriveWorkflow.attach_files(files,
+        el.data('type'), object).then(function() {
+        object.attr('_folder_change_pending', false);
+      });
     }
-    return GGRC.Controllers.GDriveWorkflow.attach_files(files,
-      el.data('type'), object).then(function() {
-      object.attr('_folder_change_pending', false);
-    });
   }
 
   , "a.create-folder click" : function(el, ev) {
@@ -994,7 +995,7 @@ can.Component.extend({
             //Since we can re-use existing file references from the picker, check for that case.
             var dfd = CMS.Models.Document.findAll({link : file.alternateLink }).then(function(d) {
               var doc_dfd, object_doc, object_file;
-              
+
               if(d.length < 1) {
                 d.push(
                   new CMS.Models.Document({
