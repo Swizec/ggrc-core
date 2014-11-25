@@ -8,7 +8,7 @@
 //= require can.jquery-all
 //= require models/cacheable
 
-(function(ns, can) {
+(function (ns, can) {
 
 can.Model.Cacheable("CMS.Models.Person", {
    root_object : "person"
@@ -19,14 +19,14 @@ can.Model.Cacheable("CMS.Models.Person", {
    , create : "POST /api/people"
    , update : "PUT /api/people/{id}"
    , destroy : "DELETE /api/people/{id}"
-   , search : function(request, response) {
+   , search : function (request, response) {
         return $.ajax({
             type : "get"
             , url : "/api/people"
             , dataType : "json"
             , data : {s : request.term}
-            , success : function(data) {
-                response($.map( data, function( item ) {
+            , success : function (data) {
+                response($.map( data, function ( item ) {
                   return can.extend({}, item.person, {
                     label: item.person.email
                     , value: item.person.id
@@ -51,19 +51,19 @@ can.Model.Cacheable("CMS.Models.Person", {
       , owners : null
     }
     , convert : {
-      "trimmed" : function(val) {
+      "trimmed" : function (val) {
         return (val && val.trim) ? val.trim() : val;
       }
     }
     , serialize : {
-      "trimmed" : function(val) {
+      "trimmed" : function (val) {
         return (val && val.trim) ? val.trim() : val;
       }
     }
-    , findInCacheByEmail : function(email) {
+    , findInCacheByEmail : function (email) {
       var result = null, that = this;
-      can.each(Object.keys(this.cache || {}), function(k) {
-        if(that.cache[k].email === email) {
+      can.each(Object.keys(this.cache || {}), function (k) {
+        if (that.cache[k].email === email) {
           result = that.cache[k];
           return false;
         }
@@ -77,17 +77,17 @@ can.Model.Cacheable("CMS.Models.Person", {
   , list_view_options: {
         find_params: { "__sort": "name,email" }
     }
-  , init : function() {
+  , init : function () {
     this._super.apply(this, arguments);
     //H/T to Sebastian Porto for the email validation regex
     this.validateNonBlank("email");
     this.validateFormatOf("email", /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])$/);
   }
 }, {
-  display_name : function() {
+  display_name : function () {
     return this.email;
   }
-  , autocomplete_label : function() {
+  , autocomplete_label : function () {
     return this.name ? this.name + " <span class=\"url-link\">" + this.email + "</span>" : this.email;
   }
 });

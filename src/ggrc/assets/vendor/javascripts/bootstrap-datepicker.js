@@ -256,7 +256,7 @@
 			nextMonth = nextMonth.valueOf();
 			html = [];
 			var clsName;
-			while(prevMonth.valueOf() < nextMonth) {
+			while (prevMonth.valueOf() < nextMonth) {
 				if (prevMonth.getDay() == this.weekStart) {
 					html.push('<tr>');
 				}

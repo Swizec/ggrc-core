@@ -7,7 +7,7 @@
 
 //require can.jquery-all
 
-(function(can) {
+(function (can) {
 
 can.Model.Cacheable("CMS.Models.Context", {
     root_object : "context"
@@ -78,7 +78,7 @@ can.Model.Cacheable("CMS.Models.Program", {
     , "Product" : {}
     , "Market" : {}
   }
-  , init : function() {
+  , init : function () {
     var that = this;
     this.validateNonBlank("title");
     this._super.apply(this, arguments);
@@ -90,12 +90,12 @@ can.Model.Cacheable("CMS.Models.Option", {
   root_object : "option"
   , root_collection : "options"
   , cache_by_role: {}
-  , for_role: function(role) {
+  , for_role: function (role) {
       var self = this;
 
       if (!this.cache_by_role[role])
         this.cache_by_role[role] =
-          this.findAll({ role: role }).then(function(options) {
+          this.findAll({ role: role }).then(function (options) {
             self.cache_by_role[role] = options;
             return options;
           });
@@ -155,7 +155,7 @@ can.Model.Cacheable("CMS.Models.Objective", {
     }]
   }
 
-  , init : function() {
+  , init : function () {
     this.validateNonBlank("title");
     this._super.apply(this, arguments);
   }
@@ -205,16 +205,16 @@ can.Model.Cacheable("CMS.Models.Role", {
     }
 }, {
 
-  allowed : function(operation, object_or_class) {
+  allowed : function (operation, object_or_class) {
     var cls = typeof object_or_class === "function" ? object_or_class : object_or_class.constructor;
     return !!~can.inArray(cls.model_singular, this.permissions[operation]);
   }
 
-  , not_system_role : function() {
+  , not_system_role : function () {
     return this.attr('scope') !== "System";
   }
 
-  , permission_summary : function() {
+  , permission_summary : function () {
     if (this.name == "ProgramOwner") return "Owner";
     if (this.name == "ProgramEditor") return "Can Edit";
     if (this.name == "ProgramReader") return "View Only";
@@ -236,14 +236,14 @@ can.Model.Cacheable("CMS.Models.BackgroundTask", {
   , scopes : []
   , defaults : {}
 }, {
-  poll: function() {
+  poll: function () {
     var dfd = new $.Deferred(),
         self = this,
         wait = 2000,
         interval;
 
     function _poll(){
-      self.refresh().then(function(task) {
+      self.refresh().then(function (task) {
         // Poll until we either get a success or a failure:
         if (['Success', 'Failure'].indexOf(task.status) < 0) {
           setTimeout(_poll, wait);
@@ -257,10 +257,10 @@ can.Model.Cacheable("CMS.Models.BackgroundTask", {
   }
 });
 
-CMS.Models.get_instance = function(object_type, object_id, params_or_object) {
+CMS.Models.get_instance = function (object_type, object_id, params_or_object) {
   var model, params = {}, instance = null, href;
 
-  if(typeof object_type === "object" || object_type instanceof can.Stub) {
+  if (typeof object_type === "object" || object_type instanceof can.Stub) {
     //assume we only passed in params_or_object
     params_or_object = object_type;
     if (!params_or_object)
@@ -310,17 +310,17 @@ CMS.Models.get_instance = function(object_type, object_id, params_or_object) {
   return instance;
 };
 
-CMS.Models.get_stub = function(object) {
+CMS.Models.get_stub = function (object) {
   return CMS.Models.get_instance(object).stub();
 }
 
-CMS.Models.get_stubs = function(objects) {
-  return new can.Stub.List(can.map(CMS.Models.get_instances(objects), function(o) {
+CMS.Models.get_stubs = function (objects) {
+  return new can.Stub.List(can.map(CMS.Models.get_instances(objects), function (o) {
     return o.stub();
   }));
 };
 
-CMS.Models.get_instances = function(objects) {
+CMS.Models.get_instances = function (objects) {
   var i, instances = []
   if (!objects)
     return [];
@@ -330,7 +330,7 @@ CMS.Models.get_instances = function(objects) {
   return instances;
 };
 
-CMS.Models.get_link_type = function(instance, attr) {
+CMS.Models.get_link_type = function (instance, attr) {
   var type
     , model
     ;

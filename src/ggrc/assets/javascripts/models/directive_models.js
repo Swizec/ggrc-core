@@ -5,7 +5,7 @@
     Maintained By: brad@reciprocitylabs.com
 */
 
-(function(can) {
+(function (can) {
 
 can.Model.Cacheable("CMS.Models.Directive", {
   root_object : "directive"
@@ -17,7 +17,7 @@ can.Model.Cacheable("CMS.Models.Directive", {
   , findOne : "/api/directives/{id}"
   , mixins : ["ownable", "contactable", "unique_title"]
 
-  , model : function(params) {
+  , model : function (params) {
       if (this.shortName !== 'Directive')
         return this._super(params);
       if (!params)
@@ -61,7 +61,7 @@ can.Model.Cacheable("CMS.Models.Directive", {
   }
   , defaults : {
   }
-  , init : function() {
+  , init : function () {
     this.validateNonBlank("title");
     //this.validateInclusionOf("kind", this.meta_kinds);
     this._super.apply(this, arguments);
@@ -69,11 +69,11 @@ can.Model.Cacheable("CMS.Models.Directive", {
   , meta_kinds : []
   , links_to : { "Control" : "DirectiveControl", "Program" : "ProgramDirective" }
 }, {
-  init : function() {
+  init : function () {
     this._super && this._super.apply(this, arguments);
     var that = this;
   }
-  , lowercase_kind : function() { return this.kind ? this.kind.toLowerCase() : undefined; }
+  , lowercase_kind : function () { return this.kind ? this.kind.toLowerCase() : undefined; }
 });
 
 CMS.Models.Directive("CMS.Models.Standard", {

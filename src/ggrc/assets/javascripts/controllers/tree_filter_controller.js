@@ -2,7 +2,7 @@ can.Control("GGRC.Controllers.TreeFilter", {
 
 }, {
 
-  init : function() {
+  init : function () {
     var parent_control;
     this._super && this._super.apply(this, arguments);
     this.options.states = new can.Observe();
@@ -11,10 +11,10 @@ can.Control("GGRC.Controllers.TreeFilter", {
     this.on();
   }
 
-  , "input, select change" : function(el, ev) {
+  , "input, select change" : function (el, ev) {
     // Convert '.' to '__' ('.' will cause can.Observe to try to update a path instead of just a key)
     var name = el.attr("name").replace(/\./g, '__');
-    if(el.is(".hasDatepicker")) {
+    if (el.is(".hasDatepicker")) {
       this.options.states.attr(name, moment(el.val(), "MM/DD/YYYY"));
     } else if (el.is(":checkbox") && !el.is(":checked")) {
       this.options.states.removeAttr(name);
@@ -24,16 +24,16 @@ can.Control("GGRC.Controllers.TreeFilter", {
     ev.stopPropagation();
   }
 
-  , "input[data-lookup] focus" : function(el, ev) {
+  , "input[data-lookup] focus" : function (el, ev) {
     this.autocomplete(el);
   }
 
-  , autocomplete : function(el) {
+  , autocomplete : function (el) {
     $.cms_autocomplete.call(this, el);
   }
 
-  , autocomplete_select : function(el, event, ui) {
-    setTimeout(function(){
+  , autocomplete_select : function (el, event, ui) {
+    setTimeout(function (){
       if (ui.item.title) {
         el.val(ui.item.title, ui.item);
       } else {
@@ -43,25 +43,25 @@ can.Control("GGRC.Controllers.TreeFilter", {
     }, 0);
   }
 
-  , "{states} change" : function(states) {
+  , "{states} change" : function (states) {
     var that = this;
     this.element
     .closest(".tree-structure")
-    .children(":has(> [data-model],:data(model))").each(function(i, el) {
+    .children(":has(> [data-model],:data(model))").each(function (i, el) {
       var model = $(el).children("[data-model],:data(model)").data("model");
-      if(can.reduce(Object.keys(states._data), function(st, key) {
+      if (can.reduce(Object.keys(states._data), function (st, key) {
         var val = states[key]
         , test = that.resolve_object(model, key.replace(/__/g, '.'));
 
-       if(val && val.isAfter) {
-          if(!test || moment(test).isBefore(val)) {
+       if (val && val.isAfter) {
+          if (!test || moment(test).isBefore(val)) {
             return false;
           } else {
             return st;
           }
         } else if (val === "[empty]" && test === "") {
           return st;
-        } else if(val && (!test || !~test.toUpperCase().indexOf(val.toUpperCase()))) {
+        } else if (val && (!test || !~test.toUpperCase().indexOf(val.toUpperCase()))) {
           return false;
         } else {
           return st;
@@ -74,12 +74,12 @@ can.Control("GGRC.Controllers.TreeFilter", {
     });
   }
 
-  , '[data-toggle="filter-reset"] click' : function(el, ev) {
+  , '[data-toggle="filter-reset"] click' : function (el, ev) {
     var that = this,
         filter_reset_target = 'input, select',
         checked;
 
-    this.element.find(filter_reset_target).each(function(i, elem) {
+    this.element.find(filter_reset_target).each(function (i, elem) {
       var $elem = $(elem)
       ;
 
@@ -98,9 +98,9 @@ can.Control("GGRC.Controllers.TreeFilter", {
     can.trigger(this.options.states, "change", "*");
   }
 
-  , resolve_object : function(obj, path) {
+  , resolve_object : function (obj, path) {
     path = path.split(".");
-    can.each(path, function(prop) {
+    can.each(path, function (prop) {
       // If the name is blank, use email
       if (prop === 'name' && obj.attr && (!obj.attr(prop) || !obj.attr(prop).trim()) && obj.attr('email') && obj.attr('email').trim()) {
         prop = 'email';
@@ -117,11 +117,11 @@ can.Control("GGRC.Controllers.TreeFilter", {
 
   //this controller is used in sticky headers which clone the original element.
   // It should only be destroyed when the original element is destroyed, not any clone.
-  , destroy : function(el, ev) {
+  , destroy : function (el, ev) {
     var sticky;
-    if(this.element.is(el)) {
+    if (this.element.is(el)) {
       this._super.apply(this, arguments);
-    } else if((sticky = this.element.data("sticky")) && el.is(sticky.clone)) {
+    } else if ((sticky = this.element.data("sticky")) && el.is(sticky.clone)) {
       delete sticky.clone;
     }
   }

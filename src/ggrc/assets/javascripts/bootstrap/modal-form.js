@@ -5,7 +5,7 @@
     Maintained By: brad@reciprocitylabs.com
 */
 
-!function($) {
+!function ($) {
 
   "use strict"; // jshint ;_;
 
@@ -28,11 +28,11 @@
 
   $.extend(ModalForm.prototype, {
 
-    init: function() {
+    init: function () {
       var that = this
         , $form;
       this.$element
-        .on('preload', function() {
+        .on('preload', function () {
           that.is_form_dirty(true);
         })
         .on('keypress', 'form', $.proxy(this.keypress_submit, this))
@@ -42,7 +42,7 @@
         .on('click.modal-form.submit', 'input[type=submit], [data-toggle="modal-submit"]', $.proxy(this.submit, this))
         .on('shown.modal-form', $.proxy(this.focus_first_input, this))
         .on('loaded.modal-form', $.proxy(this.focus_first_input, this))
-        .on('loaded.modal-form', function(ev) {
+        .on('loaded.modal-form', function (ev) {
           $("a[data-wysihtml5-command], a[data-wysihtml5-action]", ev.target).attr('tabindex', "-1");
           $form = that.$form();
           $(this).trigger("shown"); //this will reposition the modal stack
@@ -52,13 +52,13 @@
         ;
     }
 
-  , doNothing: function(e) {
+  , doNothing: function (e) {
     e.stopImmediatePropagation();
     e.stopPropagation();
     e.preventDefault();
   }
 
-  , delete_object: function(e, data, xhr) {
+  , delete_object: function (e, data, xhr) {
       // If this modal is contained within another modal, pass the event onward
       var $trigger_modal = this.$trigger.closest('.modal')
         , delete_target
@@ -81,18 +81,18 @@
       }
     }
 
-  , $form: function() {
+  , $form: function () {
       return this.$element.find('form').first();
     }
 
-  , is_form_dirty: function(cache_values) {
+  , is_form_dirty: function (cache_values) {
       var that = this
         , cache = {}
         , dirty = false
         ;
 
       // Generate a hash of the form values
-      can.each(this.$form().serializeArray(), function(field) {
+      can.each(this.$form().serializeArray(), function (field) {
         cache[field.name] = cache[field.name] ? cache[field.name] + ',' + field.value : field.value;
       });
 
@@ -102,7 +102,7 @@
       }
       // Otherwise compute a diff to determine whether the form is dirty
       else {
-        can.each(cache, function(value, key) {
+        can.each(cache, function (value, key) {
           dirty = dirty || (value !== that._cached_values[key] && (!!value || that._cached_values[key] !== undefined));
         });
       }
@@ -110,18 +110,18 @@
       return dirty;
     }
 
-  , submit: function(e) {
+  , submit: function (e) {
       var $form = this.$form()
       , that = this;
 
-      if(!$form.data("submitpending")) {
+      if (!$form.data("submitpending")) {
         $("[data-toggle=modal-submit]", $form)
-          .each(function() { $(this).data("origText", $(this).text()); })
+          .each(function () { $(this).data("origText", $(this).text()); })
           .addClass("disabled pending-ajax")
           .attr("disabled", true);
 
         $form.data("submitpending", true)
-        .one("ajax:beforeSend", function(ev, _xhr){
+        .one("ajax:beforeSend", function (ev, _xhr){
           that.xhr = _xhr;
         })
         .submit();
@@ -130,7 +130,7 @@
         e.preventDefault();
     }
 
-  , keypress_submit: function(e) {
+  , keypress_submit: function (e) {
       if (e.which == 13 && !$(e.target).is('textarea')) {
         if (!e.isDefaultPrevented()) {
           e.preventDefault();
@@ -139,32 +139,32 @@
       }
     }
 
-  , keyup_escape : function(e) {
-     if($(document.activeElement).is("select, [data-toggle=datepicker]") && e.which === 27) {
+  , keyup_escape : function (e) {
+     if ($(document.activeElement).is("select, [data-toggle=datepicker]") && e.which === 27) {
         this.$element.attr("tabindex", -1).focus();
         e.stopPropagation();
       }
     }
 
-  , reset: function(e) {
+  , reset: function (e) {
       var form = this.$form()[0];
       form && form.reset();
       this.hide(e);
     }
 
-  , hide: function(e) {
+  , hide: function (e) {
       var that = this;
 
       // If the hide was initiated by the backdrop, check for dirty form data before continuing
       if (e && $(e.target).is('.modal-backdrop')) {
 
-        if($(e.target).is(".disabled")) {
+        if ($(e.target).is(".disabled")) {
           // In the case of a disabled modal backdrop, treat it like any other disabled data-dismiss,
           //  i.e. do nothing.
           e.stopPropagation();
           return;
         }
-        if(this.is_form_dirty()) {
+        if (this.is_form_dirty()) {
           // Copy some base options from the original modal,
           // otherwise the form won't be properly reset on discard
           var options = that.$element.control().options;
@@ -177,7 +177,7 @@
             , instance : options.instance
             , model : options.model
             , skip_refresh : true
-          }, function() {
+          }, function () {
             that.$element.find("[data-dismiss='modal'], [data-dismiss='modal-reset']").trigger("click");
             that.hide();
           });
@@ -190,9 +190,9 @@
       this.$element.off('modal_form');
     }
 
-  , focus_first_input: function(ev) {
+  , focus_first_input: function (ev) {
       var that = this;
-      setTimeout(function() {
+      setTimeout(function () {
         var $first_input;
         $first_input = that.$element.find('*[autofocus]');
         if ($first_input.length == 0) {
@@ -208,8 +208,8 @@
     }
   });
 
-  $.fn.modal_form = function(option, trigger) {
-    return this.each(function() {
+  $.fn.modal_form = function (option, trigger) {
+    return this.each(function () {
       var $this = $(this)
         , data = $this.data('modal_form')
         , options = $.extend({}, $.fn.modal_form.defaults, $this.data(), typeof option == 'object' && option);
@@ -240,9 +240,9 @@
   });
 
   // Default flash handler
-  $(function() {
+  $(function () {
     // Default form complete handler
-    $('body').on('ajax:complete', function(e, xhr, status) {
+    $('body').on('ajax:complete', function (e, xhr, status) {
       var data = null, data_k;
       try {
         data = JSON.parse(xhr.responseText);
@@ -261,12 +261,12 @@
         }
         else {
           var modal_form = $(".modal:visible:last").data("modal_form");
-          if(modal_form && xhr === modal_form.xhr) {
+          if (modal_form && xhr === modal_form.xhr) {
             delete modal_form.xhr;
             $("[data-toggle=modal-submit]", modal_form.$element)
             .removeAttr("disabled")
             .removeClass("disabled pending-ajax")
-            .each(function() {
+            .each(function () {
               $(this).text($(this).data("origText"));
             });
             $("form", modal_form.$element).data("submitpending", false);
@@ -277,7 +277,7 @@
       if (data) {
         // Parse and dispatch JSON object
         $(e.target).trigger('ajax:json', [data, xhr]);
-      } else if(xhr.responseText) {
+      } else if (xhr.responseText) {
         // Dispatch as html, if there is html to dispatch.  (no result should not blank out forms)
         $(e.target).trigger('ajax:html', [xhr.responseText, xhr]);
       }
@@ -304,7 +304,7 @@
       }
     });
 
-    $('body').on('ajax:flash', function(e, flash) {
+    $('body').on('ajax:flash', function (e, flash) {
       var $target, $flash_holder// = this.$element.find('.flash')
         , type, ucase_type
         , messages, message, message_i
@@ -314,7 +314,7 @@
 
       // Find or create the flash-message holder
       $target = $(e.target);
-      if($target.has(".modal-body").length < 1)
+      if ($target.has(".modal-body").length < 1)
         $target = $('body');
       $flash_holder = $target.find('.flash');
 
@@ -345,10 +345,10 @@
       }
     });
 
-    $('body').on('ajax:html', '.modal > form', function(e, html, xhr) {
+    $('body').on('ajax:html', '.modal > form', function (e, html, xhr) {
       var sel = "script[type='text/javascript'], script[language='javascript'], script:not([type])";
       var $frag = $(html);
-      $frag.filter(sel).add($frag.find(sel)).each(function() {
+      $frag.filter(sel).add($frag.find(sel)).each(function () {
         $(this).remove();
         setTimeout($(this).html(), 10);
       });

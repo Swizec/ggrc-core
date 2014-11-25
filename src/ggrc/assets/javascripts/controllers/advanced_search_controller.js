@@ -12,7 +12,7 @@
 
 
 
-(function(can, $) {
+(function (can, $) {
   GGRC.Controllers.MultitypeObjectModalSelector("GGRC.Controllers.AdvancedSearchSelector", {
     defaults: {
           option_type_menu: null
@@ -27,7 +27,7 @@
     }
   }, {
 
-  init_menu: function() {
+  init_menu: function () {
       var menu, all_models = [],
           lookup = {
             governance: 0
@@ -54,7 +54,7 @@
           model_display:"All Objects"
         });
 
-        can.each(this.options.option_descriptors, function(descriptor) {
+        can.each(this.options.option_descriptors, function (descriptor) {
           if ( descriptor.model.category === undefined ) {
             ;//do nothing
           }
@@ -76,15 +76,15 @@
             "Program","Regulation", "Policy", "Standard", "Contract", "Clause", "Section", "Objective", "Control",
             "Person", "System", "Process", "DataAsset", "Product", "Project", "Facility" , "Market"
             ],
-            function(key) {
+            function (key) {
               return CMS.Models[key];
             }
       );
   }
 
-  , set_option_descriptor: function(option_type) {
+  , set_option_descriptor: function (option_type) {
       //Set option descriptor for all objects
-      if(option_type === "AllObjects") {
+      if (option_type === "AllObjects") {
         var all_descriptor = {
           column_view : "/static/mustache/search/advanced_search_option_column.mustache",
           detail_view: "/static/mustache/selectors/multitype_option_detail.mustache",
@@ -113,7 +113,7 @@
       this.context.attr('option_detail_view', descriptor.detail_view);
       this.context.attr('option_descriptor', descriptor);
       this.context.selected_options = [];
-      this.context.attr('selected_result', can.compute(function() {
+      this.context.attr('selected_result', can.compute(function () {
         return self.get_result_for_option(self.context.attr('selected_options'));
       }));
       this.context.attr('related_table_plural', descriptor.related_table_plural);
@@ -131,7 +131,7 @@
   }
 
 
-  , refresh_option_list: function() {
+  , refresh_option_list: function () {
         var self = this
           , current_option_model = this.options.option_model
           , current_option_model_name = current_option_model.shortName
@@ -141,13 +141,13 @@
           , ctx = this.context
           ;
 
-        active_fn = function() {
+        active_fn = function () {
           return self.element &&
                  self.options.option_model === current_option_model &&
                  self.options.option_search_term === current_search_term;
         };
 
-        draw_fn = function(options) {
+        draw_fn = function (options) {
           self.insert_options(options);
         };
 
@@ -174,7 +174,7 @@
             .then(function (search_result){
               var options = [], op1, temp ; 
               if (active_fn()) {
-                for(var i = 0; i < models.length; i++){
+                for (var i = 0; i < models.length; i++){
                   op1 = search_result.getResultsForType(models[i]);
                   temp = options.concat(op1);
                   options = temp;
@@ -193,7 +193,7 @@
               current_search_term || '',
               [current_option_model_name],
               permission_parms)
-          .then(function(search_result) {
+          .then(function (search_result) {
             var options = [];
 
             if (active_fn()) {
@@ -210,20 +210,20 @@
     //Search button click
     , ".advancedSearchButton:not([disabled]) click": "triggerSearch"
 
-    , "#search keyup": function(el, ev) {
+    , "#search keyup": function (el, ev) {
         if (ev.which == 13) {
           this.context.attr("option_search_term", el.val());
           this.triggerSearch();
         }
       }
 
-    , "input[null-if-empty] change" : function(el, ev) {
-      if(el.val() === "") {
+    , "input[null-if-empty] change" : function (el, ev) {
+      if (el.val() === "") {
         this.context.attr(el.attr("name"), null);
       }
     }
 
-    , triggerSearch: function(){
+    , triggerSearch: function (){
       this.element.find('.advancedSearchButton').attr('disabled','disabled');
       
       // Remove Search Criteria text
@@ -240,18 +240,18 @@
 
       this.set_option_descriptor(selected);
 
-      ctx.filter_list.each(function(filter_obj) {
-        if(cancel_filter || !filter_obj.search_filter) {
+      ctx.filter_list.each(function (filter_obj) {
+        if (cancel_filter || !filter_obj.search_filter) {
           cancel_filter = true;
           self.element.find('.advancedSearchButton').removeAttr('disabled');
           return;
         }
         //All Object
-        if(selected === "AllObjects") {//create a multi filter
+        if (selected === "AllObjects") {//create a multi filter
           var loaders , local_loaders = [], multi_loader;
           //Create a multi-list loader
           loaders = GGRC.Mappings.get_mappings_for(filter_obj.search_filter.constructor.shortName);
-          can.each(loaders, function(loader, name) {
+          can.each(loaders, function (loader, name) {
             if (loader instanceof GGRC.ListLoaders.DirectListLoader
                 || loader instanceof GGRC.ListLoaders.ProxyListLoader) {
               local_loaders.push(name);
@@ -272,7 +272,7 @@
           );
         }
       });
-      if(cancel_filter) {
+      if (cancel_filter) {
         //missing search term.
         this.element.find('.advancedSearchButton').removeAttr('disabled');
         return;
@@ -282,24 +282,24 @@
         // For All Objects, make sure to load only those objects in the list of all_models
         // Multilist loader might load objects like g-drive folder and context
         // The Search list loader will filter those objects
-        if(selected === "AllObjects") {
-            filters.push(new GGRC.ListLoaders.SearchListLoader(function(binding) {
+        if (selected === "AllObjects") {
+            filters.push(new GGRC.ListLoaders.SearchListLoader(function (binding) {
               return GGRC.Models.Search.search_for_types(
                 term,
                 self.options.all_models,
                 { contact_id: binding.instance && binding.instance.id }
-                ).then(function(mappings) {
+                ).then(function (mappings) {
                   return mappings.entries;
                 });
             }).attach(ctx.owner || {}));
         }
-        else if(ctx.owner || term){
-          filters.push(new GGRC.ListLoaders.SearchListLoader(function(binding) {
+        else if (ctx.owner || term){
+          filters.push(new GGRC.ListLoaders.SearchListLoader(function (binding) {
               return GGRC.Models.Search.search_for_types(
                 term,
                 [selected],
                 { contact_id: binding.instance && binding.instance.id }
-                ).then(function(mappings) {
+                ).then(function (mappings) {
                   return mappings.entries;
                 });
             }).attach(ctx.owner || {}));
@@ -318,17 +318,17 @@
         this.last_loader = loader;
         self.option_list.replace([]);
         self.element.find('.option_column ul.new-tree').empty();
-        loader.refresh_stubs().then(function(options) {
-          var active_fn = function() {
+        loader.refresh_stubs().then(function (options) {
+          var active_fn = function () {
             return self.element && self.last_loader === loader;
           };
 
-          var draw_fn = function(options) {
+          var draw_fn = function (options) {
             self.insert_options(options);
           };
           self.option_list.push.apply(self.option_list, options);
           self.element.find('.advancedSearchButton').removeAttr('disabled');
-          self._start_pager(can.map(options, function(op) {
+          self._start_pager(can.map(options, function (op) {
               return op.instance;
             }), 20, active_fn, draw_fn);
         });
@@ -347,8 +347,8 @@
       }
     }
 
-    , autocomplete_select : function(el, ev, ui) {
-      setTimeout(function(){
+    , autocomplete_select : function (el, ev, ui) {
+      setTimeout(function (){
         el.val(ui.item.name || ui.item.email || ui.item.title, ui.item);
         el.trigger('change');
       }, 0);
@@ -384,7 +384,7 @@
       join_descriptors[option_model_name] = GGRC.Mappings.get_canonical_mapping(object_model_name, option_model_name);
     }
 
-    can.each(join_descriptors, function(descriptor, far_model_name) {
+    can.each(join_descriptors, function (descriptor, far_model_name) {
       var option_model_name = descriptor.option_model_name || far_model_name;
       var extra_options = search_descriptor_view_option[option_model_name];
 
@@ -426,16 +426,16 @@
   }
 
 
-  $(function() {
-    $('body').on('click', '[data-toggle="multitype-search-modal-selector"]', function(e) {
+  $(function () {
+    $('body').on('click', '[data-toggle="multitype-search-modal-selector"]', function (e) {
       var $this = $(this)
         , options
         , data_set = can.extend({}, $this.data())
         ;
 
-      can.each($this.data(), function(v, k) {
-        data_set[k.replace(/[A-Z]/g, function(s) { return "_" + s.toLowerCase(); })] = v; //this is just a mapping of keys to underscored keys
-        if(!/[A-Z]/.test(k)) //if we haven't changed the key at all, don't delete the original
+      can.each($this.data(), function (v, k) {
+        data_set[k.replace(/[A-Z]/g, function (s) { return "_" + s.toLowerCase(); })] = v; //this is just a mapping of keys to underscored keys
+        if (!/[A-Z]/.test(k)) //if we haven't changed the key at all, don't delete the original
           delete data_set[k];
       });
 

@@ -7,18 +7,18 @@
 
 //= require can.jquery-all
 //= require controllers/quick_search_controller
-(function(namespace, $) {
+(function (namespace, $) {
 
-$(function() {
+$(function () {
   $("#lhn").cms_controllers_lhn();
 
-  $(document.body).on("click", "a[data-toggle=unmap]", function(ev) {
+  $(document.body).on("click", "a[data-toggle=unmap]", function (ev) {
     var $el = $(this)
       ;
     //  Prevent toggling `openclose` state in trees
     ev.stopPropagation();
     $el.fadeTo('fast', 0.25);
-    $el.children(".result").each(function(i, result_el) {
+    $el.children(".result").each(function (i, result_el) {
       var $result_el = $(result_el)
         , result = $result_el.data('result')
         , mappings = result && result.get_mappings()
@@ -32,8 +32,8 @@ $(function() {
           );
       }
       
-      can.each(mappings, function(mapping) {
-        mapping.refresh().done(function() {
+      can.each(mappings, function (mapping) {
+        mapping.refresh().done(function () {
           if (mapping instanceof CMS.Models.Control) {
             mapping.removeAttr('directive');
             mapping.save().then(notify);
@@ -46,7 +46,7 @@ $(function() {
     });
   });
 
-  $(document.body).on("click", ".map-to-page-object", function(ev) {
+  $(document.body).on("click", ".map-to-page-object", function (ev) {
     //  Prevent toggling `openclose` state in trees
     ev.stopPropagation();
 
@@ -59,16 +59,16 @@ $(function() {
     , params = {}
     , mappings = Mustache.resolve($target.data("existing_mappings"));
 
-    if(can.isArray(inst) || inst instanceof can.List) {
-      if(mappings) {
-        mappings = can.map(mappings, function(m) {
+    if (can.isArray(inst) || inst instanceof can.List) {
+      if (mappings) {
+        mappings = can.map(mappings, function (m) {
           return m.instance || m;
         });
       }
 
-      for(i = 0; i < inst.length; i++) {
+      for (i = 0; i < inst.length; i++) {
         v = inst[i].instance || inst[i];
-        if(page_instance !== v && (!mappings || !~can.inArray(v, mappings))) {
+        if (page_instance !== v && (!mappings || !~can.inArray(v, mappings))) {
           $target.data("instance", v);
           arguments.callee.call(this, ev);
         }
@@ -77,7 +77,7 @@ $(function() {
       return;
     }
 
-    if(typeof link === "string") {
+    if (typeof link === "string") {
       link = GGRC.Models[link] || CMS.Models[link];
     }
 
@@ -132,7 +132,7 @@ $(function() {
     if (join_object) {
       join_object.save()
         .done(triggerFlash)
-        .fail(function(xhr) {
+        .fail(function (xhr) {
           // Currently, the only error we encounter here is uniqueness
           // constraint violations.  Let's use a nicer message!
           var message = "That object is already mapped";

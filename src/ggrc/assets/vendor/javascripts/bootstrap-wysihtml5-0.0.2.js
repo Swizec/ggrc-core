@@ -162,7 +162,7 @@
 	  		});
 
 	  		if(options && options.events) {
-				for(var eventName in options.events) {
+				for (var eventName in options.events) {
 					editor.on(eventName, options.events[eventName]);
 				}
 			}	
@@ -178,7 +178,7 @@
 				'style': "display:none"
 			});
 
-			for(var key in defaultOptions) {
+			for (var key in defaultOptions) {
 				var value = false;
 				
 				if(options[key] != undefined) {

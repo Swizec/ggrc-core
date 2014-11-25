@@ -7,7 +7,7 @@
 
 //= require can.jquery-all
 
-(function(can, $) {
+(function (can, $) {
 
   if (!GGRC.widget_descriptors)
     GGRC.widget_descriptors = {};
@@ -30,13 +30,13 @@
       instance - an instance that is a subclass of can.Model.Cacheable
       widget_view [optional] - a template for rendering the info.
     */
-    make_info_widget : function(instance, widget_view) {
+    make_info_widget : function (instance, widget_view) {
       var default_info_widget_view = GGRC.mustache_path + "/base_objects/info.mustache";
       return new this(
         instance.constructor.shortName + ":info",
         {
           widget_id: "info",
-          widget_name: function() {
+          widget_name: function () {
             if (instance.constructor.title_singular === 'Person')
               return 'Info';
             else
@@ -59,20 +59,20 @@
       mapping - a mapping object taken from the instance
       extenders [optional] - an array of objects that will extend the default widget config.
     */
-    make_tree_view : function(instance, far_model, mapping, extenders) {
+    make_tree_view : function (instance, far_model, mapping, extenders) {
       var descriptor = {
         content_controller: CMS.Controllers.TreeView,
         content_controller_selector: "ul",
         widget_initial_content: '<ul class="tree-structure new-tree colored-list"></ul>',
         widget_id: far_model.table_singular,
-        widget_guard: function(){
+        widget_guard: function (){
           if (far_model.title_plural === "Audits"
               && instance instanceof CMS.Models.Program){
             return "context" in instance && !!(instance.context.id);
           }
           return true;
         },
-        widget_name: function() {
+        widget_name: function () {
             var $objectArea = $(".object-area");
             if ( $objectArea.hasClass("dashboard-area") || instance.constructor.title_singular === "Person" ) {
               if (/dashboard/.test(window.location)) {
@@ -94,7 +94,7 @@
             , draw_children: false
             , parent_instance: instance
             , model: far_model
-            , list_loader: function() {
+            , list_loader: function () {
                 return mapping.refresh_list();
               }
           }
@@ -104,15 +104,15 @@
 
       return new this(instance.constructor.shortName + ":" + far_model.table_singular, descriptor);
     },
-    newInstance : function(id, opts) {
+    newInstance : function (id, opts) {
       var ret;
-      if(!opts && typeof id === "object") {
+      if (!opts && typeof id === "object") {
         opts = id;
         id = opts.widget_id;
       }
 
-      if(GGRC.widget_descriptors[id]) {
-        if(GGRC.widget_descriptors[id] instanceof this) {
+      if (GGRC.widget_descriptors[id]) {
+        if (GGRC.widget_descriptors[id] instanceof this) {
           $.extend(GGRC.widget_descriptors[id], opts);
         } else {
           ret = this._super.apply(this);
@@ -153,11 +153,11 @@
       The widget descriptors are built on the first call of this function; subsequently they are retrieved from the
        widget descriptor cache.
     */
-    get_widget_list_for : function(page_type) {
+    get_widget_list_for : function (page_type) {
       var widgets = {};
-      can.each(this.modules, function(module) {
-        can.each(module[page_type], function(descriptor, id) {
-          if(!widgets[id]) {
+      can.each(this.modules, function (module) {
+        can.each(module[page_type], function (descriptor, id) {
+          if (!widgets[id]) {
             widgets[id] = descriptor;
           } else {
             can.extend(true, widgets[id], descriptor);
@@ -165,7 +165,7 @@
         });
       });
       var descriptors = {};
-      can.each(widgets, function(widget, widget_id) {
+      can.each(widgets, function (widget, widget_id) {
         switch(widget.content_controller) {
         case GGRC.Controllers.InfoWidget:
           descriptors[widget_id] = GGRC.WidgetDescriptor.make_info_widget(
@@ -187,8 +187,8 @@
           descriptors[widget_id] = new GGRC.WidgetDescriptor(page_type + ":" + widget_id, widget);
         }
       });
-      can.each(descriptors, function(descriptor, id) {
-        if(descriptor.suppressed) {
+      can.each(descriptors, function (descriptor, id) {
+        if (descriptor.suppressed) {
           delete descriptors[id];
         }
       });
@@ -197,14 +197,14 @@
     /*
       returns a keyed object of widget descriptors that represents the current page.
     */
-    get_current_page_widgets : function() {
+    get_current_page_widgets : function () {
       return this.get_widget_list_for(GGRC.page_instance().constructor.shortName);
     },
-    get_default_widget_sort: function(){
+    get_default_widget_sort: function (){
       return this.sort;
     },
   }, {
-    init : function(name, opts, sort) {
+    init : function (name, opts, sort) {
       this.constructor.modules[name] = this;
       can.extend(this, opts);
       if (sort && sort.length) {
@@ -220,17 +220,17 @@
       descriptor - a widget descriptor appropriate for the widget type. FIXME - the descriptor's
         widget_id value must match the value passed as "id"
     */
-    add_widget : function(page_type, id, descriptor) {
+    add_widget : function (page_type, id, descriptor) {
       this[page_type] = this[page_type] || {};
-      if(this[page_type][id]) {
+      if (this[page_type][id]) {
         can.extend(true, this[page_type][id], descriptor);
       } else {
         this[page_type][id] = descriptor;
       }
     },
-    suppress_widget : function(page_type, id) {
+    suppress_widget : function (page_type, id) {
       this[page_type] = this[page_type] || {};
-      if(this[page_type][id]) {
+      if (this[page_type][id]) {
         can.extend(true, this[page_type][id], { suppressed : true });
       } else {
         this[page_type][id] = { suppressed : true };
@@ -240,7 +240,7 @@
 
   var widget_list = new GGRC.WidgetList("ggrc_core");
 
-$(function() {
+$(function () {
 
   var object_class = GGRC.infer_object_type(GGRC.page_object)
     , object_table = object_class && object_class.table_plural
@@ -302,7 +302,7 @@ $(function() {
     function reify_mixins(definition) {
       var final_definition = {};
       if (definition._mixins) {
-        can.each(definition._mixins, function(mixin) {
+        can.each(definition._mixins, function (mixin) {
           if (typeof(mixin) === "string") {
             // If string, recursive lookup
             if (!definitions[mixin])
@@ -323,7 +323,7 @@ $(function() {
       return final_definition;
     }
 
-    can.each(definitions, function(definition, name) {
+    can.each(definitions, function (definition, name) {
       // Only output the mappings if it's a model, e.g., uppercase first letter
       if (name[0] === name[0].toUpperCase())
         mappings[name] = reify_mixins(definition);
@@ -350,7 +350,7 @@ $(function() {
           }
         , Contract : {
             Clause: {
-              widget_name : function() {
+              widget_name : function () {
                 var $objectArea = $(".object-area");
                 if ( $objectArea.hasClass("dashboard-area") ) {
                   return "Clauses";
@@ -718,7 +718,7 @@ $(function() {
   // Disable editing on profile pages, as long as it isn't audits on the dashboard
   if (GGRC.page_instance() instanceof CMS.Models.Person) {
     var person_options = extra_content_controller_options.Person;
-    can.each(person_options, function(options, model_name) {
+    can.each(person_options, function (options, model_name) {
       if (model_name !== 'Audit' || !/dashboard/.test(window.location)) {
         can.extend(options, {
             allow_creating: false
@@ -728,7 +728,7 @@ $(function() {
     });
   }
 
-  can.each(far_models, function(model_name) {
+  can.each(far_models, function (model_name) {
     if ((overridden_models.all
           && overridden_models.all.hasOwnProperty(model_name)
           && !overridden_models[model_name])

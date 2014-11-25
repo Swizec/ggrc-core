@@ -9,25 +9,25 @@ var GGRC = window.GGRC || {};
 GGRC.mustache_path = '/static/mustache';
 
 GGRC.hooks = GGRC.hooks || {};
-GGRC.register_hook = function(path, hook) {
+GGRC.register_hook = function (path, hook) {
   var h, parent_path, last;
   parent_path = path.split(".");
   last = parent_path.pop();
   parent_path = can.getObject(parent_path.join("."), GGRC.hooks, true);
-  if(!(h = parent_path[last])) {
+  if (!(h = parent_path[last])) {
     h = new can.Observe.List();
     parent_path[last] = h;
   }
   h.push(hook);
 };
 
-GGRC.current_url_compute = can.compute(function() {
+GGRC.current_url_compute = can.compute(function () {
   var path = window.location.pathname
   , fragment = window.location.hash;
   return window.encodeURIComponent(path + fragment);
 });
 
-$(window).on('hashchange', function() {
+$(window).on('hashchange', function () {
   GGRC.current_url_compute(window.location);
 });
 
@@ -39,7 +39,7 @@ GGRC.extensions = GGRC.extensions || [];
 GGRC.extensions.push({
     name: "core"
 
-  , object_type_decision_tree: function() {
+  , object_type_decision_tree: function () {
       return {
         "program" : CMS.Models.Program
       , "audit" : CMS.Models.Audit
@@ -68,7 +68,7 @@ GGRC.extensions.push({
       , "data_asset" : CMS.Models.DataAsset
       , "market" : CMS.Models.Market
       , "system_or_process" : {
-        _discriminator: function(data) {
+        _discriminator: function (data) {
           if (data.is_biz_process)
             return CMS.Models.Process;
           else
@@ -99,7 +99,7 @@ function ModelError(message, data) {
 }
 ModelError.prototype = Error.prototype;
 
-  window.cms_singularize = function(type) {
+  window.cms_singularize = function (type) {
     type = type.trim();
     var _type = type.toLowerCase();
     switch(_type) {
@@ -122,11 +122,11 @@ ModelError.prototype = Error.prototype;
   };
 
 
-  window.calculate_spinner_z_index = function() {
+  window.calculate_spinner_z_index = function () {
     var zindex = 0;
-    $(this).parents().each(function() {
+    $(this).parents().each(function () {
       var z = parseInt($(this).css("z-index"), 10);
-      if(z) {
+      if (z) {
         zindex = z;
         return false;
       }
@@ -134,89 +134,89 @@ ModelError.prototype = Error.prototype;
     return zindex + 10;
   };
 
-(function(can) {
+(function (can) {
   can.Construct("PersistentNotifier", {
     defaults : {
       one_time_cbs : true
-      , while_queue_has_elements : function() {}
-      , when_queue_empties : function() {}
+      , while_queue_has_elements : function () {}
+      , when_queue_empties : function () {}
     }
   }, {
-    init : function(options) {
+    init : function (options) {
       var that = this;
       this.dfds = [];
       this.list_empty_cbs = [];
-      can.each(this.constructor.defaults, function(val, key) {
+      can.each(this.constructor.defaults, function (val, key) {
           that[key] = val;
       });
-      can.each(options, function(val, key) {
+      can.each(options, function (val, key) {
         that[key] = val;
       });
     }
-    , queue : function(dfd) {
+    , queue : function (dfd) {
       var idx
       , oldlen = this.list_empty_cbs.length
       , that = this;
-      if(!dfd || !dfd.then) {
+      if (!dfd || !dfd.then) {
         throw "ERROR: attempted to queue something other than a Deferred or Promise";
       }
       idx = this.dfds.indexOf(dfd);
 
-      if(!~idx) { //enforce uniqueness
+      if (!~idx) { //enforce uniqueness
         this.dfds.push(dfd);
-        dfd.always(function() {
+        dfd.always(function () {
           var i = that.dfds.indexOf(dfd);
           ~i && that.dfds.splice(i, 1);
-          if(that.dfds.length < 1) {
+          if (that.dfds.length < 1) {
             can.each(that.list_empty_cbs, Function.prototype.call);
-            if(that.one_time_cbs) {
+            if (that.one_time_cbs) {
               that.list_empty_cbs = [];
             }
             that.when_queue_empties();
           }
         });
       }
-      if(oldlen < 1 && that.dfds.length > 0) {
+      if (oldlen < 1 && that.dfds.length > 0) {
         that.while_queue_has_elements();
       }
     }
-    , on_empty : function(fn) {
-      if(!this.one_time_cbs || this.dfds.length < 1) {
+    , on_empty : function (fn) {
+      if (!this.one_time_cbs || this.dfds.length < 1) {
         fn();
       }
-      if((this.dfds.length > 0 || !this.one_time_cbs) && !~this.list_empty_cbs.indexOf(fn)) {
+      if ((this.dfds.length > 0 || !this.one_time_cbs) && !~this.list_empty_cbs.indexOf(fn)) {
           this.list_empty_cbs.push(fn);
       }
     }
-    , off_empty : function(fn) {
+    , off_empty : function (fn) {
       var idx;
-      if(~(idx = this.list_empty_cbs.indexOf(fn)))
+      if (~(idx = this.list_empty_cbs.indexOf(fn)))
         this.list_empty_cbs.splice(idx, 1);
     }
   });
 })(this.can);
 
-(function(GGRC) {
+(function (GGRC) {
 var confirmleaving = function confirmleaving() {
   return window.confirm("There are operations in progress.  Are you sure you want to leave the page?");
 }
 , notifier = new PersistentNotifier({
-  while_queue_has_elements : function() {
+  while_queue_has_elements : function () {
     $(window).on("unload", confirmleaving);
   }
-  , when_queue_empties : function() {
+  , when_queue_empties : function () {
     $(window).off("unload", confirmleaving);
   }
   , name : "GGRC/window"
 });
 
 jQuery.extend(GGRC, {
-    get_object_type_decision_tree: function() {
+    get_object_type_decision_tree: function () {
       var tree = {}
         , extensions = GGRC.extensions || []
         ;
 
-      can.each(extensions, function(extension) {
+      can.each(extensions, function (extension) {
         if (extension.object_type_decision_tree) {
           if (can.isFunction(extension.object_type_decision_tree)) {
             $.extend(tree, extension.object_type_decision_tree());
@@ -229,7 +229,7 @@ jQuery.extend(GGRC, {
       return tree;
     }
 
-  , infer_object_type : function(data) {
+  , infer_object_type : function (data) {
     var decision_tree = GGRC.get_object_type_decision_tree();
 
     function resolve_by_key(subtree, data) {
@@ -244,32 +244,32 @@ jQuery.extend(GGRC, {
     }
 
     function resolve(subtree, data) {
-      if(typeof subtree === "undefined")
+      if (typeof subtree === "undefined")
         return null;
       return can.isPlainObject(subtree) ?
         subtree._discriminator(data) :
         subtree;
     }
 
-    if(!data) {
+    if (!data) {
       return null;
     } else {
-      return can.reduce(Object.keys(data), function(a, b) {
+      return can.reduce(Object.keys(data), function (a, b) {
         return a || resolve(decision_tree[b], data[b]);
       }, null);
     }
   }
-  , make_model_instance : function(data) {
-    if(!data) {
+  , make_model_instance : function (data) {
+    if (!data) {
       return null;
-    } else if(!!GGRC.page_model && GGRC.page_object === data) {
+    } else if (!!GGRC.page_model && GGRC.page_object === data) {
       return GGRC.page_model;
     } else {
       return GGRC.page_model = GGRC.infer_object_type(data).model($.extend({}, data));
     }
   }
 
-  , page_instance : function() {
+  , page_instance : function () {
     if (!GGRC._page_instance && GGRC.page_object) {
       GGRC._page_instance = GGRC.make_model_instance(GGRC.page_object);
     }
@@ -280,7 +280,7 @@ jQuery.extend(GGRC, {
   , eventqueueTimeout: null
   , eventqueueTimegap: 20 //ms
 
-  , queue_exec_next: function() {
+  , queue_exec_next: function () {
       var fn = GGRC.eventqueue.shift();
       if (fn)
         fn();
@@ -291,7 +291,7 @@ jQuery.extend(GGRC, {
         GGRC.eventqueueTimeout = null;
     }
 
-  , queue_event : function(events) {
+  , queue_event : function (events) {
       if (typeof(events) === "function")
         events = [events];
       GGRC.eventqueue.push.apply(GGRC.eventqueue, events);
@@ -300,9 +300,9 @@ jQuery.extend(GGRC, {
           setTimeout(GGRC.queue_exec_next, GGRC.eventqueueTimegap);
     }
 
-  , navigate : function(url) {
+  , navigate : function (url) {
     function go() {
-      if(!url) {
+      if (!url) {
         window.location.reload();
       } else {
         window.location.assign(url);
@@ -328,7 +328,7 @@ $.extend(GGRC.Math, {
 
     @return the sum of the numbers represented in a and b, as a decimal notation string.
   */
-  string_add: function(a, b) {
+  string_add: function (a, b) {
     var _a, _b, i, _c = 0,
         ret = [],
         adi = a.indexOf("."),
@@ -378,7 +378,7 @@ $.extend(GGRC.Math, {
 
     @return one half of the number represented in a, as a decimal notation string.
   */
-  string_half: function(a) {
+  string_half: function (a) {
     var i, _a, _c = 0, ret = [];
 
     if (!~a.indexOf(".")) {
@@ -416,7 +416,7 @@ $.extend(GGRC.Math, {
 
     @return the maximum of the numbers represented in a and b, as a decimal notation string.
   */
-  string_max: function(a, b) {
+  string_max: function (a, b) {
     return this.string_less_than(a, b) ? b : a;
   },
 
@@ -426,7 +426,7 @@ $.extend(GGRC.Math, {
 
     @return true if the number represented in a is less than that in b, false otherwise
   */
-  string_less_than: function(a, b) {
+  string_less_than: function (a, b) {
     var i,
         _a = ("" + a).replace(/^0*/, ""),
         _b = ("" + b).replace(/^0*/, ""),
@@ -466,16 +466,16 @@ $.extend(GGRC.Math, {
 })(GGRC);
 
 
-(function($){
+(function ($){
 
 // Set up all PUT requests to the server to respect ETags, to ensure that
 //  we are not overwriting more recent data than was viewed by the user.
 var etags = {};
-$.ajaxPrefilter(function( options, originalOptions, jqXHR ) {
+$.ajaxPrefilter(function ( options, originalOptions, jqXHR ) {
   var data = originalOptions.data;
 
   function attach_provisional_id(prop) {
-    jqXHR.done(function(obj) {
+    jqXHR.done(function (obj) {
       obj[prop].provisional_id = data[prop].provisional_id;
     });
   }
@@ -486,19 +486,19 @@ $.ajaxPrefilter(function( options, originalOptions, jqXHR ) {
     jqXHR.setRequestHeader("If-Match", (etags[originalOptions.url] || [])[0]);
     jqXHR.setRequestHeader("If-Unmodified-Since", (etags[originalOptions.url] || [])[1]);
     options.data = options.type.toUpperCase() === "DELETE" ? "" : JSON.stringify(data);
-    for(var i in data) {
-      if(data.hasOwnProperty(i) && data[i] && data[i].provisional_id) {
+    for (var i in data) {
+      if (data.hasOwnProperty(i) && data[i] && data[i].provisional_id) {
         attach_provisional_id(i);
       }
     }
   }
-  if( /^\/api\//.test(options.url) && (options.type.toUpperCase() === "GET")) {
+  if ( /^\/api\//.test(options.url) && (options.type.toUpperCase() === "GET")) {
     options.cache = false;
   }
-  if( /^\/api\/\w+/.test(options.url)) {
+  if ( /^\/api\/\w+/.test(options.url)) {
     jqXHR.setRequestHeader("X-Requested-By", "gGRC");
-    jqXHR.done(function(data, status, xhr) {
-      if(!/^\/api\/\w+\/\d+/.test(options.url) && options.type.toUpperCase() === "GET")
+    jqXHR.done(function (data, status, xhr) {
+      if (!/^\/api\/\w+\/\d+/.test(options.url) && options.type.toUpperCase() === "GET")
         return;
       switch(options.type.toUpperCase()) {
         case "GET":
@@ -506,8 +506,8 @@ $.ajaxPrefilter(function( options, originalOptions, jqXHR ) {
           etags[originalOptions.url] = [xhr.getResponseHeader("ETag"), xhr.getResponseHeader("Last-Modified")];
           break;
         case "POST":
-          for(var d in data) {
-            if(data.hasOwnProperty(d) && data[d].selfLink) {
+          for (var d in data) {
+            if (data.hasOwnProperty(d) && data[d].selfLink) {
               etags[data[d].selfLink] = [xhr.getResponseHeader("ETag"), xhr.getResponseHeader("Last-Modified")];
             }
           }
@@ -535,7 +535,7 @@ $.ajaxPrefilter(function( options, originalOptions, jqXHR ) {
   //  we have a default failure handler that should only be called if no other one is registered,
   //  unless it's also explicitly asked for.  If it's registered in a transformed one, though (after
   //  then() or pipe()), then the original one won't normally be notified of failure.
-  can.ajax = $.ajax = function(options) {
+  can.ajax = $.ajax = function (options) {
     var _ajax = _old_ajax.apply($, arguments);
 
     function setup(_new_ajax, _old_ajax) {
@@ -543,23 +543,23 @@ $.ajaxPrefilter(function( options, originalOptions, jqXHR ) {
       var _old_fail = _new_ajax.fail;
       var _old_pipe = _new_ajax.pipe;
       _old_ajax && (_new_ajax.hasFailCallback = _old_ajax.hasFailCallback);
-      _new_ajax.then = function() {
+      _new_ajax.then = function () {
         var _new_ajax = _old_then.apply(this, arguments);
-        if(arguments.length > 1) {
+        if (arguments.length > 1) {
           this.hasFailCallback = true;
-          if(_old_ajax)
-            _old_ajax.fail(function() {});
+          if (_old_ajax)
+            _old_ajax.fail(function () {});
         }
         setup(_new_ajax, this);
         return _new_ajax;
       };
-      _new_ajax.fail = function() {
+      _new_ajax.fail = function () {
         this.hasFailCallback = true;
-        if(_old_ajax)
-          _old_ajax.fail(function() {});
+        if (_old_ajax)
+          _old_ajax.fail(function () {});
         return _old_fail.apply(this, arguments);
       };
-      _new_ajax.pipe = function() {
+      _new_ajax.pipe = function () {
         var _new_ajax = _old_pipe.apply(this, arguments);
         setup(_new_ajax, this);
         return _new_ajax;
@@ -570,8 +570,8 @@ $.ajaxPrefilter(function( options, originalOptions, jqXHR ) {
     return _ajax;
   };
 
-  $(document).ajaxError(function(event, jqxhr, settings, exception) {
-    if(!jqxhr.hasFailCallback || settings.flashOnFail || (settings.flashOnFail == null && jqxhr.flashOnFail)) {
+  $(document).ajaxError(function (event, jqxhr, settings, exception) {
+    if (!jqxhr.hasFailCallback || settings.flashOnFail || (settings.flashOnFail == null && jqxhr.flashOnFail)) {
       // TODO: Import produced 'canceled' ajax flash message that needed handling. Will refactor once better method works.
       if (settings.url.indexOf("import") == -1 || exception !== 'canceled') {
         $(document.body).trigger(
@@ -584,16 +584,16 @@ $.ajaxPrefilter(function( options, originalOptions, jqXHR ) {
 })(jQuery);
 
 // dismiss non-expandable success flash messages
-$(document).ready(function() {
+$(document).ready(function () {
   // monitor target, where flash messages are added
   var target = $('section.content div.flash')[0];
-  var observer = new MutationObserver(function( mutations ) {
-    mutations.forEach(function( mutation ) {
+  var observer = new MutationObserver(function ( mutations ) {
+    mutations.forEach(function ( mutation ) {
       // check for new nodes
-      if( mutation.addedNodes !== null ) {
+      if ( mutation.addedNodes !== null ) {
         // remove the success message from non-expandable
         // flash success messages after five seconds
-        setTimeout(function() {
+        setTimeout(function () {
           $('.flash .alert-success').not(':has(ul.flash-expandable)').remove();
         }, 5000);
       }
@@ -613,21 +613,21 @@ $(document).ready(function() {
 
 
 //remove flash messages generated by python
-$(document).ready(function() {
-  setTimeout(function() {
+$(document).ready(function () {
+  setTimeout(function () {
     $('.flash .alert-success').not(':has(ul.flash-expandable)').remove();
   }, 5000);
 });
 
 
-jQuery(document).ready(function($) {
+jQuery(document).ready(function ($) {
   // TODO: Not AJAX friendly
-  $('.bar[data-percentage]').each(function() {
+  $('.bar[data-percentage]').each(function () {
     $(this).css({ width: $(this).data('percentage') + '%' });
   });
 });
 
-jQuery(document).ready(function($) {
+jQuery(document).ready(function ($) {
   // Monitor Bootstrap Tooltips to remove the tooltip if the triggering element
   // becomes hidden or removed.
   //
@@ -647,7 +647,7 @@ jQuery(document).ready(function($) {
       dataTooltip = $currentTarget.data('tooltip');
       $currentTip = dataTooltip && dataTooltip.$tip;
 
-      monitorFn = function() {
+      monitorFn = function () {
         dataTooltip = dataTooltip || $currentTarget.data('tooltip');
         $currentTip = $currentTip || (dataTooltip && dataTooltip.$tip);
 
@@ -666,14 +666,14 @@ jQuery(document).ready(function($) {
     }
   };
 
-  $('body').on('shown', '.modal', function() {
+  $('body').on('shown', '.modal', function () {
     $('.tooltip').hide();;
   });
 
   // Fix positioning of bootstrap tooltips when on left/right edge of screen
   // Possibly remove this when upgrade to Bootstrap 2.3.0 (which has edge detection)
   var _tooltip_show = $.fn.tooltip.Constructor.prototype.show;
-  $.fn.tooltip.Constructor.prototype.show = function() {
+  $.fn.tooltip.Constructor.prototype.show = function () {
     var margin = 10
       , container_width = document.width
       , tip_pos, $arrow, offset, return_value;
@@ -700,7 +700,7 @@ jQuery(document).ready(function($) {
   };
 
   // Listeners for initial tooltip mouseovers
-  $('body').on('mouseover', '[data-toggle="tooltip"], [rel=tooltip]', function(e) {
+  $('body').on('mouseover', '[data-toggle="tooltip"], [rel=tooltip]', function (e) {
     var $currentTarget = $(e.currentTarget);
 
     if (!$currentTarget.data('tooltip')) {
@@ -714,11 +714,11 @@ jQuery(document).ready(function($) {
 });
 
 // Setup for Popovers
-jQuery(document).ready(function($) {
+jQuery(document).ready(function ($) {
   var defaults = {
     delay: {show : 500, hide : 100},
     placement: 'left',
-    content: function(trigger) {
+    content: function (trigger) {
       var $trigger = $(trigger);
 
       var $el = $(new Spinner().spin().el);
@@ -734,22 +734,22 @@ jQuery(document).ready(function($) {
   };
 
   // Listeners for initial mouseovers for stick-hover
-  $('body').on('mouseover', '[data-popover-trigger="sticky-hover"]', function(e) {
+  $('body').on('mouseover', '[data-popover-trigger="sticky-hover"]', function (e) {
     // If popover instance doesn't exist already, create it and
     // force the 'enter' event.
     if (!$(e.currentTarget).data('sticky_popover')) {
       $(e.currentTarget)
         .sticky_popover($.extend({}, defaults, {
           trigger: 'sticky-hover'
-          , placement : function() {
+          , placement : function () {
             var $el = this.$element
               , spaceLeft = $(document).width() - ($el.offset().left + $el.width())
               , spaceRight = $el.offset().left
               , popover_size = 620;
             // Display on right if there is enough space
-            if($el.closest(".widget-area:first-child").length && spaceLeft > popover_size)
+            if ($el.closest(".widget-area:first-child").length && spaceLeft > popover_size)
               return "right";
-            else if(spaceRight > popover_size){
+            else if (spaceRight > popover_size){
               return "left";
             }
             return "top";
@@ -760,7 +760,7 @@ jQuery(document).ready(function($) {
   });
 
   // Listeners for initial clicks for popovers
-  $('body').on('click', 'a[data-popover-trigger="click"]', function(e) {
+  $('body').on('click', 'a[data-popover-trigger="click"]', function (e) {
     e.preventDefault();
     if (!$(e.currentTarget).data('sticky_popover')) {
       $(e.currentTarget)
@@ -770,20 +770,20 @@ jQuery(document).ready(function($) {
   });
 
   function showhide(upsel, downsel) {
-    return function(command) {
-      $(this).each(function() {
+    return function (command) {
+      $(this).each(function () {
         var $this = $(this)
             , $content = $this.closest(upsel).find(downsel)
             , cmd = command;
 
-        if(typeof cmd !== "string" || cmd === "toggle") {
+        if (typeof cmd !== "string" || cmd === "toggle") {
           cmd = $this.hasClass("active") ? "hide" : "show";
         }
 
-        if(cmd === "hide") {
+        if (cmd === "hide") {
           $content.slideUp();
           $this.removeClass("active");
-        } else if(cmd === "show") {
+        } else if (cmd === "show") {
           $content.slideDown();
           $this.addClass("active");
         }
@@ -804,7 +804,7 @@ jQuery(document).ready(function($) {
   $('body').on('click', '.tree-structure .oneline, .tree-structure .description, .tree-structure .view-more', oneline);
 
   function oneline(command) {
-    $(this).each(function() {
+    $(this).each(function () {
       var $this = $(this)
         , $leaf = $this.closest('[class*=span]').parent().children("[class*=span]:first")
         , $title = $leaf.find('.oneline')
@@ -814,18 +814,18 @@ jQuery(document).ready(function($) {
         ;
 
       if ($description.length > 0) {
-        if(typeof cmd !== "string") {
+        if (typeof cmd !== "string") {
           cmd = $description.hasClass("in") ? "hide" : "view";
         }
 
-        if(cmd === "view") {
+        if (cmd === "view") {
           $description.addClass('in');
           $title.find('.description-inline').addClass('out');
           if ($title.is('.description-only')) {
             $title.addClass('out');
           }
           $view.text('hide');
-        } else if(cmd === "hide") {
+        } else if (cmd === "hide") {
           $description.removeClass('in');
           $title.find('.description-inline').removeClass('out');
           if ($title.is('.description-only')) {
@@ -842,15 +842,15 @@ jQuery(document).ready(function($) {
   $.fn.oneline = oneline;
 
   // Close other popovers when one is shown
-  $('body').on('show.popover', function(e) {
-    $('[data-sticky_popover]').each(function() {
+  $('body').on('show.popover', function (e) {
+    $('[data-sticky_popover]').each(function () {
       var popover = $(this).data('sticky_popover');
       popover && popover.hide();
     });
   });
 
   // Close all popovers on custom event
-  $('body').on('kill-all-popovers', function(e) {
+  $('body').on('kill-all-popovers', function (e) {
     // FIXME: This may be incompatible with bootstrap popover assumptions...
     // This is when the triggering element has been removed from the DOM
     // so we have to kill the popover elements themselves.
@@ -858,14 +858,14 @@ jQuery(document).ready(function($) {
   });
 });
 
-jQuery(function($) {
+jQuery(function ($) {
   // tree
 
-  $('body').on('click', 'ul.tree .item-title', function(e) {
+  $('body').on('click', 'ul.tree .item-title', function (e) {
     var $this = $(this),
         $content = $this.closest('li').find('.item-content');
 
-    if($this.hasClass("active")) {
+    if ($this.hasClass("active")) {
       $content.slideUp('fast');
       $this.removeClass("active");
     } else {
@@ -878,7 +878,7 @@ jQuery(function($) {
 
   // tree-structure
 
-  $('body').on('click', 'ul.tree-structure .item-main .grcobject, ul.tree-structure .item-main .openclose', function(e) {
+  $('body').on('click', 'ul.tree-structure .item-main .grcobject, ul.tree-structure .item-main .openclose', function (e) {
     openclose.call(this);
     e.stopPropagation();
   });
@@ -887,7 +887,7 @@ jQuery(function($) {
     var $that = $(this)
     , use_slide = $that.length < 100
 
-    $that.each(function(){
+    $that.each(function (){
       var $this = $(this)
         , $main = $this.closest('.item-main')
         , $li = $main.closest('li')
@@ -898,12 +898,12 @@ jQuery(function($) {
         , callback
         ;
 
-      callback = function() {
+      callback = function () {
         //  Trigger update for sticky headers and footers
         $this.trigger("updateSticky");
       };
 
-      if(typeof cmd !== "string" || cmd === "toggle") {
+      if (typeof cmd !== "string" || cmd === "toggle") {
         cmd = $icon.hasClass("active") ? "close" : "open";
       }
 
@@ -919,7 +919,7 @@ jQuery(function($) {
         // Only remove tree open if there are no open siblings
         !$li.siblings('.item-open').length && $parentTree.removeClass('tree-open');
         $content.removeClass('content-open');
-      } else if(cmd === "open") {
+      } else if (cmd === "open") {
         if (use_slide) {
           $content.slideDown('fast', callback);
         } else {
@@ -941,10 +941,10 @@ jQuery(function($) {
 
 });
 
-$(window).load(function(){
+$(window).load(function (){
   // affix setup
-  $(window).scroll(function(){
-    if($('.header-content').hasClass('affix')) {
+  $(window).scroll(function (){
+    if ($('.header-content').hasClass('affix')) {
       $('.header-content').next('.content').addClass('affixed');
     } else {
       $('.header-content').next('.content').removeClass('affixed');
@@ -952,7 +952,7 @@ $(window).load(function(){
   });
 
   // Google Circle CTA Button
-  $('body').on('mouseenter', '.square-trigger', function() {
+  $('body').on('mouseenter', '.square-trigger', function () {
     var $this = $(this),
         $popover = $this.closest('.circle-holder').find('.square-popover');
 
@@ -960,7 +960,7 @@ $(window).load(function(){
     $this.addClass("active");
     return false;
   });
-  $('body').on('mouseleave', '.square-popover', function() {
+  $('body').on('mouseleave', '.square-popover', function () {
     var $this = $(this),
         $trigger = $this.closest('.circle-holder').find('.square-trigger');
 
@@ -971,8 +971,8 @@ $(window).load(function(){
   });
 
   // References popup preview
-  $('body').on('mouseenter', '.new-tree .tree-info a.reference', function() {
-    if($(this).width() > $('.new-tree .tree-info').width()) {
+  $('body').on('mouseenter', '.new-tree .tree-info a.reference', function () {
+    if ($(this).width() > $('.new-tree .tree-info').width()) {
       $(this).addClass('shrink-it');
     }
   });
@@ -980,7 +980,7 @@ $(window).load(function(){
   // Popover trigger for person tooltip in styleguide
   // The popover disappears if the show/hide isn't controlled manually
   var last_popover;
-  $('body').on('mouseenter', '.person-tooltip-trigger', function(ev) {
+  $('body').on('mouseenter', '.person-tooltip-trigger', function (ev) {
     var target = $(ev.currentTarget),
         content = target.closest('.person-holder').find('.custom-popover-content').html();
 
@@ -993,7 +993,7 @@ $(window).load(function(){
           html: true
         , delay: { show: 400, hide: 200 }
         , trigger: 'manual'
-        , content: function() {
+        , content: function () {
             return content;
           }
       });
@@ -1019,7 +1019,7 @@ $(window).load(function(){
 
     last_popover = popover;
   });
-  $('body').on('mouseenter', '.popover', function(ev) {
+  $('body').on('mouseenter', '.popover', function (ev) {
     // Refresh the popover
     if (last_popover && last_popover.tip().is(':visible')) {
       ev.currentTarget = last_popover.$element[0];
@@ -1027,7 +1027,7 @@ $(window).load(function(){
       last_popover.hoverState = 'in';
     }
   });
-  $('body').on('mouseleave', '.person-holder, .person-tooltip-trigger, .popover, .popover .square-popover', function(ev) {
+  $('body').on('mouseleave', '.person-holder, .person-tooltip-trigger, .popover, .popover .square-popover', function (ev) {
     var target = $(ev.currentTarget)
       , popover
       ;
@@ -1052,8 +1052,8 @@ $(window).load(function(){
   });
 
   // Tab indexing form fields in modal
-  $('body').on('focus', '.modal', function() {
-    $('.wysiwyg-area').each(function() {
+  $('body').on('focus', '.modal', function () {
+    $('.wysiwyg-area').each(function () {
       var $this = $(this),
           $textarea = $this.find('textarea.wysihtml5').attr('tabindex'),
           $descriptionField = $this.find('iframe.wysihtml5-sandbox');
@@ -1066,9 +1066,9 @@ $(window).load(function(){
   });
 
   // Prevent link popup in code mode
-  $('body').on('click', 'a[data-wysihtml5-command=popupCreateLink]', function(e){
+  $('body').on('click', 'a[data-wysihtml5-command=popupCreateLink]', function (e){
     var $this = $(this);
-    if($this.hasClass('disabled')){
+    if ($this.hasClass('disabled')){
       // The button is disabled, close the modal immediately
       $('body').find('.bootstrap-wysihtml5-insert-link-modal').modal('hide');
       $this.closest('.wysiwyg-area').find('textarea').focus()
@@ -1076,7 +1076,7 @@ $(window).load(function(){
   });
 
   // Watermark trigger
-  $('body').on('click', '.watermark-trigger', function() {
+  $('body').on('click', '.watermark-trigger', function () {
     var $this = $(this),
         $showWatermark = $this.closest('.tree-item').find('.watermark-icon');
 
@@ -1097,12 +1097,12 @@ $(window).load(function(){
         win = $(window),
         win_width = win.width();
 
-    if(win_width - offset.left < 322) {
+    if (win_width - offset.left < 322) {
       $dropdown.addClass("right-pos");
     } else {
       $dropdown.removeClass("right-pos");
     }
-    if($menu_item.length === 1) {
+    if ($menu_item.length === 1) {
       $dropdown.addClass("one-item");
     } else {
       $dropdown.removeClass("one-item");
@@ -1111,8 +1111,8 @@ $(window).load(function(){
   $(".dropdown-toggle").on("click", dropdownPosition);
 });
 
-jQuery(function($){
-  $.fn.cms_wysihtml5 = function() {
+jQuery(function ($){
+  $.fn.cms_wysihtml5 = function () {
 
     if ($(this).data('_wysihtml5_initialized'))
       return;
@@ -1125,15 +1125,15 @@ jQuery(function($){
         'font-styles': false,
         parserRules: wysihtml5ParserRules });
 
-    this.each(function() {
+    this.each(function () {
       var $that = $(this)
       , editor = $that.data("wysihtml5").editor
       , $textarea = $(editor.textarea.element);
 
-      if($that.data("cms_events_bound"))
+      if ($that.data("cms_events_bound"))
         return;
 
-      editor.on("change", function(data) {
+      editor.on("change", function (data) {
         $that.html(this.getValue()).trigger("change");
       });
 
@@ -1142,7 +1142,7 @@ jQuery(function($){
         , minHeight : 100
         , alsoResize : "#" + $that.uniqueId().attr("id") + ", #" + $that.closest(".wysiwyg-area").uniqueId().attr("id") + " iframe"
         , autoHide : false
-      }).bind("resizestop", function(ev) {
+      }).bind("resizestop", function (ev) {
         ev.stopPropagation();
         $that.css({"display" : "block", "height" : $that.height() + 20}); //10px offset between reported height and styled height.
         $textarea.css('width', $textarea.width()+20);
@@ -1152,7 +1152,7 @@ jQuery(function($){
       var $sandbox = $wysiarea.find(".wysihtml5-sandbox");
 
       $($sandbox.prop("contentWindow"))
-      .bind("mouseover mousemove mouseup", function(ev) {
+      .bind("mouseover mousemove mouseup", function (ev) {
         var e = new $.Event(ev.type === "mouseup" ? "mouseup" : "mousemove"); //jQUI resize listens on this.
         e.pageX = $sandbox.offset().left + ev.pageX;
         e.pageY = $sandbox.offset().top + ev.pageY;
@@ -1165,19 +1165,19 @@ jQuery(function($){
     return this;
   };
 
-  $(document.body).on("shown", ".bootstrap-wysihtml5-insert-link-modal", function(e) {
+  $(document.body).on("shown", ".bootstrap-wysihtml5-insert-link-modal", function (e) {
     $(this).draggable({ handle : ".modal-header"})
     .find(".modal-header [data-dismiss='modal']").css("opacity", 1);
   });
 
-  $(document.body).on("change", ".rotate_control_assessment", function(ev) {
-    ev.currentTarget.click(function() {
+  $(document.body).on("change", ".rotate_control_assessment", function (ev) {
+    ev.currentTarget.click(function () {
       ev.currentTarget.toggle();
     });
   });
 });
 
-jQuery(function($){
+jQuery(function ($){
   var MAX_RESULTS = 20;
   $.widget(
     "ggrc.autocomplete",
@@ -1185,15 +1185,15 @@ jQuery(function($){
     {
       options: {
         // Ensure that the input.change event still occurs
-        change: function(event, ui) {
-          if(!$(event.target).parents(document.body).length)
+        change: function (event, ui) {
+          if (!$(event.target).parents(document.body).length)
             console.warn("autocomplete menu change event is coming from detached nodes");
           $(event.target).trigger("change");
         },
 
         minLength: 0,
 
-        source: function(request, response) {
+        source: function (request, response) {
           // Search based on the term
           var query = request.term || '',
               queue = new RefreshQueue(),
@@ -1205,7 +1205,7 @@ jQuery(function($){
             query = '"' + query + '"';
 
           this.last_request = request;
-          if(is_next_page) {
+          if (is_next_page) {
             dfd = $.when(this.last_stubs);
           } else {
             request.start = 0;
@@ -1215,17 +1215,17 @@ jQuery(function($){
           this.options.controller.bindXHRToButton(
             // Retrieve full people data
 
-          dfd.then(function(objects) {
+          dfd.then(function (objects) {
             that.last_stubs = objects;
-            can.each(objects.slice(request.start, request.start + MAX_RESULTS), function(object) {
+            can.each(objects.slice(request.start, request.start + MAX_RESULTS), function (object) {
               queue.enqueue(object);
             });
-            queue.trigger().then(function(objs) {
+            queue.trigger().then(function (objs) {
               objs = that.options.apply_filter.call(that, objs, request);
-              if(objs.length || is_next_page) {
+              if (objs.length || is_next_page) {
                 // Envelope the object to not break model instance due to
                 // shallow copy done by jQuery in `response()`
-                objs = can.map(objs, function(obj) { return { item: obj }; });
+                objs = can.map(objs, function (obj) { return { item: obj }; });
                 response(objs);
               } else {
                 // show the no-results option iff no results come through here,
@@ -1237,17 +1237,17 @@ jQuery(function($){
           }), $(this.element), null, false);
         },
 
-        apply_filter: function(objects) {
+        apply_filter: function (objects) {
           return objects;
         },
 
-        source_for_refreshable_objects: function(request) {
+        source_for_refreshable_objects: function (request) {
           var that = this;
 
           if (this.options.searchlist) {
-            return this.options.searchlist.then(function() {
+            return this.options.searchlist.then(function () {
               var filtered_list = [];
-              return $.map(arguments, function(item) {
+              return $.map(arguments, function (item) {
                 if (!item) {
                   return;
                 }
@@ -1275,10 +1275,10 @@ jQuery(function($){
               this.options.searchtypes,
               this.options.search_params
             )
-            .then(function(search_result) {
+            .then(function (search_result) {
               var objects = [];
 
-              can.each(that.options.searchtypes, function(searchtype) {
+              can.each(that.options.searchtypes, function (searchtype) {
                 objects.push.apply(
                   objects, search_result.getResultsForType(searchtype));
               });
@@ -1286,26 +1286,26 @@ jQuery(function($){
             });
         },
 
-        select: function(ev, ui) {
+        select: function (ev, ui) {
           var original_event,
               that = this,
               ctl = $(this).data($(this).data("autocomplete-widget-name")).options.controller
               ;
 
-          if(ui.item) {
+          if (ui.item) {
             return ctl.autocomplete_select($(this), ev, ui);
           } else {
             original_event = event;
-            $(document.body).off(".autocomplete").one("modal:success.autocomplete", function(_ev, new_obj) {
+            $(document.body).off(".autocomplete").one("modal:success.autocomplete", function (_ev, new_obj) {
               ctl.autocomplete_select($(that), original_event, { item : new_obj });
               $(that).trigger("modal:success", new_obj);
-            }).one("hidden", function() {
-              setTimeout(function() {
+            }).one("hidden", function () {
+              setTimeout(function () {
                 $(this).off(".autocomplete");
               }, 100);
             });
-            while(original_event = original_event.originalEvent) {
-              if(original_event.type === "keydown") {
+            while (original_event = original_event.originalEvent) {
+              if (original_event.type === "keydown") {
                 //This selection event was generated from a keydown, so click the add new link.
                 var widget_name = el.data("autocompleteWidgetName");
                 el.data(widget_name).menu.active.find("a").click();
@@ -1316,13 +1316,13 @@ jQuery(function($){
           }
         },
 
-        close: function() {
+        close: function () {
           delete this.scroll_op_in_progress;
           //$that.val($that.attr("value"));
         }
       },
 
-      _create: function() {
+      _create: function () {
         var that = this,
             $that = $(this.element),
             base_search = $that.data("lookup"),
@@ -1335,12 +1335,12 @@ jQuery(function($){
 
         $that.data("autocomplete-widget-name", this.widgetFullName);
 
-        $that.focus(function() {
+        $that.focus(function () {
           $(this).data(that.widgetFullName).search($(this).val());
         });
 
         if (from_list) {
-          this.options.searchlist = $.when.apply(this, $.map(from_list.list, function(item) {
+          this.options.searchlist = $.when.apply(this, $.map(from_list.list, function (item) {
             var props = base_search.trim().split('.');
             return item.instance.refresh_all.apply(item.instance, props);
           }));
@@ -1351,12 +1351,12 @@ jQuery(function($){
               this.options.parent_instance.constructor.shortName
               );
             if (base_search.indexOf("__mappable") === 0) {
-              searchtypes = can.map(searchtypes, function(mapping) {
+              searchtypes = can.map(searchtypes, function (mapping) {
                 return mapping instanceof GGRC.ListLoaders.ProxyListLoader ? mapping : undefined;
               });
             }
             if (base_search.indexOf("_except:")) {
-              can.each(base_search.substr(base_search.indexOf("_except:") + 8).split(","), function(remove) {
+              can.each(base_search.substr(base_search.indexOf("_except:") + 8).split(","), function (remove) {
                 delete searchtypes[remove];
               });
             }
@@ -1365,13 +1365,13 @@ jQuery(function($){
             searchtypes = base_search.split(",");
           }
 
-          this.options.searchtypes = can.map(searchtypes, function(t) {
+          this.options.searchtypes = can.map(searchtypes, function (t) {
             return CMS.Models[t].model_singular;
           });
         }
       },
 
-      _setup_menu_context : function(items) {
+      _setup_menu_context : function (items) {
           var model_class = this.element.data("lookup")
 
             , model = CMS.Models[model_class || this.element.data("model")]
@@ -1382,11 +1382,11 @@ jQuery(function($){
             model_class: model_class,
             model : model,
             // Reverse the enveloping we did 25 lines up
-            items: can.map(items, function(item) { return item.item; }),
+            items: can.map(items, function (item) { return item.item; }),
           };
       },
 
-      _renderMenu: function(ul, items) {
+      _renderMenu: function (ul, items) {
         var template = this.element.data("template"),
           context = new can.Observe(this._setup_menu_context(items)),
           model = context.model,
@@ -1395,7 +1395,7 @@ jQuery(function($){
           ;
 
         if (!template) {
-          if(model && GGRC.Templates[model.table_plural + "/autocomplete_result"]) {
+          if (model && GGRC.Templates[model.table_plural + "/autocomplete_result"]) {
             template = '/' + model.table_plural + '/autocomplete_result.mustache';
           } else {
             template = '/base_objects/autocomplete_result.mustache';
@@ -1403,8 +1403,8 @@ jQuery(function($){
         }
 
         $ul.unbind("scrollNext")
-        .bind("scrollNext", function(ev, data) {
-          if(that.scroll_op_in_progress) {
+        .bind("scrollNext", function (ev, data) {
+          if (that.scroll_op_in_progress) {
             return;
           }
           that.scroll_op_in_progress = true;
@@ -1412,10 +1412,10 @@ jQuery(function($){
           that.last_request.start = that.last_request.start || 0;
           that.last_request.start += MAX_RESULTS;
           context.attr("items_loading", true);
-          that.source(that.last_request, function(items) {
-            context.items.push.apply(context.items, can.map(items, function(item) { return item.item; }));
+          that.source(that.last_request, function (items) {
+            context.items.push.apply(context.items, can.map(items, function (item) { return item.item; }));
             context.removeAttr("items_loading");
-            setTimeout(function() {
+            setTimeout(function () {
               delete that.scroll_op_in_progress;
             }, 10);
           });
@@ -1424,7 +1424,7 @@ jQuery(function($){
         can.view.render(
           GGRC.mustache_path + template,
           context,
-          function(frag) {
+          function (frag) {
             $ul.html(frag);
             $ul.cms_controllers_lhn_tooltips().cms_controllers_infinite_scroll();
             can.view.hookup(ul);
@@ -1435,7 +1435,7 @@ jQuery(function($){
 
   $.widget("ggrc.mapping_autocomplete", $.ggrc.autocomplete, {
     options: {
-      source_for_refreshable_objects: function(request) {
+      source_for_refreshable_objects: function (request) {
         var $el = $(this.element),
           mapping = this.options.controller.options;
 
@@ -1445,12 +1445,12 @@ jQuery(function($){
           mapping = inst.source_mapping;
         }
 
-        return $.when(can.map(mapping, function(binding) {
+        return $.when(can.map(mapping, function (binding) {
           return binding.instance;
         }));
       },
-      apply_filter: function(objects, request) {
-        return can.map(objects, function(object) {
+      apply_filter: function (objects, request) {
+        return can.map(objects, function (object) {
           if (!request.term || object.title && ~object.title.indexOf(request.term))
             return object;
           else
@@ -1458,7 +1458,7 @@ jQuery(function($){
         });
       }
     },
-      _setup_menu_context : function(items) {
+      _setup_menu_context : function (items) {
         return $.extend(this._super(items), {
           mapping : this.options.mapping == null ? this.element.data("mapping") : this.options.mapping
         });
@@ -1466,7 +1466,7 @@ jQuery(function($){
   });
   $.widget.bridge("ggrc_mapping_autocomplete", $.ggrc.mapping_autocomplete);
 
-  $.cms_autocomplete = function(el) {
+  $.cms_autocomplete = function (el) {
     var ctl = this;
     // Add autocomplete to the owner field
     ($(el) || this.element.find('input[data-lookup]'))
@@ -1476,17 +1476,17 @@ jQuery(function($){
 
 });
 
-jQuery(function($) {
+jQuery(function ($) {
   // Trigger compilation of any remaining preloaded Mustache templates for
   // faster can.view() response time.
 
-  setTimeout(function() {
+  setTimeout(function () {
 
     GGRC.queue_event(
-      can.map(GGRC.Templates, function(template, id) {
+      can.map(GGRC.Templates, function (template, id) {
         var key = can.view.toId(GGRC.mustache_path + "/" + id + ".mustache");
-        if(!can.view.cachedRenderers[key]) {
-          return function() {
+        if (!can.view.cachedRenderers[key]) {
+          return function () {
             can.view.mustache(key, template);
           };
         }
@@ -1496,7 +1496,7 @@ jQuery(function($) {
 
 });
 
-(function($) {
+(function ($) {
 
   window.getPageToken = function getPageToken() {
       return $(document.body).data("page-subtype")
@@ -1510,8 +1510,8 @@ jQuery(function($) {
 //  having no content when outside spaces are trimmed away.
 can.Model.validationMessages.non_blank = can.Map.validationMessages.non_blank = "cannot be blank";
 
-can.Model.validateNonBlank = can.Map.validateNonBlank = function(attrNames, options) {
-    can.Map.validate.call(this, attrNames, options, function(value) {
+can.Model.validateNonBlank = can.Map.validateNonBlank = function (attrNames, options) {
+    can.Map.validate.call(this, attrNames, options, function (value) {
         if (typeof value === 'undefined' || value === null || typeof value.trim === "function" && value.trim() === '') {
             return this.constructor.validationMessages.non_blank;
         }
@@ -1523,5 +1523,5 @@ can.Model.validateNonBlank = can.Map.validateNonBlank = function(attrNames, opti
 //  adding it here for easy universal use across can.List
 //  as well as arrays.
 can.reduce ||
-  (can.reduce = function(a, f, i) { if(a==null) return null; return [].reduce.apply(a, arguments.length < 3 ? [f] : [f, i]) });
+  (can.reduce = function (a, f, i) { if (a==null) return null; return [].reduce.apply(a, arguments.length < 3 ? [f] : [f, i]) });
 })(window.jQuery);

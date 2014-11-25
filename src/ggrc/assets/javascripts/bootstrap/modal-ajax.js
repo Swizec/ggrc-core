@@ -10,7 +10,7 @@
 //= require jquery-migrate
 //= require jquery-ui
 
-!function($) {
+!function ($) {
 
   "use strict"; // jshint ;_;
 
@@ -52,16 +52,16 @@
   }
 
   var handlers = {
-    'modal': function($target, $trigger, option) {
+    'modal': function ($target, $trigger, option) {
       $target.modal(option).draggable({ handle: '.modal-header' });
     },
 
-    'listform': function($target, $trigger, option) {
+    'listform': function ($target, $trigger, option) {
       var list_target = $trigger.data('list-target');
       $target.modal_relationship_selector(option, $trigger);
 
       // Close the modal and rewrite the target list
-      $target.on('ajax:json', function(e, data, xhr) {
+      $target.on('ajax:json', function (e, data, xhr) {
         if (data.errors) {
         } else if (list_target == 'refresh') {
           refresh_page();
@@ -72,14 +72,14 @@
       });
     },
 
-    'listnewform': function($target, $trigger, option) {
+    'listnewform': function ($target, $trigger, option) {
       $target.modal_form(option, $trigger);
       var list_target = $trigger.data('list-target')
         , selector_target = $trigger.data('selector-target')
         ;
 
       // Close the modal and append to the target list
-      $target.on('ajax:json', function(e, data, xhr) {
+      $target.on('ajax:json', function (e, data, xhr) {
         if (data.errors) {
         } else {
           if (list_target) {
@@ -94,14 +94,14 @@
       });
     },
 
-    'listeditform': function($target, $trigger, option) {
+    'listeditform': function ($target, $trigger, option) {
       $target.modal_form(option, $trigger);
       var list_target = $trigger.data('list-target')
         , selector_target = $trigger.data('selector-target')
         ;
 
       // Close the modal and append to the target list
-      $target.on('ajax:json', function(e, data, xhr) {
+      $target.on('ajax:json', function (e, data, xhr) {
         if (data.errors) {
         } else {
           if (list_target) {
@@ -116,23 +116,23 @@
       });
     },
 
-    'deleteform': function($target, $trigger, option) {
+    'deleteform': function ($target, $trigger, option) {
       var form_target = $trigger.data('form-target')
         , model = CMS.Models[$trigger.attr("data-object-singular")]
         , instance
         , delete_counts = new can.Observe({loading: true, counts: ""})
         ;
 
-      if($trigger.attr('data-object-id') === "page") {
+      if ($trigger.attr('data-object-id') === "page") {
         instance = GGRC.page_instance();
       } else {
         instance = model.findInCacheById($trigger.attr('data-object-id'));
       }
 
-      instance.get_orphaned_count().done(function(counts){
+      instance.get_orphaned_count().done(function (counts){
           delete_counts.attr('loading', false);
           delete_counts.attr('counts', counts);
-        }).fail(function(){
+        }).fail(function (){
           delete_counts.attr('loading', false);
       });
 
@@ -150,9 +150,9 @@
         , content_view : GGRC.mustache_path + "/base_objects/confirm_delete.mustache"
       });
 
-      $target.on('modal:success', function(e, data) {
+      $target.on('modal:success', function (e, data) {
         var model_name = $trigger.attr("data-object-plural").toLowerCase();
-        if($trigger.attr('data-object-id') === "page" || (instance === GGRC.page_instance())) {
+        if ($trigger.attr('data-object-id') === "page" || (instance === GGRC.page_instance())) {
           GGRC.navigate('/dashboard');
         } else if (model_name  == 'people' || model_name  == 'roles') {
           window.location.assign('/admin#' + model_name + "_list_widget");
@@ -164,12 +164,12 @@
       });
     },
 
-    'unmapform': function($target, $trigger, option) {
+    'unmapform': function ($target, $trigger, option) {
       var form_target = $trigger.data('form-target')
       , object_params = $trigger.attr('data-object-params')
       , model = CMS.Models[$trigger.attr("data-object-singular")]
       , instance;
-      if($trigger.attr('data-object-id') === "page") {
+      if ($trigger.attr('data-object-id') === "page") {
         instance = GGRC.page_instance();
       } else {
         instance = model.findInCacheById($trigger.attr('data-object-id'));
@@ -193,16 +193,16 @@
         , content_view : $trigger.attr('data-content-view') || (GGRC.mustache_path + "/base_objects/confirm_unmap.mustache")
       });
 
-      $target.on('modal:success', function(e, data) {
-        $trigger.children(".result").each(function(i, result_el) {
+      $target.on('modal:success', function (e, data) {
+        $trigger.children(".result").each(function (i, result_el) {
           var $result_el = $(result_el)
             , result = $result_el.data('result')
             , mappings = result && result.get_mappings()
             , i
             ;
 
-          can.each(mappings, function(mapping) {
-            mapping.refresh().done(function() {
+          can.each(mappings, function (mapping) {
+            mapping.refresh().done(function () {
               if (mapping instanceof CMS.Models.Control) {
                 mapping.removeAttr('directive');
                 mapping.save();
@@ -216,13 +216,13 @@
       });
     },
 
-    'form': function($target, $trigger, option) {
+    'form': function ($target, $trigger, option) {
       var form_target = $trigger.data('form-target')
       , object_params = $trigger.attr('data-object-params')
       , model = CMS.Models[$trigger.attr("data-object-singular")] || CMS.ModelHelpers[$trigger.attr("data-object-singular")]
       , mapping = $trigger.data('mapping')
       , instance;
-      if($trigger.attr('data-object-id') === "page") {
+      if ($trigger.attr('data-object-id') === "page") {
         instance = GGRC.page_instance();
       } else {
         instance = model.findInCacheById($trigger.attr('data-object-id'));
@@ -255,13 +255,13 @@
         , mapping : mapping
       });
 
-      $target.on('modal:success', function(e, data, xhr) {
+      $target.on('modal:success', function (e, data, xhr) {
         if (form_target == 'refresh') {
           refresh_page();
         } else if (form_target == 'redirect') {
           if (typeof xhr !== 'undefined' && "getResponseHeader" in xhr) {
             GGRC.navigate(xhr.getResponseHeader('location'));
-          } else if(data._redirect) {
+          } else if (data._redirect) {
             GGRC.navigate(data._redirect);
           } else {
             GGRC.navigate(data.selfLink.replace('/api', ''));
@@ -271,13 +271,13 @@
         } else {
           var dirty;
           $target.modal_form('hide');
-          if($trigger.data("dirty")) {
-            dirty = $($trigger.data("dirty").split(",")).map(function(i, val) {
+          if ($trigger.data("dirty")) {
+            dirty = $($trigger.data("dirty").split(",")).map(function (i, val) {
               return '[href="' + val.trim() + '"]';
             }).get().join(",");
             $(dirty).data('tab-loaded', false);
           }
-          if(dirty) {
+          if (dirty) {
             var $active = $(dirty).filter(".active [href]");
             $active.closest(".active").removeClass("active");
             $active.click();
@@ -288,16 +288,16 @@
       });
     },
 
-    'helpform' : function($target, $trigger, option) {
+    'helpform' : function ($target, $trigger, option) {
       $target.modal_form(option, $trigger).ggrc_controllers_help({ slug : $trigger.attr('data-help-slug') });
     }
 
   };
 
 
-  var arrangeBackgroundModals = function(modals, referenceModal) {
+  var arrangeBackgroundModals = function (modals, referenceModal) {
     modals = $(modals).not(referenceModal);
-    if(modals.length < 1) return;
+    if (modals.length < 1) return;
 
     var $header = referenceModal.find(".modal-header");
     var header_height = $header.height() + parseInt($header.css("padding-top")) + parseInt($header.css("padding-bottom"));
@@ -305,23 +305,23 @@
 
     modals.css({
         "overflow" : "hidden"
-      , "height" : function() {
+      , "height" : function () {
           return header_height;
         }
-      , "top" : function(i) {
+      , "top" : function (i) {
         return _top - (modals.length - i) * (header_height);
       }
       , "margin-top" : 0
       , 'position' : "absolute"
     })
     modals.off("scroll.modalajax");
-    modals.on("scroll.modalajax", function() {
+    modals.on("scroll.modalajax", function () {
         $(this).scrollTop(0); //fix for Chrome rendering bug when resizing block elements containing CSS sprites.
     });
   }
 
-  var arrangeTopModal = function(modals, modal) {
-    if(!modal || !modal.length)
+  var arrangeTopModal = function (modals, modal) {
+    if (!modal || !modal.length)
       return;
 
     var $header = modal.find(".modal-header:first");
@@ -331,7 +331,7 @@
     var _scrollY = 0;
     var _top = 0;
     var _left = modal.position().left;
-    if(!offsetParent.length || offsetParent.is("html, body")) {
+    if (!offsetParent.length || offsetParent.is("html, body")) {
       offsetParent = $(window);
       _scrollY = window.scrollY;
       _top = _scrollY
@@ -353,33 +353,33 @@
   }
 
   var _modal_show = $.fn.modal.Constructor.prototype.show;
-  $.fn.modal.Constructor.prototype.show = function() {
+  $.fn.modal.Constructor.prototype.show = function () {
     var that = this;
     var $el = this.$element;
     var shownevents, keyevents;
-    if(!(shownevents = $._data($el[0], "events").shown)
-        || $(shownevents).filter(function() {
+    if (!(shownevents = $._data($el[0], "events").shown)
+        || $(shownevents).filter(function () {
             return $.inArray("arrange", this.namespace.split(".")) > -1;
         }).length < 1) {
-          $el.on("shown.arrange, loaded.arrange", function(ev) {
-            if(ev.target === ev.currentTarget)
+          $el.on("shown.arrange, loaded.arrange", function (ev) {
+            if (ev.target === ev.currentTarget)
                 reconfigureModals.call(that);
           });
     }
 
-    if($el.is("body > * *")) {
+    if ($el.is("body > * *")) {
       this.$cloneEl = $("<div>").appendTo($el.parent());
-      can.each($el[0].attributes, function(attr) {
+      can.each($el[0].attributes, function (attr) {
         that.$cloneEl.attr(attr.name, attr.value);
       });
       $el.find("*").uniqueId();
       this.$cloneEl.html($el.html());
       $el.detach().appendTo(document.body);
-      this.$cloneEl.removeAttr("id").find("*").attr("data-original-id", function() {
+      this.$cloneEl.removeAttr("id").find("*").attr("data-original-id", function () {
         return this.id;
       }).removeAttr("id");
 
-      $el.on(["click", "mouseup", "keypress", "keydown", "keyup", "show", "shown", "hide", "hidden"].join(".clone ") + ".clone", function(e) {
+      $el.on(["click", "mouseup", "keypress", "keydown", "keyup", "show", "shown", "hide", "hidden"].join(".clone ") + ".clone", function (e) {
         that.$cloneEl
         ? that.$cloneEl.find("[data-original-id=" + e.target.id + "]").trigger(new $.Event(e))
         : $el.off(".clone");
@@ -388,26 +388,26 @@
 
 
     // prevent form submissions when descendant elements are also modals.
-    if(!(keyevents = $._data($el[0], "events").keypress)
-        || $(keyevents).filter(function() {
+    if (!(keyevents = $._data($el[0], "events").keypress)
+        || $(keyevents).filter(function () {
             return $.inArray("preventdoublesubmit", this.namespace.split(".")) > -1;
           }).length < 1) {
-      $el.on('keypress.preventdoublesubmit', function(ev) {
-        if(ev.which === 13 && !$(document.activeElement).hasClass('wysihtml5')) {
+      $el.on('keypress.preventdoublesubmit', function (ev) {
+        if (ev.which === 13 && !$(document.activeElement).hasClass('wysihtml5')) {
           ev.preventDefault();
-          if(ev.originalEvent) {
+          if (ev.originalEvent) {
             ev.originalEvent.preventDefault();
           }
           return false;
         }
       });
     }
-    if(!(keyevents = $._data($el[0], "events").keyup)
-        || $(keyevents).filter(function() {
+    if (!(keyevents = $._data($el[0], "events").keyup)
+        || $(keyevents).filter(function () {
             return $.inArray("preventdoubleescape", this.namespace.split(".")) > -1;
           }).length < 1) {
-      $el.on('keyup.preventdoubleescape', function(ev) {
-       if(ev.which === 27 && $(ev.target).closest(".modal").length) {
+      $el.on('keyup.preventdoubleescape', function (ev) {
+       if (ev.which === 27 && $(ev.target).closest(".modal").length) {
           $(ev.target).closest(".modal").attr("tabindex", -1).focus();
           ev.stopPropagation();
           ev.originalEvent && ev.originalEvent.stopPropagation();
@@ -415,23 +415,23 @@
         }
       });
       $el.attr("tabindex") || $el.attr("tabindex", -1);
-      setTimeout(function() { $el.focus(); }, 1);
+      setTimeout(function () { $el.focus(); }, 1);
     }
 
     _modal_show.apply(this, arguments);
     //reconfigureModals.call(this);   //handled by modal shown event firing.
   };
 
-  var reconfigureModals = function() {
+  var reconfigureModals = function () {
 
-    var modal_backdrops = $(".modal-backdrop").css("z-index", function(i) {
+    var modal_backdrops = $(".modal-backdrop").css("z-index", function (i) {
       return 1040 + i * 20;
     });
 
     var modals = $(".modal:visible");
-    modals.each(function(i) {
+    modals.each(function (i) {
         var parent = this.parentNode;
-        if(parent !== document.body)
+        if (parent !== document.body)
         {
             modal_backdrops
             .eq(i)
@@ -441,7 +441,7 @@
     });
     modal_backdrops.slice(modals.length).remove();
 
-    modals.not(this.$element).css("z-index", function(i) {return 1050 + i * 20;});
+    modals.not(this.$element).css("z-index", function (i) {return 1050 + i * 20;});
     this.$element.css("z-index", 1050 + (modals.length - 1) * 20)
 
     arrangeTopModal(modals, this.$element);
@@ -449,11 +449,11 @@
   }
 
   var _modal_hide = $.fn.modal.Constructor.prototype.hide;
-  $.fn.modal.Constructor.prototype.hide = function(ev) {
-    if(ev && (ev.modalHidden))
+  $.fn.modal.Constructor.prototype.hide = function (ev) {
+    if (ev && (ev.modalHidden))
         return;  //We already hid one
 
-    if(this.$cloneEl) {
+    if (this.$cloneEl) {
       this.$element.detach().appendTo(this.$cloneEl.parent());
       this.$cloneEl.remove();
       this.$cloneEl = null;
@@ -464,7 +464,7 @@
 
     var animated =
         $(".modal").filter(":animated");
-    if(animated.length) {
+    if (animated.length) {
         animated.stop(true, true);
     }
 
@@ -473,21 +473,21 @@
     lastModal.css({"height" : "", "overflow" : "", top : "", "margin-top" : ""});
     arrangeTopModal(modals, lastModal);
     arrangeBackgroundModals(modals, lastModal);
-    if(ev) ev.modal_hidden = true; //mark that we've hidden one
+    if (ev) ev.modal_hidden = true; //mark that we've hidden one
   };
 
-  GGRC.register_modal_hook = function(toggle, launch_fn) {
-    $(function() {
+  GGRC.register_modal_hook = function (toggle, launch_fn) {
+    $(function () {
       $('body').on(
         'click.modal-ajax.data-api keydown.modal-ajax.data-api',
         toggle ? "[data-toggle=modal-ajax-" + toggle + "]" : "[data-toggle=modal-ajax]",
-        function(e) {
+        function (e) {
 
         var $this = $(this)
           , toggle_type = $(this).data('toggle')
           , modal_id, target, $target, option, href, new_target, modal_type;
 
-        if(e.type === "keydown" && e.which !== 13)
+        if (e.type === "keydown" && e.which !== 13)
           return;  //activate for keydown on Enter/Return only.
 
         href = $this.attr('data-href') || $this.attr('href');
@@ -506,14 +506,14 @@
           $this.attr('data-target', '#' + modal_id);
         }
 
-        $target.on('hidden', function(ev) {
-          if(ev.target === ev.currentTarget)
+        $target.on('hidden', function (ev) {
+          if (ev.target === ev.currentTarget)
               $target.remove();
         });
 
         if (new_target || $this.data('modal-reset') === 'reset') {
           $target.html(preload_content());
-          if($this.prop("protocol") === window.location.protocol) {
+          if ($this.prop("protocol") === window.location.protocol) {
             $target.load(href, emit_loaded);
           }
         }
@@ -528,7 +528,7 @@
       });
     });
   };
-  $(function() {
+  $(function () {
     can.each({
         "": handlers["modal"],
         "form": handlers["form"],
@@ -539,7 +539,7 @@
         "deleteform": handlers["deleteform"],
         "unmapform": handlers["unmapform"],
       },
-      function(launch_fn, toggle) {
+      function (launch_fn, toggle) {
         GGRC.register_modal_hook(toggle, launch_fn);
       }
     );

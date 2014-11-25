@@ -5,7 +5,7 @@
     Maintained By: brad@reciprocitylabs.com
 */
 
-;(function(GGRC, can) {
+;(function (GGRC, can) {
 
   var Proxy = GGRC.MapperHelpers.Proxy,
       Direct = GGRC.MapperHelpers.Direct,
@@ -54,12 +54,12 @@
 
       return: a keyed object of all mappings (instances of GGRC.ListLoaders.BaseListLoader) by mapping name
     */
-    get_mappings_for : function(object) {
+    get_mappings_for : function (object) {
       var mappings = {};
-      can.each(this.modules, function(mod, name) {
+      can.each(this.modules, function (mod, name) {
         if (mod[object]) {
-          can.each(mod[object], function(mapping, mapping_name) {
-            if(mapping_name === "_canonical")
+          can.each(mod[object], function (mapping, mapping_name) {
+            if (mapping_name === "_canonical")
               return;
             mappings[mapping_name] = mapping;
           });
@@ -74,9 +74,9 @@
 
       return: an instance of GGRC.ListLoaders.BaseListLoader (mappings are implemented as ListLoaders)
     */
-    get_canonical_mapping : function(object, option) {
+    get_canonical_mapping : function (object, option) {
       var mapping = null;
-      can.each(this.modules, function(mod, name) {
+      can.each(this.modules, function (mod, name) {
         if (mod._canonical_mappings && mod._canonical_mappings[object] && mod._canonical_mappings[object][option]) {
           mapping = CMS.Models[object].get_mapper(mod._canonical_mappings[object][option]);
           return false;
@@ -91,9 +91,9 @@
 
       return: an instance of GGRC.ListLoaders.BaseListLoader (mappings are implemented as ListLoaders)
     */
-    get_canonical_mapping_name : function(object, option) {
+    get_canonical_mapping_name : function (object, option) {
       var mapping_name = null;
-      can.each(this.modules, function(mod, name) {
+      can.each(this.modules, function (mod, name) {
         if (mod._canonical_mappings && mod._canonical_mappings[object] && mod._canonical_mappings[object][option]) {
           mapping_name = mod._canonical_mappings[object][option];
           return false;
@@ -107,11 +107,11 @@
 
       return: a keyed object of all mappings (instances of GGRC.ListLoaders.BaseListLoader) by option type
     */
-    get_canonical_mappings_for : function(object) {
+    get_canonical_mappings_for : function (object) {
       var mappings = {};
-      can.each(this.modules, function(mod, name) {
+      can.each(this.modules, function (mod, name) {
         if (mod._canonical_mappings && mod._canonical_mappings[object]) {
-          can.each(mod._canonical_mappings[object], function(mapping_name, option) {
+          can.each(mod._canonical_mappings[object], function (mapping_name, option) {
             mappings[option] = CMS.Models[object].get_mapper(mapping_name);
           });
         }
@@ -142,14 +142,14 @@
 
       return: an instance of the join model (subclass of can.Model.Join) or null
     */
-    make_join_object: function(object, option, join_attrs) {
+    make_join_object: function (object, option, join_attrs) {
       var join_model
         , join_mapping = this.get_canonical_mapping(object.constructor.shortName, option.constructor.shortName)
         , object_attrs = { id: object.id, type: object.constructor.shortName }
         , option_attrs = { id: option.id, type: option.constructor.shortName }
         ;
 
-      if(join_mapping) {
+      if (join_mapping) {
         join_model = CMS.Models[join_mapping.model_name];
         join_attrs = $.extend({}, join_attrs || {});
         join_attrs[join_mapping.option_attr] = option_attrs;
@@ -165,30 +165,30 @@
       On init:
       kick off the application of mixins to the mappings and resolve canonical mappings
     */
-    init : function(name, opts) {
+    init : function (name, opts) {
       var created_mappings, that = this;
       this.constructor.modules[name] = this;
       this._canonical_mappings = {};
-      if(this.groups) {
-        can.each(this.groups, function(group, name) {
-          if(typeof group === "function") {
+      if (this.groups) {
+        can.each(this.groups, function (group, name) {
+          if (typeof group === "function") {
             that.groups[name] = $.proxy(group, that.groups);
           }
         });
       }
       created_mappings = this.create_mappings(opts);
 
-      can.each(created_mappings, function(mappings, object_type) {
-        if(mappings._canonical) {
-          if(!that._canonical_mappings[object_type]) {
+      can.each(created_mappings, function (mappings, object_type) {
+        if (mappings._canonical) {
+          if (!that._canonical_mappings[object_type]) {
             that._canonical_mappings[object_type] = {};
           }
 
-          can.each(mappings._canonical || [], function(option_types, mapping_name) {
-            if(!can.isArray(option_types)) {
+          can.each(mappings._canonical || [], function (option_types, mapping_name) {
+            if (!can.isArray(option_types)) {
               option_types = [option_types];
             }
-            can.each(option_types, function(option_type) {
+            can.each(option_types, function (option_type) {
               that._canonical_mappings[object_type][option_type] = mapping_name;
             });
           });
@@ -197,11 +197,11 @@
       $.extend(this, created_mappings);
     },
     // Recursively handle mixins -- this function should not be called directly.
-    reify_mixins : function(definition, definitions) {
+    reify_mixins : function (definition, definitions) {
       var that = this,
         final_definition = {};
       if (definition._mixins) {
-        can.each(definition._mixins, function(mixin) {
+        can.each(definition._mixins, function (mixin) {
           if (typeof(mixin) === "string") {
             // If string, recursive lookup
             if (!definitions[mixin])
@@ -215,9 +215,9 @@
             // Otherwise, assume object and extend
             if (final_definition._canonical && mixin._canonical) {
               mixin = can.extend({}, mixin);
-              can.each(mixin._canonical, function(types, mapping) {
-                if(final_definition._canonical[mapping]) {
-                  if(!can.isArray(final_definition._canonical[mapping])) {
+              can.each(mixin._canonical, function (types, mapping) {
+                if (final_definition._canonical[mapping]) {
+                  if (!can.isArray(final_definition._canonical[mapping])) {
                     final_definition._canonical[mapping] = [final_definition._canonical[mapping]];
                   }
                   final_definition._canonical[mapping] = can.unique(final_definition._canonical[mapping].concat(types));
@@ -238,11 +238,11 @@
     },
 
     // create mappings for definitions -- this function should not be called directly/
-    create_mappings : function(definitions) {
+    create_mappings : function (definitions) {
       var that = this,
         mappings = {};
 
-      can.each(definitions, function(definition, name) {
+      can.each(definitions, function (definition, name) {
         // Only output the mappings if it's a model, e.g., uppercase first letter
         if (name[0] === name[0].toUpperCase())
           mappings[name] = that.reify_mixins(definition, definitions);
@@ -727,7 +727,7 @@
       , extended_related_projects:    Multi(["related_projects", "owned_projects"])
       , extended_related_systems:     Multi(["related_systems", "owned_systems"])
 
-      , related_objects_via_search: Search(function(binding) {
+      , related_objects_via_search: Search(function (binding) {
           var types = [
             "Program",  "Regulation", "Contract", "Policy", "Standard",
             "Section", "Clause", "Objective", "Control",
@@ -737,7 +737,7 @@
 
           return GGRC.Models.Search.search_for_types(
               "", types, { contact_id: binding.instance.id }
-            ).pipe(function(mappings) {
+            ).pipe(function (mappings) {
               return mappings.entries;
             });
         })
@@ -797,13 +797,13 @@
       , context: Direct("Context", "related_object", "context")
       , authorizations: Cross("context", "user_roles")
 
-      , auditor_authorizations: CustomFilter("authorizations", function(result) {
-        return new RefreshQueue().enqueue(result.instance.role.reify()).trigger().then(function(roles) {
+      , auditor_authorizations: CustomFilter("authorizations", function (result) {
+        return new RefreshQueue().enqueue(result.instance.role.reify()).trigger().then(function (roles) {
           return roles[0].name === "Auditor";
         });
       })
       , auditors: Cross("auditor_authorizations", "person")
-      , related_owned_objects: CustomFilter("related_objects", function(result) {
+      , related_owned_objects: CustomFilter("related_objects", function (result) {
           var person = GGRC.page_instance() instanceof CMS.Models.Person && GGRC.page_instance();
           return !person
             || (result.instance.attr("contact") && result.instance.contact.id === person.id)
@@ -820,17 +820,17 @@
                                       , "related_owned_population_sample_responses"
                                       ])
 
-      , related_mapped_objects: CustomFilter("related_objects", function(result) {
+      , related_mapped_objects: CustomFilter("related_objects", function (result) {
           var page_instance = GGRC.page_instance()
             , instance = result.instance
-            , is_mapped = function(responses) {
+            , is_mapped = function (responses) {
                 var i, j, response, relationships, relationship;
                 for (i = 0; response = responses[i]; i++) {
                   //  FIXME: This avoids script errors due to stubs, but causes
                   //    incorrect results.  `CustomFilter.filter_fn` should be
                   //    refactored to return a deferred, and then this function
                   //    should be cleaned up.
-                  if(!('related_sources' in response)) continue;
+                  if (!('related_sources' in response)) continue;
                   relationships = new can.Observe.List().concat(response.related_sources.reify(), response.related_destinations.reify());
                   for (j = 0; relationship = relationships[j]; j++) {
                     if (relationship.source && relationship.source.reify && relationship.source.reify() === page_instance

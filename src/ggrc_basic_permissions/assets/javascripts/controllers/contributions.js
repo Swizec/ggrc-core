@@ -5,7 +5,7 @@
     Maintained By: dan@reciprocitylabs.com
 */
 
-(function(can, $) {
+(function (can, $) {
 
   /* Auditor Assignment Modal
   */
@@ -23,7 +23,7 @@
       modal_title: null,
     },
 
-    launch: function($trigger, options){
+    launch: function ($trigger, options){
       // Extract parameters from data attributes
       var href = $trigger.attr('data-href') || $trigger.attr('href')
         , modal_class = "modal hide"
@@ -41,12 +41,12 @@
     },
 
   }, {
-    init: function(){
+    init: function (){
       this.init_context();
       this.init_view();
     },
 
-    init_context: function(){
+    init_context: function (){
       if (!this.context) {
         this.context = new can.Observe($.extend({
           page_model: GGRC.page_model
@@ -56,7 +56,7 @@
       return this.context;
     },
 
-    init_view: function(){
+    init_view: function (){
       var self = this
         , deferred = $.Deferred()
         ;
@@ -64,7 +64,7 @@
       can.view(
         this.options.base_modal_view,
         this.context,
-        function(frag) {
+        function (frag) {
           $(self.element).html(frag);
           deferred.resolve();
           self.element.trigger('loaded');
@@ -74,14 +74,14 @@
       this.on();
       return deferred;
     },
-    set_value : function(){},
-    "input[data-lookup] change" : function(el, ev) {
+    set_value : function (){},
+    "input[data-lookup] change" : function (el, ev) {
       // Clear the user
-      if(el.val() == ""){
+      if (el.val() == ""){
         this.options.instance.auditor = null;
       }
     },
-    "a.btn[data-toggle='modal-submit'] click" : function(el, ev){
+    "a.btn[data-toggle='modal-submit'] click" : function (el, ev){
       var self = this
         , instance = this.options.instance
         ;
@@ -91,7 +91,7 @@
         self.element.trigger("modal:success").modal_form("hide");
       }
       this.saveAuditor(finish);
-    },
+    }
   });
 
   /* Role Assignment Modal Selector
@@ -155,7 +155,7 @@
       new_object_title: null,
     },
 
-    launch: function($trigger, options) {
+    launch: function ($trigger, options) {
       // Extract parameters from data attributes
 
       var href = $trigger.attr('data-href') || $trigger.attr('href')
@@ -170,7 +170,7 @@
       return $target;
     }
   }, {
-    init: function() {
+    init: function () {
       this.object_list = new can.Observe.List();
       this.option_list = new can.Observe.List();
       this.join_list = new can.Observe.List();
@@ -186,13 +186,13 @@
     ".option_column li click": "select_option",
     ".confirm-buttons a.btn-primary:not(.disabled) click": "change_option",
 
-    init_bindings: function() {
+    init_bindings: function () {
       this.join_list.bind("change", this.proxy("update_active_list"));
       this.context.bind("selected_object", this.proxy("refresh_join_list"));
       this.option_list.bind("change", this.proxy("update_option_radios"));
     },
 
-    init_view: function() {
+    init_view: function () {
       var self = this
         , deferred = $.Deferred()
         ;
@@ -200,7 +200,7 @@
       can.view(
         this.options.base_modal_view,
         this.context,
-        function(frag) {
+        function (frag) {
           $(self.element).html(frag);
           deferred.resolve();
           self.element.trigger('loaded');
@@ -212,7 +212,7 @@
       return deferred;
     },
 
-    init_data: function() {
+    init_data: function () {
       return $.when(
         this.refresh_object_list(),
         this.refresh_option_list(),
@@ -220,7 +220,7 @@
       );
     },
 
-    init_context: function() {
+    init_context: function () {
       if (!this.context) {
         this.context = new can.Observe($.extend({
             objects: this.object_list
@@ -235,11 +235,11 @@
       return this.context;
     },
 
-    update_active_list: function() {
+    update_active_list: function () {
       var self = this;
 
       self.active_list.replace(
-        can.map(self.join_list, function(join) {
+        can.map(self.join_list, function (join) {
           return new can.Observe({
             option: CMS.Models.get_instance(
               CMS.Models.get_link_type(join, self.options.option_attr),
@@ -249,13 +249,13 @@
         }));
     },
 
-    refresh_object_list: function() {
+    refresh_object_list: function () {
       var self = this
         ;
 
       return this.options.object_model.findAll(
         $.extend({}, this.options.object_query),
-        function(objects) {
+        function (objects) {
           self.object_list.replace(objects)
           if (self.object_list.length === 1) {
             self.context.attr('selected_object', self.object_list[0]);
@@ -263,7 +263,7 @@
         });
     },
 
-    refresh_option_list: function() {
+    refresh_option_list: function () {
       var self = this
         , instance = GGRC.page_instance()
         , params = {}
@@ -288,9 +288,9 @@
 
       return this.options.option_model.findAll(
         $.extend(params, this.option_query),
-        function(options) {
+        function (options) {
           var scope = params.scope || "System";
-          options = can.makeArray(options).sort(function(a,b){return a.id-b.id;});
+          options = can.makeArray(options).sort(function (a,b){return a.id-b.id;});
           if (params.scope == "Private Program") {
             description = "A person with the No Access role will not be able to see this Private Program.";
           }
@@ -310,7 +310,7 @@
         });
     },
 
-    refresh_join_list: function() {
+    refresh_join_list: function () {
       var self = this
         , join_object = this.get_join_object()
         , join_query
@@ -325,7 +325,7 @@
 
         return this.options.join_model.findAll(
           $.extend({}, join_query),
-          function(joins) {
+          function (joins) {
             self.join_list.replace(joins);
             self.update_option_radios();
           });
@@ -334,21 +334,21 @@
       }
     },
 
-    update_option_radios: function() {
+    update_option_radios: function () {
       var self = this
         , role_found = false
         , $option_list = $(this.element).find('.option_column ul')
         ;
 
-      this.join_list.forEach(function(join, index, list) {
+      this.join_list.forEach(function (join, index, list) {
         var $option = $option_list
           .find('li[data-id=' + join[self.options.option_attr].id + '] input[type=radio]');
-        if($option.length == 1){
+        if ($option.length == 1){
           $option.prop('checked', true);
           role_found = true;
         }
       });
-      if(!role_found){
+      if (!role_found){
         $option_list.find('li[data-id=0] input[type=radio]').prop('checked', true);
       }
     },
@@ -361,20 +361,20 @@
         setTimeout(can.proxy(window.location.reload, window.location), 10);
     },*/
 
-    select_object: function(el) {
+    select_object: function (el) {
       el.closest('.object_column').find('li').removeClass('selected');
       el.addClass('selected');
       this.context.attr('selected_object', el.data('object'));
       //this.refresh_join_list();
     },
 
-    select_option: function(el) {
+    select_option: function (el) {
       el.closest('.option_column').find('li').removeClass('selected');
       el.addClass('selected');
       this.context.attr('selected_option', el.data('option'));
     },
 
-    change_option: function(el_, ev) {
+    change_option: function (el_, ev) {
       var self = this
         , el = $(".people-selector").find("input[type=radio]:checked")
         , li = el.closest('li')
@@ -383,15 +383,15 @@
         ;
 
       // Look for and remove the existing join.
-      $.map(li.parent().children(), function(el){
+      $.map(li.parent().children(), function (el){
         var el = $(el)
         , option = el.closest('li').data('option')
         , join = self.find_join(option.id)
         ;
 
-        if(join) {
-          join.refresh().done(function() {
-            join.destroy().then(function() {
+        if (join) {
+          join.refresh().done(function () {
+            join.destroy().then(function () {
               self.element.trigger("relationshipdestroyed", join);
             });
           });
@@ -402,7 +402,7 @@
       if (clicked_option.id > 0) {
         join = self.get_new_join(
             clicked_option.id, clicked_option.scope, clicked_option.constructor.shortName);
-        join.save().then(function() {
+        join.save().then(function () {
             self.join_list.push(join);
             self.refresh_option_list();
             self.element.trigger("relationshipcreated", join);
@@ -412,13 +412,13 @@
 
     // HELPERS
 
-    find_join: function(option_id) {
+    find_join: function (option_id) {
       var self = this
         ;
 
       return can.reduce(
         this.join_list,
-        function(result, join) {
+        function (result, join) {
           if (result)
             return result;
           if (self.match_join(option_id, join))
@@ -427,12 +427,12 @@
         null);
     },
 
-    match_join: function(option_id, join) {
+    match_join: function (option_id, join) {
       return (join[this.options.option_attr]
               && join[this.options.option_attr].id == option_id);
     },
 
-    get_new_join: function(option_id, option_scope, option_type) {
+    get_new_join: function (option_id, option_scope, option_type) {
       var join_params = {};
       join_params[this.options.option_attr] = {};
       join_params[this.options.option_attr].id = option_id;
@@ -448,15 +448,15 @@
       return new (this.options.join_model)(join_params);
     },
 
-    get_join_object: function() {
+    get_join_object: function () {
       return this.context.attr('selected_object');
     },
 
-    get_join_object_id: function() {
+    get_join_object_id: function () {
       return this.get_join_object().id;
     },
 
-    get_join_object_type: function() {
+    get_join_object_type: function () {
       var join_object = this.get_join_object();
       return (join_object ? join_object.constructor.shortName : null);
     }
@@ -537,8 +537,8 @@
     };
   }
 
-  $(function() {
-    $('body').on('click', '[data-toggle="user-roles-modal-selector"]', function(e) {
+  $(function () {
+    $('body').on('click', '[data-toggle="user-roles-modal-selector"]', function (e) {
       var $this = $(this)
         , options = $this.data('modal-selector-options')
         , data_set = can.extend({}, $this.data())
@@ -546,10 +546,10 @@
         ;
       data_set.params = object_params && JSON.parse(object_params.replace(/\\n/g, "\\n"));
 
-      can.each($this.data(), function(v, k) {
+      can.each($this.data(), function (v, k) {
         //  This is just a mapping of keys to underscored keys
         var new_key = k.replace(
-                /[A-Z]/g, function(s) { return "_" + s.toLowerCase(); });
+                /[A-Z]/g, function (s) { return "_" + s.toLowerCase(); });
         data_set[new_key] = v;
         //  If we changed the key at all, delete the original
         if (new_key !== k) {
@@ -568,11 +568,11 @@
 
       // Trigger the controller
       GGRC.Controllers.UserRolesModalSelector.launch($this, options)
-        .on("relationshipcreated relationshipdestroyed", function(ev, data) {
+        .on("relationshipcreated relationshipdestroyed", function (ev, data) {
           //$this.trigger("modal:" + ev.type, data);
         });
     });
-    $('body').on('click', '[data-toggle="audit-role-modal-selector"]', function(e) {
+    $('body').on('click', '[data-toggle="audit-role-modal-selector"]', function (e) {
       var $this = $(this)
         , options = $this.data('modal-selector-options')
         , instance_id = $this.data('object-id')
@@ -581,10 +581,10 @@
         , scope = $this.data('modal-scope')
         ;
       data_set.params = object_params && JSON.parse(object_params.replace(/\\n/g, "\\n"));
-      can.each($this.data(), function(v, k) {
+      can.each($this.data(), function (v, k) {
         //  This is just a mapping of keys to underscored keys
         var new_key = k.replace(
-                /[A-Z]/g, function(s) { return "_" + s.toLowerCase(); });
+                /[A-Z]/g, function (s) { return "_" + s.toLowerCase(); });
         data_set[new_key] = v;
         //  If we changed the key at all, delete the original
         if (new_key !== k) {
@@ -605,7 +605,7 @@
       options.userRole_id = data_set.params.userRole_id;
       options.scope_id = data_set.params.scope_id;
       GGRC.Controllers.AuditRoleSelector.launch($this, options)
-        .on("modal:success", function(ev, data) {
+        .on("modal:success", function (ev, data) {
           $this.trigger("modal:" + ev.type, data);
         });
     });

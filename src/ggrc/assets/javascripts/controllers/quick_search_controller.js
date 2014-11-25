@@ -7,7 +7,7 @@
 
 //require can.jquery-all
 
-(function(can, $) {
+(function (can, $) {
   function with_params(href, params) {
     if (href.charAt(href.length - 1) === '?')
       return href + params;
@@ -20,9 +20,9 @@
   function get_attr(el, attrnames) {
     var attrval = null
     , $el = $(el);
-    can.each(can.makeArray(attrnames), function(attrname) {
+    can.each(can.makeArray(attrnames), function (attrname) {
       var a = $el.attr(attrname);
-      if(a) {
+      if (a) {
         attrval = a;
         return false;
       }
@@ -43,17 +43,17 @@ CMS.Controllers.Filterable("CMS.Controllers.QuickSearch", {
   }
 }, {
 
-  setup : function(el, opts) {
+  setup : function (el, opts) {
     this._super && this._super.apply(this, arguments);
-    if(!opts.observer) {
+    if (!opts.observer) {
       opts.observer = new can.Observe();
     }
   }
 
-  , init : function(opts) {
+  , init : function (opts) {
     var that = this;
     var $tabs = this.element.find(this.options.tab_selector);
-    $tabs.each(function(i, tab) {
+    $tabs.each(function (i, tab) {
       var $tab = $(tab)
       , href = get_attr($tab, that.options.tab_href_attr)
       , loaded = $tab.data('tab-loaded')
@@ -65,11 +65,11 @@ CMS.Controllers.Filterable("CMS.Controllers.QuickSearch", {
       , view_data = null
       , xhrs = {};
 
-      if(!template && typeof console !== "undefined") {
+      if (!template && typeof console !== "undefined") {
         console.warn("No template defined for quick_search in ", $pane.attr("id"));
       }
 
-      if(model && template) {
+      if (model && template) {
         view_data = new can.Observe({
           list: new model.List()
           , all_items: new model.List()
@@ -81,12 +81,12 @@ CMS.Controllers.Filterable("CMS.Controllers.QuickSearch", {
         $tab.data("view_data", view_data);
         $tab.data("model", model);
         $pane.trigger("loading");
-        model.findAll().done(function(data) {
+        model.findAll().done(function (data) {
           view_data.attr('all_items', data);
           view_data.attr('filtered_items', data.slice(0));
-          if($tab.is("li.active a")) {
+          if ($tab.is("li.active a")) {
             can.Observe.startBatch();
-            if(that.options.limit != null) {
+            if (that.options.limit != null) {
               view_data.attr('list').replace(data.slice(0, that.options.limit));
             } else {
               view_data.attr('list', data);
@@ -94,8 +94,8 @@ CMS.Controllers.Filterable("CMS.Controllers.QuickSearch", {
             can.Observe.stopBatch();
             $pane.trigger("loaded", xhrs[$pane.attr("id")], $tab.data("list"));
           } else {
-            GGRC.queue_event(function() {
-              if(that.options.limit != null) {
+            GGRC.queue_event(function () {
+              if (that.options.limit != null) {
                 view_data.attr('list').replace(data.slice(0, that.options.limit));
               } else {
                 view_data.attr('list', data);
@@ -106,20 +106,20 @@ CMS.Controllers.Filterable("CMS.Controllers.QuickSearch", {
           $tab.find(".item-count").html(data ? data.length : 0);
         });
 
-        model.bind("created", function(ev, instance) {
-          if(instance.constructor === model) {
+        model.bind("created", function (ev, instance) {
+          if (instance.constructor === model) {
             view_data.list.unshift(instance.serialize());
           }
         });
       }
 
-      if(that.options.spin) {
+      if (that.options.spin) {
         // Scroll up so spinner doesn't get pushed out of visibility
         $pane.scrollTop(0);
       }
 
       if (view_data) {
-        can.view(template, view_data, function(frag, xhr) {
+        can.view(template, view_data, function (frag, xhr) {
           $tab.data('tab-loaded', true);
           $pane.html(frag);
           xhrs[$pane.attr("id")] = xhr;
@@ -128,33 +128,33 @@ CMS.Controllers.Filterable("CMS.Controllers.QuickSearch", {
     });
   }
 
-  , "{observer} value" : function(el, ev, newval) {
+  , "{observer} value" : function (el, ev, newval) {
     this.filter(newval);
     this.element.trigger('kill-all-popovers');
   }
 
-  , "{observer} my_work" : function(el, ev, newval) {
+  , "{observer} my_work" : function (el, ev, newval) {
     this.filter(null, newval ? { "contact_id": GGRC.current_user.id } : null);
     this.element.trigger('kill-all-popovers');
   }
 
   // @override
-  , redo_last_filter : function(id_to_add) {
+  , redo_last_filter : function (id_to_add) {
     var that = this;
     var $tabs = $(this.element).find(this.options.tab_selector);
     var old_sel = this.options.filterable_items_selector;
     var old_ids = this.last_filter_ids;
 
-    $tabs.each(function(i, tab) {
+    $tabs.each(function (i, tab) {
       var $tab = $(tab)
       , model = $tab.data("model")
       , res = old_ids ? that.last_filter.getResultsFor(model) : null
       , view_data = $tab.data("view_data");
 
       //that.options.filterable_items_selector = $(get_attr($tab, that.options.tab_href_attr)).find("li:not(.view-more, .add-new)");
-      that.last_filter_ids = res = res ? can.unique(can.map(res, function(v) { return v.id; })) : null; //null is the show-all case
-      if(res) {
-        view_data.filtered_items.replace(can.map(view_data.all_items, function(item) { return ~can.inArray(item.id, res) ? item : undefined; }));
+      that.last_filter_ids = res = res ? can.unique(can.map(res, function (v) { return v.id; })) : null; //null is the show-all case
+      if (res) {
+        view_data.filtered_items.replace(can.map(view_data.all_items, function (item) { return ~can.inArray(item.id, res) ? item : undefined; }));
       } else {
         view_data.filtered_items.replace(view_data.all_items.slice(0));
       }
@@ -172,11 +172,11 @@ CMS.Controllers.Filterable("CMS.Controllers.QuickSearch", {
     });
   }
 
-  , ".tabbable loaded" : function(el, ev) {
+  , ".tabbable loaded" : function (el, ev) {
     $(el).scrollTop(0);
   }
 
-  , ".nav-tabs li click" : function(el, ev) {
+  , ".nav-tabs li click" : function (el, ev) {
     var plural = el.children("a").attr("data-object-plural");
     var singular = can.map(window.cms_singularize(plural).split("_"), can.capitalize).join(" ");
     el.closest(".widget").find(".object-type").text(singular)
@@ -189,7 +189,7 @@ can.Control("CMS.Controllers.LHN", {
     defaults: {
     }
 }, {
-    init: function() {
+    init: function () {
       var self = this
         ;
 
@@ -205,35 +205,35 @@ can.Control("CMS.Controllers.LHN", {
       // Set up a scroll handler to capture the current scroll-Y position on the
       // whole LHN search panel.  scroll events do not bubble, so this cannot be
       // set as a delegate on the controller element.
-      self.lhs_holder_onscroll = $.debounce(250, function() {
+      self.lhs_holder_onscroll = $.debounce(250, function () {
         self.options.display_prefs.setLHNState({ "panel_scroll" : this.scrollTop });
       });
       this.element.find(".lhs-holder").on("scroll", self.lhs_holder_onscroll);
 
     }
 
-  , should_show_lhn: function() {
+  , should_show_lhn: function () {
       return Permission.is_allowed("view_object_page", "__GGRC_ALL__", null);
     }
 
-  , "input.widgetsearch keypress": function(el, ev) {
+  , "input.widgetsearch keypress": function (el, ev) {
       var value;
-      if(ev.which === 13) {
+      if (ev.which === 13) {
         value = $(ev.target).val();
         this.obs.attr("value", value);
         this.options.display_prefs.setLHNState("search_text", value);
       }
     }
 
-  , ".widgetsearch keyup": function(el, ev) {
-      if(el.val().trim() !== "") {
+  , ".widgetsearch keyup": function (el, ev) {
+      if (el.val().trim() !== "") {
         el.addClass("active");
       } else {
         el.removeClass("active");
       }
     }
 
-  , "input.my-work click": function(el, ev) {
+  , "input.my-work click": function (el, ev) {
       var target = $(ev.target),
           checked;
       if (target.is('input.my-work')) {
@@ -244,16 +244,16 @@ can.Control("CMS.Controllers.LHN", {
       }
     }
 
-  , init_lhn: function() {
+  , init_lhn: function () {
       var self = this;
 
-      CMS.Models.DisplayPrefs.findAll().done(function(prefs) {
+      CMS.Models.DisplayPrefs.findAll().done(function (prefs) {
         var checked
           , $lhs = $("#lhs")
           , lhn_search_dfd
           ;
 
-        if(prefs.length < 1) {
+        if (prefs.length < 1) {
           prefs.push(new CMS.Models.DisplayPrefs());
           prefs[0].save();
         }
@@ -275,13 +275,13 @@ can.Control("CMS.Controllers.LHN", {
         $lhs.cms_controllers_lhn_tooltips();
 
         // Delay LHN initializations until after LHN is rendered
-        lhn_search_dfd.then(function() {
+        lhn_search_dfd.then(function () {
           var checked = self.obs.attr('my_work'),
               value = checked ? "my_work" : "all",
               target = self.element.find('#lhs input.my-work[value='+value+']');
           target.prop('checked', true);
           target.closest('.btn')[checked ? 'addClass' : 'removeClass']('btn-success');
-          if(!$lhs.hasClass("lhs-closed")) {
+          if (!$lhs.hasClass("lhs-closed")) {
             $(".recent").ggrc_controllers_recently_viewed();
             self.size && self.resize_lhn(self.size);
           }
@@ -293,13 +293,13 @@ can.Control("CMS.Controllers.LHN", {
             self.element.find(".lhs-holder").scrollTop(self.options.display_prefs.getLHNState().panel_scroll || 0);
           }
 
-          if(self.options.display_prefs.getLHNState().open_category) {
+          if (self.options.display_prefs.getLHNState().open_category) {
             self.element.one("list_displayed", initial_scroll );
           } else {
             initial_scroll();
           }
           // Set active state to search field if the input is not empty:
-          self.element.find('.widgetsearch').filter(function() {
+          self.element.find('.widgetsearch').filter(function () {
             return this.value;
           }).addClass('active');
         });
@@ -310,10 +310,10 @@ can.Control("CMS.Controllers.LHN", {
         self.collapsed && self.toggle_lhs();
       });
     }
-  , lhn_width : function(){
+  , lhn_width : function (){
       return $(".lhs-holder").width()+8;
   }
-  , hide_lhn: function() {
+  , hide_lhn: function () {
       var $area = $(".area")
         , $lhsHolder = $(".lhs-holder")
         , $bar = $('.bar-v')
@@ -327,14 +327,14 @@ can.Control("CMS.Controllers.LHN", {
       window.resize_areas();
     }
 
-  , toggle_lhs: function() {
+  , toggle_lhs: function () {
       var $lhs = $("#lhs")
         , $lhsHolder = $(".lhs-holder")
         , $area = $(".area")
         , $bar = $("#lhn > .bar-v")
         , $search = $('.widgetsearch')
         ;
-      if($lhs.hasClass("lhs-closed")) {
+      if ($lhs.hasClass("lhs-closed")) {
         $lhs.removeClass("lhs-closed");
         $bar.removeClass("bar-closed");
         $lhsHolder.css("width", this.size + "px");
@@ -350,14 +350,14 @@ can.Control("CMS.Controllers.LHN", {
 
       $search.width($lhs.width() - 49);
       window.resize_areas();
-      CMS.Models.DisplayPrefs.findAll().done(function(prefs) {
+      CMS.Models.DisplayPrefs.findAll().done(function (prefs) {
         prefs[0].setCollapsed(null, "lhs", $lhs.hasClass("lhs-closed"));
       });
     }
 
   , mousedown : false
   , dragged : false
-  , resize_lhn : function(resize, no_trigger){
+  , resize_lhn : function (resize, no_trigger){
     var $lhs = $("#lhs"),
         $lhsHolder = $(".lhs-holder"),
         $area = $(".area"),
@@ -368,18 +368,18 @@ can.Control("CMS.Controllers.LHN", {
         lhn_second_row = 201,
         max_width = window.outerWidth / 2 - 4;
 
-    if(resize < 40 && !$lhs.hasClass("lhs-closed")) {
+    if (resize < 40 && !$lhs.hasClass("lhs-closed")) {
       this.toggle_lhs(no_trigger);
     }
-    if(resize < 40) {
+    if (resize < 40) {
       return;
     }
     resize = Math.min(resize, max_width);
-    if($lhs.hasClass("lhs-closed")) this.toggle_lhs(no_trigger);
+    if ($lhs.hasClass("lhs-closed")) this.toggle_lhs(no_trigger);
     $lhsHolder.width(resize);
 
     // LHN search radio buttons oneline fix
-    if(resize < lhn_second_row) {
+    if (resize < lhn_second_row) {
       $lhs_label_right.removeClass("pull-right");
       $lhs_label.addClass("oneline");
     } else {
@@ -399,13 +399,13 @@ can.Control("CMS.Controllers.LHN", {
       $(window).trigger('resize');
     }
   }
-  , ".bar-v mousedown" : function(el, ev) {
+  , ".bar-v mousedown" : function (el, ev) {
     var $target = $(ev.target);
     this.mousedown = true;
     this.dragged = false;
   }
-  , "{window} mousemove" : function(el, ev){
-    if(!this.mousedown){
+  , "{window} mousemove" : function (el, ev){
+    if (!this.mousedown){
       return;
     }
 
@@ -414,31 +414,31 @@ can.Control("CMS.Controllers.LHN", {
     this.size = ev.pageX;
     this.resize_lhn(this.size);
   }
-  , "{window} mouseup" : function(el, ev){
+  , "{window} mouseup" : function (el, ev){
     var self = this;
-    if(!this.mousedown) return;
+    if (!this.mousedown) return;
 
     this.mousedown = false;
-    if(!this.dragged){
+    if (!this.dragged){
       this.toggle_lhs();
       return;
     }
     self.size = self.size;
 
-    CMS.Models.DisplayPrefs.findAll().done(function(prefs) {
+    CMS.Models.DisplayPrefs.findAll().done(function (prefs) {
         prefs[0].setLHNavSize(null, "lhs", self.size);
     });
   }
-  , "{window} resize" : function(el, ev) {
+  , "{window} resize" : function (el, ev) {
     if (this.size) {
       this.resize_lhn(this.size, true);
     }
   }
-  , "#lhs click": function(el, ev) {
+  , "#lhs click": function (el, ev) {
       this.resize_search();
     }
 
-  , resize_search: function() {
+  , resize_search: function () {
       // Resize search input as necessary
       /*
       var input = this.element.find('#lhs input.widgetsearch')
@@ -453,15 +453,15 @@ can.Control("CMS.Controllers.LHN", {
       */
     }
 
-  , "#lhs input.widgetsearch focus": function(el, ev) {
+  , "#lhs input.widgetsearch focus": function (el, ev) {
       this.resize_search();
     }
 
-  , ".lhs-closed click": function(el, ev) {
+  , ".lhs-closed click": function (el, ev) {
       this.toggle_lhs();
     }
 
-  , destroy : function() {
+  , destroy : function () {
     this.element.find(".lhs-holder").off("scroll", self.lhs_holder_onscroll);
     this._super && this._super.apply(this, arguments);
   }
@@ -472,14 +472,14 @@ can.Control("CMS.Controllers.InfiniteScroll", {
     defaults: {
     }
 }, {
-    init: function() {
+    init: function () {
     }
 
   , " DOMMouseScroll": "prevent_overscroll"
   , " mousewheel": "prevent_overscroll"
   , " scroll": "prevent_overscroll"
 
-  , prevent_overscroll: function($el, ev) {
+  , prevent_overscroll: function ($el, ev) {
       // Based on Troy Alford's response on StackOverflow:
       //   http://stackoverflow.com/a/16324762
       var scrollTop = $el[0].scrollTop
@@ -498,7 +498,7 @@ can.Control("CMS.Controllers.InfiniteScroll", {
 
       up = delta > 0;
 
-      var prevent = function() {
+      var prevent = function () {
         ev.stopPropagation();
         ev.preventDefault();
         ev.returnValue = false;
@@ -524,7 +524,7 @@ can.Control("CMS.Controllers.InfiniteScroll", {
       }
     }
 
-  , show_more: function($el) {
+  , show_more: function ($el) {
       this.element.trigger("scrollNext");
     }
 });
@@ -547,7 +547,7 @@ can.Control("CMS.Controllers.LHN_Search", {
       , counts : new can.Observe()
     }
 }, {
-    display: function() {
+    display: function () {
       var self = this
         , prefs = this.options.display_prefs
         , prefs_dfd
@@ -555,9 +555,9 @@ can.Control("CMS.Controllers.LHN_Search", {
         ;
 
 
-      if(!prefs) {
-        prefs_dfd = CMS.Models.DisplayPrefs.findAll().then(function(d) {
-          if(d.length > 0) {
+      if (!prefs) {
+        prefs_dfd = CMS.Models.DisplayPrefs.findAll().then(function (d) {
+          if (d.length > 0) {
             prefs = self.options.display_prefs = d[0];
           } else {
             prefs = self.options.display_prefs = new CMS.Models.DisplayPrefs();
@@ -572,7 +572,7 @@ can.Control("CMS.Controllers.LHN_Search", {
       //  search box and the display prefs to save the search value between page loads.
       //  We also listen for this value in the controller
       //  to trigger the search.
-      return can.view(template_path, prefs_dfd.then(function(prefs) { return prefs.getLHNState(); })).then(function(frag, xhr) {
+      return can.view(template_path, prefs_dfd.then(function (prefs) { return prefs.getLHNState(); })).then(function (frag, xhr) {
         var lhn_prefs = prefs.getLHNState()
           , initial_term
           , initial_params = {}
@@ -583,7 +583,7 @@ can.Control("CMS.Controllers.LHN_Search", {
         self.post_init();
         self.element.find(".sub-level")
           .cms_controllers_infinite_scroll()
-          .on("scroll", $.debounce(250, function() {
+          .on("scroll", $.debounce(250, function () {
             self.options.display_prefs.setLHNState("category_scroll", this.scrollTop);
           }));
 
@@ -591,7 +591,7 @@ can.Control("CMS.Controllers.LHN_Search", {
         if (self.options.observer.my_work) {
           initial_params = { "contact_id": GGRC.current_user.id };
         }
-        $.map(CMS.Models, function(model, name) {
+        $.map(CMS.Models, function (model, name) {
           if (model.attributes && model.attributes.default_lhn_filters) {
             self.options.filter_params.attr(model.attributes.default_lhn_filters)
           }
@@ -603,7 +603,7 @@ can.Control("CMS.Controllers.LHN_Search", {
         // Above, category scrolling is listened on to save the scroll position.  Below, on page load the
         //  open category is toggled open, and the search placed into the search box by display prefs is
         //  sent to the search service.
-        if(lhn_prefs.open_category) {
+        if (lhn_prefs.open_category) {
           self.toggle_list_visibility(
             self.element.find(self.options.list_selector + " > a[data-object-singular=" + lhn_prefs.open_category + "]")
           );
@@ -611,18 +611,18 @@ can.Control("CMS.Controllers.LHN_Search", {
       });
     }
 
-  , post_init: function() {
+  , post_init: function () {
       var self = this;
       this.init_object_lists();
       this.init_list_views();
 
-      can.Model.Cacheable.bind("created", function(ev, instance) {
+      can.Model.Cacheable.bind("created", function (ev, instance) {
         var visible_model_names =
               can.map(self.get_visible_lists(), self.proxy("get_list_model"))
           , model_name = instance.constructor.shortName
           ;
 
-        if(visible_model_names.indexOf(model_name) > -1) {
+        if (visible_model_names.indexOf(model_name) > -1) {
           self.options.visible_lists[model_name].unshift(instance);
           self.options.results_lists[model_name].unshift(instance);
         }
@@ -633,7 +633,7 @@ can.Control("CMS.Controllers.LHN_Search", {
 
   , "{list_selector} > a click": "toggle_list_visibility"
 
-  , toggle_list_visibility: function(el, ev) {
+  , toggle_list_visibility: function (el, ev) {
       var selector = this.options.list_content_selector + ',' + this.options.actions_content_selector
         , $ul = el.parent().find(selector)
         ;
@@ -672,7 +672,7 @@ can.Control("CMS.Controllers.LHN_Search", {
         // Compute the extra height to add to the expandable height,
         // based on the size of the content that is sliding away.
         top = $content.offset().top;
-        $siblings.filter(':visible').each(function() {
+        $siblings.filter(':visible').each(function () {
           var sibling_top = $(this).offset().top;
           if (sibling_top <= top) {
             extra_height += this.offsetHeight + (sibling_top < 0 ? -holder[0].scrollTop : 0);
@@ -693,7 +693,7 @@ can.Control("CMS.Controllers.LHN_Search", {
       ev && ev.preventDefault();
     }
 
-  , " resize": function() {
+  , " resize": function () {
       var $content = this.element.find(this.options.list_content_selector).filter(':visible');
 
 
@@ -710,29 +710,29 @@ can.Control("CMS.Controllers.LHN_Search", {
       }
     }
 
-  , on_show_list: function(el, ev) {
+  , on_show_list: function (el, ev) {
       var $list = $(el).closest(this.get_lists())
         , model_name = this.get_list_model($list)
         , tracker_stop = GGRC.Tracker.start("LHN_show_list", model_name)
         , that = this
         ;
 
-      setTimeout(function() {
+      setTimeout(function () {
         that.refresh_visible_lists().done(tracker_stop);
       }, 20);
     }
 
-  , "{observer} value" : function(el, ev, newval) {
+  , "{observer} value" : function (el, ev, newval) {
       this.run_search(newval, this.current_params);
     }
 
-  , "{observer} my_work" : function(el, ev, newval) {
+  , "{observer} my_work" : function (el, ev, newval) {
     this.run_search(this.current_term, newval ? { "contact_id": GGRC.current_user.id } : null);
   }
 
   , ".sub-level scrollNext": "show_more"
 
-  , show_more: function($el, ev) {
+  , show_more: function ($el, ev) {
       if (this._show_more_pending)
         return;
 
@@ -755,10 +755,10 @@ can.Control("CMS.Controllers.LHN_Search", {
         //results_list.slice(0, visible_list.length + this.options.limit);
         results_list.slice(visible_list.length, visible_list.length + this.options.limit);
 
-      can.each(new_visible_list, function(item) {
+      can.each(new_visible_list, function (item) {
         refresh_queue.enqueue(item);
       });
-      refresh_queue.trigger().then(function() {
+      refresh_queue.trigger().then(function () {
         visible_list.push.apply(visible_list, new_visible_list);
         visible_list.attr('is_loading', false)
         //visible_list.replace(new_visible_list);
@@ -767,14 +767,14 @@ can.Control("CMS.Controllers.LHN_Search", {
       visible_list.attr('is_loading', true)
     }
 
-  , init_object_lists: function() {
+  , init_object_lists: function () {
       var self = this;
       if (!this.options.results_lists)
         this.options.results_lists = {};
       if (!this.options.visible_lists)
         this.options.visible_lists = {};
 
-      can.each(this.get_lists(), function($list) {
+      can.each(this.get_lists(), function ($list) {
         var model_name;
         $list = $($list);
         model_name = self.get_list_model($list);
@@ -784,9 +784,9 @@ can.Control("CMS.Controllers.LHN_Search", {
       });
     }
 
-  , init_list_views: function() {
+  , init_list_views: function () {
       var self = this;
-      can.each(this.get_lists(), function($list) {
+      can.each(this.get_lists(), function ($list) {
         var model_name;
         $list = $($list);
         model_name = self.get_list_model($list);
@@ -796,32 +796,32 @@ can.Control("CMS.Controllers.LHN_Search", {
           , filter_params: self.options.filter_params
           , list: self.options.visible_lists[model_name]
           , counts: self.options.counts
-          , count: can.compute(function() {
+          , count: can.compute(function () {
               return self.options.results_lists[model_name].attr('length');
             })
         };
 
-        can.view($list.data("template") || self.options.list_view, context, function(frag, xhr) {
+        can.view($list.data("template") || self.options.list_view, context, function (frag, xhr) {
           $list.find(self.options.list_content_selector).html(frag);
 
           // If this category we're rendering is the one that is open, wait for the
           //  list to finish rendering in the content pane, then set the scrolltop
           //  of the category to the stored value in display prefs.
-          if(model_name === self.options.display_prefs.getLHNState().open_category) {
-            $list.one("list_displayed", function() {
+          if (model_name === self.options.display_prefs.getLHNState().open_category) {
+            $list.one("list_displayed", function () {
               $(this).find(self.options.list_content_selector).scrollTop(
                 self.options.display_prefs.getLHNState().category_scroll || 0
               );
             });
           }
         });
-        can.view($list.data("actions") || self.options.actions_view, context, function(frag, xhr) {
+        can.view($list.data("actions") || self.options.actions_view, context, function (frag, xhr) {
           $list.find(self.options.actions_content_selector).html(frag);
         });
       });
     }
 
-  , get_list_model: function($list, count) {
+  , get_list_model: function ($list, count) {
       $list = $($list);
       if (this.options.model_attr_selector)
         $list = $list.find(this.options.model_attr_selector).first();
@@ -830,33 +830,33 @@ can.Control("CMS.Controllers.LHN_Search", {
       }
       return $list.attr(this.options.model_attr);
     }
-  , get_extra_list_model: function($list) {
+  , get_extra_list_model: function ($list) {
       $list = $($list);
       if (this.options.model_attr_selector)
         $list = $list.find(this.options.model_attr_selector).first();
-      if(!$list.attr(this.options.model_extra_attr)) {
+      if (!$list.attr(this.options.model_extra_attr)) {
         return null;
       }
       var model = $list.attr(this.options.model_attr),
           extra = $list.attr(this.options.model_extra_attr).split(',');
 
-      extra = $.map(extra, function(e){
+      extra = $.map(extra, function (e){
         return e + "=" + model;
       }).join(',');
       return extra;
     }
 
-  , display_counts: function(search_result) {
+  , display_counts: function (search_result) {
       var self = this;
 
       // Remove all current counts
-      self.options.counts.each(function(val, key) {
+      self.options.counts.each(function (val, key) {
           self.options.counts.removeAttr(key);
       });
       // Set the new counts
       self.options.counts.attr(search_result.counts);
 
-      can.each(this.get_lists(), function($list) {
+      can.each(this.get_lists(), function ($list) {
         var model_name, count;
         $list = $($list);
         model_name = self.get_list_model($list, true);
@@ -878,7 +878,7 @@ can.Control("CMS.Controllers.LHN_Search", {
       });
     }
 
-  , display_lists: function(search_result, display_now) {
+  , display_lists: function (search_result, display_now) {
       var self = this
         , lists = this.get_visible_lists()
         , dfds = []
@@ -887,7 +887,7 @@ can.Control("CMS.Controllers.LHN_Search", {
         , extra_params = self.current_params && self.current_params.extra_params
         ;
 
-      can.each(lists, function(list) {
+      can.each(lists, function (list) {
         var dfd
           , $list = $(list)
           , model_name = self.get_list_model($list)
@@ -900,7 +900,7 @@ can.Control("CMS.Controllers.LHN_Search", {
         initial_visible_list =
           self.options.results_lists[model_name].slice(0, self.options.limit);
 
-        can.each(initial_visible_list, function(obj) {
+        can.each(initial_visible_list, function (obj) {
           refresh_queue.enqueue(obj);
         });
 
@@ -909,11 +909,11 @@ can.Control("CMS.Controllers.LHN_Search", {
           self.options.visible_lists[model_name].attr('is_loading', false);
           self.options.visible_lists[model_name].replace(initial_visible_list);
           can.Map.stopBatch();
-          setTimeout(function() {
+          setTimeout(function () {
             $list.trigger("list_displayed", model_name);
           }, 1);
         }
-        dfd = refresh_queue.trigger().then(function(d) {
+        dfd = refresh_queue.trigger().then(function (d) {
           new CMS.Models.LocalListCache({
             name : "search_" + model_name
             , objects : d
@@ -925,7 +925,7 @@ can.Control("CMS.Controllers.LHN_Search", {
           }).save();
           return d;
         });
-        if(display_now) {
+        if (display_now) {
           finish_display();
         } else {
           dfd = dfd.then(finish_display);
@@ -936,7 +936,7 @@ can.Control("CMS.Controllers.LHN_Search", {
       return $.when.apply($, dfds);
     }
 
-  , refresh_counts: function() {
+  , refresh_counts: function () {
       var self = this
         , search_id = this.search_id
         , models
@@ -946,39 +946,39 @@ can.Control("CMS.Controllers.LHN_Search", {
       // Retrieve and display counts
       return GGRC.Models.Search.counts_for_types(
           this.current_term, models, this.current_params, extra_models
-        ).then(function() {
+        ).then(function () {
           if (self.search_id === search_id) {
             return self.display_counts.apply(self, arguments);
           }
         });
     }
 
-  , refresh_visible_lists: function() {
+  , refresh_visible_lists: function () {
       var self = this
         , search_id = this.search_id
         , lists = this.get_visible_lists()
         , models = can.map(lists, this.proxy("get_list_model"))
         ;
 
-      models = can.map(models, function(model_name) {
+      models = can.map(models, function (model_name) {
         if (self.options.loaded_lists.indexOf(model_name) == -1)
           return model_name;
       });
 
       if (models.length > 0) {
         // Register that the lists are loaded
-        can.each(models, function(model_name) {
+        can.each(models, function (model_name) {
           self.options.loaded_lists.push(model_name);
         });
 
         $.when.apply(
           $
-          , models.map(function(model_name) {
+          , models.map(function (model_name) {
             return CMS.Models.LocalListCache.findAll({ "name" : "search_" + model_name});
           })
-        ).then(function() {
+        ).then(function () {
           var types = {}, fake_search_result;
-          can.each(can.makeArray(arguments), function(a) {
+          can.each(can.makeArray(arguments), function (a) {
             var a = a[0];
             if (a
                 && a.search_text == self.current_term
@@ -990,22 +990,22 @@ can.Control("CMS.Controllers.LHN_Search", {
 
           if (Object.keys(types).length > 0) {
             fake_search_result = {
-              getResultsForType : function(type) {
-                if(types["search_" + type]) {
+              getResultsForType : function (type) {
+                if (types["search_" + type]) {
                   return types["search_" + type];
                 }
               }
             };
             return fake_search_result;
           }
-        }).done(function(fake_search_result) {
+        }).done(function (fake_search_result) {
           if (fake_search_result)
             self.display_lists(fake_search_result, true);
         });
 
         return GGRC.Models.Search.search_for_types(
             this.current_term, models, this.current_params
-          ).then(function() {
+          ).then(function () {
             if (self.search_id === search_id) {
               return self.display_lists.apply(self, arguments);
             }
@@ -1015,7 +1015,7 @@ can.Control("CMS.Controllers.LHN_Search", {
       }
     }
 
-  , run_search: function(term, extra_params) {
+  , run_search: function (term, extra_params) {
       var self = this
         , tracker_stop = GGRC.Tracker.start(
           "LHN_run_search",
@@ -1025,10 +1025,10 @@ can.Control("CMS.Controllers.LHN_Search", {
         ;
       if (term !== this.current_term || extra_params !== this.current_params) {
         // Clear current result lists
-        can.each(this.options.results_lists, function(list) {
+        can.each(this.options.results_lists, function (list) {
           list.replace([]);
         });
-        can.each(this.options.visible_lists, function(list) {
+        can.each(this.options.visible_lists, function (list) {
           list.replace([]);
           list.attr('is_loading', true);
         });
@@ -1046,9 +1046,9 @@ can.Control("CMS.Controllers.LHN_Search", {
         delete this.current_params.extra_params;
         this.options.display_prefs.setLHNState("filter_params",
           this.options.filter_params);
-        this.options.filter_params.each(function(obj, type) {
+        this.options.filter_params.each(function (obj, type) {
           var properties_list = [];
-          obj.each(function(v, k){
+          obj.each(function (v, k){
             properties_list.push(k + "=" + v);
           });
           if (properties_list.length) {
@@ -1065,21 +1065,21 @@ can.Control("CMS.Controllers.LHN_Search", {
       }
     }
 
-  , get_lists: function() {
+  , get_lists: function () {
       return $.makeArray(
           this.element.find(this.options.list_selector));
     }
 
-  , get_visible_lists: function() {
+  , get_visible_lists: function () {
       var self = this;
-      return can.map(this.get_lists(), function($list) {
+      return can.map(this.get_lists(), function ($list) {
         $list = $($list);
         if ($list.find(self.options.list_content_selector).hasClass('in'))
           return $list;
       });
     },
 
-  ".filters a click" : function(el, ev) {
+  ".filters a click" : function (el, ev) {
     var term = this.options.display_prefs.getLHNState().search_text || ""
         param = {},
         key = el.data('key'),
@@ -1112,7 +1112,7 @@ can.Control("CMS.Controllers.LHN_Tooltips", {
       , fade_out_delay: 300
     }
 }, {
-    init: function() {
+    init: function () {
       if (!this.options.$extended) {
         this.options.$extended = $('#extended-info');
         if (this.options.$extended.length < 1)
@@ -1132,7 +1132,7 @@ can.Control("CMS.Controllers.LHN_Tooltips", {
   , "{$extended} mouseleave": "on_mouseleave"
   , "{$extended} mouseenter": "on_tooltip_mouseenter"
 
-  , on_mouseenter: function(el, ev) {
+  , on_mouseenter: function (el, ev) {
       var instance = el.closest("[data-model]").data("model")
                       || el.closest(":data(model)").data("model")
         , delay = this.options.fade_in_delay
@@ -1157,7 +1157,7 @@ can.Control("CMS.Controllers.LHN_Tooltips", {
       }
     }
 
-  , ensure_tooltip_visibility: function() {
+  , ensure_tooltip_visibility: function () {
       var offset = this.options.$extended.offset().top
         , height = this.options.$extended.height()
         // "- 24" compensates for the Chrome URL display when hovering a link
@@ -1176,7 +1176,7 @@ can.Control("CMS.Controllers.LHN_Tooltips", {
       }
     }
 
-  , get_tooltip_view: function(el) {
+  , get_tooltip_view: function (el) {
       var tooltip_view = $(el)
             .closest('[data-tooltip-view]').attr('data-tooltip-view');
       if (tooltip_view && tooltip_view.length > 0) {
@@ -1192,14 +1192,14 @@ can.Control("CMS.Controllers.LHN_Tooltips", {
       }
     }
 
-  , on_fade_in_timeout: function(el, instance) {
+  , on_fade_in_timeout: function (el, instance) {
       var self = this
         , tooltip_view = this.get_tooltip_view(el)
         ;
 
       if (tooltip_view) {
         this.fade_in_timeout = null;
-        can.view(tooltip_view, { instance: instance }, function(frag) {
+        can.view(tooltip_view, { instance: instance }, function (frag) {
 
           var tooltip_width = self.options.$extended.outerWidth()
             , offset = el.parent().offset()
@@ -1218,12 +1218,12 @@ can.Control("CMS.Controllers.LHN_Tooltips", {
       }
     }
 
-  , on_tooltip_mouseenter: function() {
+  , on_tooltip_mouseenter: function () {
       clearTimeout(this.fade_out_timeout);
       this.fade_out_timeout = null;
     }
 
-  , on_fade_out_timeout: function() {
+  , on_fade_out_timeout: function () {
       clearTimeout(this.fade_in_timeout);
       this.fade_in_timeout = null;
       this.fade_out_timeout = null;
@@ -1233,7 +1233,7 @@ can.Control("CMS.Controllers.LHN_Tooltips", {
         .data('model', null);
     }
 
-  , on_mouseleave: function(el, ev) {
+  , on_mouseleave: function (el, ev) {
       // Cancel fade_in, if we haven't displayed yet
       clearTimeout(this.fade_in_timeout);
       this.fade_in_timeout = null;
@@ -1244,7 +1244,7 @@ can.Control("CMS.Controllers.LHN_Tooltips", {
             this.proxy("on_fade_out_timeout"),
             this.options.fade_out_delay);
     }
-  , destroy: function() {
+  , destroy: function () {
     this._super();
     this.on_mouseleave();
   }

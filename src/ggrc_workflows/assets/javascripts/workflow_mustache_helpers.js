@@ -5,7 +5,7 @@
     Maintained By: dan@reciprocitylabs.com
 */
 
-;(function(can, $, Mustache) {
+;(function (can, $, Mustache) {
 
 /*
   sort_index_at_end mustache helper
@@ -19,11 +19,11 @@
 
   @param list a list of objects or bindings
 */
-Mustache.registerHelper("sort_index_at_end", function(list, options) {
+Mustache.registerHelper("sort_index_at_end", function (list, options) {
   var max_int = Number.MAX_SAFE_INTEGER.toString(10),
       list_max = "0";
   list = Mustache.resolve(list);
-  can.each(list, function(item) {
+  can.each(list, function (item) {
     if (item.reify) {
       item = item.reify();
     }
@@ -55,13 +55,13 @@ Mustache.registerHelper("sort_index_at_end", function(list, options) {
   @param sortable_opts a JSON stringified object of options to pass to sortable
   @hashbparam inverse whether to invert the boolean check of val.
 */
-Mustache.registerHelper("sortable_if", function() {
+Mustache.registerHelper("sortable_if", function () {
   var args = can.makeArray(arguments).slice(0, arguments.length - 1),
       options = arguments[arguments.length - 1],
       inverse = options.hash && options.hash.inverse;
 
-  return function(el) {
-    can.view.live.attributes(el, can.compute(function() {
+  return function (el) {
+    can.view.live.attributes(el, can.compute(function () {
       var val = Mustache.resolve(args[0]),
           sortable_opts = args[1];
       if (val ^ inverse) {  //value XOR inverse, one must be true, one false
@@ -74,14 +74,14 @@ Mustache.registerHelper("sortable_if", function() {
 });
 
 
-Mustache.registerHelper("workflow_owner", function(instance, modal_title, options) {
+Mustache.registerHelper("workflow_owner", function (instance, modal_title, options) {
   var state = options.contexts.attr('__workflow_owner');
   if (resolve_computed(modal_title).indexOf('New ') === 0) {
     return GGRC.current_user.email;
   }
   else {
     var loader = resolve_computed(instance).get_binding('authorizations');
-    return $.map(loader.list, function(binding) {
+    return $.map(loader.list, function (binding) {
       if (binding.instance.role.reify().attr('name') === 'WorkflowOwner') {
         return binding.instance.person.reify().attr('email');
       }
@@ -90,27 +90,27 @@ Mustache.registerHelper("workflow_owner", function(instance, modal_title, option
 });
 
 
-Mustache.registerHelper("if_workflow_assignee_privileges", function(instance, options) {
+Mustache.registerHelper("if_workflow_assignee_privileges", function (instance, options) {
 
   var workflow_dfd,
       current_user = GGRC.current_user,
       admin = Permission.is_allowed("__GGRC_ADMIN__");
 
-  if(!options) {
+  if (!options) {
     options = instance;
     instance = options.context;
   }
   instance = Mustache.resolve(instance);
 
   //short-circuit if admin.
-  if(admin) {
+  if (admin) {
     return options.fn(options.contexts);
   }
 
   workflow_dfd = instance.get_binding("cycle").refresh_instances()
-    .then(function(cycle_bindings) {
+    .then(function (cycle_bindings) {
       return new RefreshQueue().enqueue(cycle_bindings[0].instance.workflow.reify()).trigger();
-    }).then(function(workflows) {
+    }).then(function (workflows) {
       return $.when(
         workflows[0].get_binding("authorizations").refresh_instances(),
         workflows[0].get_binding("task_groups").refresh_instances(),
@@ -119,20 +119,20 @@ Mustache.registerHelper("if_workflow_assignee_privileges", function(instance, op
         );
     });
 
-  return Mustache.defer_render("span", function(authorizations, task_groups, owner_auths, tasks) {
-    var owner_auth_ids = can.map(owner_auths, function(auth) {
+  return Mustache.defer_render("span", function (authorizations, task_groups, owner_auths, tasks) {
+    var owner_auth_ids = can.map(owner_auths, function (auth) {
         return auth.instance.person && auth.instance.person.id;
       }),
-      all_auth_ids = can.map(authorizations, function(auth) {
+      all_auth_ids = can.map(authorizations, function (auth) {
         return auth.instance.person && auth.instance.person.id;
       }),
-      task_group_contact_ids = can.map(task_groups, function(tg) {
+      task_group_contact_ids = can.map(task_groups, function (tg) {
         return tg.instance.contact && tg.instance.contact.id;
       }),
-      task_contact_ids = can.map(tasks, function(task) {
+      task_contact_ids = can.map(tasks, function (task) {
         return task.instance.contact && task.instance.contact.id;
       });
-    if(~can.inArray(current_user.id, owner_auth_ids)
+    if (~can.inArray(current_user.id, owner_auth_ids)
       || ~can.inArray(current_user.id, all_auth_ids)
       && (~can.inArray(current_user.id, task_group_contact_ids)
           || ~can.inArray(current_user.id, task_contact_ids))) {
@@ -144,40 +144,40 @@ Mustache.registerHelper("if_workflow_assignee_privileges", function(instance, op
 
 });
 
-Mustache.registerHelper("if_task_group_assignee_privileges", function(instance, options) {
+Mustache.registerHelper("if_task_group_assignee_privileges", function (instance, options) {
 
   var workflow_dfd,
       current_user = GGRC.current_user,
       admin = Permission.is_allowed("__GGRC_ADMIN__");
 
-  if(!options) {
+  if (!options) {
     options = instance;
     instance = options.context;
   }
   instance = Mustache.resolve(instance);
 
   //short-circuit if admin.
-  if(admin) {
+  if (admin) {
     return options.fn(options.contexts);
   }
 
-  workflow_dfd = instance.workflow.reify().refresh().then(function(workflow){
+  workflow_dfd = instance.workflow.reify().refresh().then(function (workflow){
     return $.when(
       workflow.get_binding("authorizations").refresh_instances(),
       workflow.get_binding("owner_authorizations").refresh_instances()
     );
   });
 
-  return Mustache.defer_render("span", function(authorizations, owner_auths) {
-    var owner_auth_ids = can.map(owner_auths, function(auth) {
+  return Mustache.defer_render("span", function (authorizations, owner_auths) {
+    var owner_auth_ids = can.map(owner_auths, function (auth) {
         return auth.instance.person && auth.instance.person.id;
       }),
-      all_auth_ids = can.map(authorizations, function(auth) {
+      all_auth_ids = can.map(authorizations, function (auth) {
         return auth.instance.person && auth.instance.person.id;
       }),
       task_group_contact_id = instance.contact && instance.contact.id;
 
-    if(~can.inArray(current_user.id, owner_auth_ids)
+    if (~can.inArray(current_user.id, owner_auth_ids)
       || ~can.inArray(current_user.id, all_auth_ids)
       && (current_user.id === task_group_contact_id)) {
       return options.fn(options.contexts);
@@ -188,7 +188,7 @@ Mustache.registerHelper("if_task_group_assignee_privileges", function(instance, 
 
 });
 
-Mustache.registerHelper("if_can_edit_response", function(instance, status, options) {
+Mustache.registerHelper("if_can_edit_response", function (instance, status, options) {
   instance = Mustache.resolve(instance);
   status = Mustache.resolve(status);
   var cycle = instance.cycle.reify(),

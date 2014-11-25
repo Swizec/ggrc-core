@@ -6,26 +6,26 @@
  */
 
 
-(function(can, $) {
+(function (can, $) {
 
 can.Control("GGRC.Controllers.PbcWorkflows", {
 
 }, {
 
-  "{CMS.Models.Audit} created" : function(model, ev, instance) {
+  "{CMS.Models.Audit} created" : function (model, ev, instance) {
     var that = this;
     
-    if(instance instanceof CMS.Models.Audit) {
-      if(instance.auto_generate) {
+    if (instance instanceof CMS.Models.Audit) {
+      if (instance.auto_generate) {
         instance.delay_resolving_save_until(
           instance.program.reify().refresh()
-          .then(function(program) {
+          .then(function (program) {
             return program.get_binding("controls").refresh_instances();
-          }).then(function(control_mappings) {
-            return can.reduce(control_mappings, function(deferred, control_mapping){
-              return deferred.then(function(){
+          }).then(function (control_mappings) {
+            return can.reduce(control_mappings, function (deferred, control_mapping){
+              return deferred.then(function (){
                 return that.create_audit_object(instance, control_mapping.instance);
-              }).then(function(audit_object) {
+              }).then(function (audit_object) {
                 return that.create_request(instance, audit_object);
               });
             }, $.when());
@@ -35,7 +35,7 @@ can.Control("GGRC.Controllers.PbcWorkflows", {
     }
   }
 
-  , create_objective : function(audit) {
+  , create_objective : function (audit) {
     return new CMS.Models.Objective({
       title : "Generic request"
       , context : audit.context
@@ -43,7 +43,7 @@ can.Control("GGRC.Controllers.PbcWorkflows", {
     }).save();
   }
 
-  , map_objective_to_program : function(program, objective) {
+  , map_objective_to_program : function (program, objective) {
     return new CMS.Models.ObjectObjective({
       objectiveable : program.stub()
       , objective : objective.stub()
@@ -51,7 +51,7 @@ can.Control("GGRC.Controllers.PbcWorkflows", {
     }).save();
   }
 
-  , create_audit_object: function(audit, control) {
+  , create_audit_object: function (audit, control) {
     return new CMS.Models.AuditObject({
       audit: audit.stub(),
       auditable: control.stub(),
@@ -59,7 +59,7 @@ can.Control("GGRC.Controllers.PbcWorkflows", {
     }).save();
   }
 
-  , create_request : function(audit, audit_object) {
+  , create_request : function (audit, audit_object) {
     return new CMS.Models.Request({
       assignee : audit.contact || CMS.Models.Person.model(GGRC.current_user)
       , audit : audit.stub()
@@ -73,15 +73,15 @@ can.Control("GGRC.Controllers.PbcWorkflows", {
     }).save();
   }
 
-  , update_objective_title : function(request) {
+  , update_objective_title : function (request) {
     var objective = request.objective.reify();
-    objective.refresh().then(function() {
+    objective.refresh().then(function () {
       objective.attr("title", objective.title + " " + request.attr("id")).save();
     });
     return request;
   }
 
-  , create_response : function(request) {
+  , create_response : function (request) {
     return new CMS.Models[request.response_model_class()]({
       pbc_response : "Generic response"
       , request : request.stub()
@@ -92,7 +92,7 @@ can.Control("GGRC.Controllers.PbcWorkflows", {
 
 });
 
-$(function() {
+$(function () {
   $(document.body).ggrc_controllers_pbc_workflows();
 });
 

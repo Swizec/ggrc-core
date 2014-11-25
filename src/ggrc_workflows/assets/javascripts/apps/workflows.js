@@ -6,7 +6,7 @@
  */
 
 
-(function($, CMS, GGRC) {
+(function ($, CMS, GGRC) {
   var WorkflowExtension = {},
       _workflow_object_types = [
         "Program",
@@ -15,10 +15,10 @@
         "System", "Process",
         "DataAsset", "Facility", "Market", "Product", "Project"
       ],
-      _task_sort_function = function(a, b){
+      _task_sort_function = function (a, b){
         var date_a = +new Date(a.end_date),
             date_b = +new Date(b.end_date);
-        if(date_a === date_b){
+        if (date_a === date_b){
           return a.id < b.id;
         }
         return date_a < date_b;
@@ -30,7 +30,7 @@
   WorkflowExtension.name = "workflows";
 
   // Register Workflow models for use with `infer_object_type`
-  WorkflowExtension.object_type_decision_tree = function() {
+  WorkflowExtension.object_type_decision_tree = function () {
     return {
       "cycle": CMS.Models.Cycle,
       "cycle_task_entry": CMS.Models.CycleTaskEntry,
@@ -102,10 +102,10 @@
             "Cycle", "workflow", "cycles"),
           folders:
             new GGRC.ListLoaders.ProxyListLoader("ObjectFolder", "folderable", "folder", "object_folders", "GDriveFolder"),
-          previous_cycles: CustomFilter("cycles", function(result) {
+          previous_cycles: CustomFilter("cycles", function (result) {
               return !result.instance.attr("is_current");
             }),
-          current_cycle: CustomFilter("cycles", function(result) {
+          current_cycle: CustomFilter("cycles", function (result) {
               return result.instance.attr("is_current");
             }),
           current_task_groups: Cross("current_cycle", "reify_cycle_task_groups"),
@@ -128,7 +128,7 @@
           // This is a dummy mapping that ensures the WorkflowOwner role is loaded
           //  before we do the custom filter for owner_authorizations.
           authorizations_and_roles: Multi(["authorizations", "roles"]),
-          owner_authorizations: CustomFilter("authorizations_and_roles", function(binding) {
+          owner_authorizations: CustomFilter("authorizations_and_roles", function (binding) {
             return binding.instance instanceof CMS.Models.UserRole
                    && binding.instance.attr("role")
                    && binding.instance.role.reify().attr("name") === "WorkflowOwner";
@@ -157,7 +157,7 @@
             "cycle_task_group",
             "cycle_task_group_tasks"),
           cycle_task_group_objects_for_page_object: CustomFilter(
-            "cycle_task_group_objects", function(object) {
+            "cycle_task_group_objects", function (object) {
               return object.instance.attr("object").reify() === GGRC.page_instance();
             }),
           cycle_task_group_object_tasks_for_page_object: Cross(
@@ -247,14 +247,14 @@
           ])
         },
         Person: {
-          assigned_tasks: Search(function(binding) {
+          assigned_tasks: Search(function (binding) {
             return CMS.Models.CycleTaskGroupObjectTask.findAll({
               contact_id: binding.instance.id,
               'cycle.is_current': true,
               status__in: 'Assigned,InProgress,Finished,Declined',
             });
           }),
-          assigned_tasks_with_history: Search(function(binding) {
+          assigned_tasks_with_history: Search(function (binding) {
             return CMS.Models.CycleTaskGroupObjectTask.findAll({
               contact_id: binding.instance.id
             });
@@ -263,18 +263,18 @@
       };
 
     // Insert `workflows` mappings to all business object types
-    can.each(_workflow_object_types, function(type) {
+    can.each(_workflow_object_types, function (type) {
       mappings[type] = {};
       mappings[type].task_groups = new GGRC.ListLoaders.ProxyListLoader(
         "TaskGroupObject", "object", "task_group", "task_group_objects", null);
-      mappings[type].object_tasks = Search(function(binding) {
+      mappings[type].object_tasks = Search(function (binding) {
         return CMS.Models.CycleTaskGroupObjectTask.findAll({
           'cycle_task_group_object.object_id': binding.instance.id,
           'cycle_task_group_object.object_type': binding.instance.type,
           'cycle.is_current': true
         });
       });
-      mappings[type].object_tasks_with_history = Search(function(binding) {
+      mappings[type].object_tasks_with_history = Search(function (binding) {
         return CMS.Models.CycleTaskGroupObjectTask.findAll({
           'cycle_task_group_object.object_id': binding.instance.id,
           'cycle_task_group_object.object_type': binding.instance.type,
@@ -282,7 +282,7 @@
       });
       mappings[type].workflows = Cross("task_groups", "workflow");
       mappings[type].approval_workflows = CustomFilter(
-        "workflows", function(binding) {
+        "workflows", function (binding) {
           return binding.instance.attr("object_approval");
         });
       mappings[type].current_approval_cycles = Cross("approval_workflows", "current_cycle");
@@ -372,7 +372,7 @@
             sort_function: _task_sort_function,
             draw_children: true,
             events: {
-              "show-history" : function(el, ev) {
+              "show-history" : function (el, ev) {
                 this.options.attr("mapping", el.attr("mapping"));
                 this.reload_list();
               }
@@ -410,14 +410,14 @@
         object = GGRC.page_instance(),
         object_descriptors = {};
 
-    can.each(GGRC.WidgetList.get_current_page_widgets(), function(descriptor, name) {
+    can.each(GGRC.WidgetList.get_current_page_widgets(), function (descriptor, name) {
       if (~new_default_widgets.indexOf(name))
         new_widget_descriptors[name] = descriptor;
     });
 
     // Initialize controller -- probably this should go in a separate
     // initialization area
-    $(function() {
+    $(function () {
       $(document.body).ggrc_controllers_workflow_page();
     });
 
@@ -526,7 +526,7 @@
 
     // Setup extra refresh required due to automatic creation of permissions
     // on creation of WorkflowPerson
-    CMS.Models.WorkflowPerson.bind("created", function(ev, instance) {
+    CMS.Models.WorkflowPerson.bind("created", function (ev, instance) {
       if (instance instanceof CMS.Models.WorkflowPerson) {
         instance.context.reify().refresh();
       }
@@ -557,7 +557,7 @@
           sort_function: _task_sort_function,
           draw_children: true,
           events: {
-            "show-history" : function(el, ev) {
+            "show-history" : function (el, ev) {
               this.options.attr("mapping", el.attr("mapping"));
               this.reload_list();
             }
@@ -580,15 +580,15 @@
     ]);
   };
 
-  WorkflowExtension.init_global = function() {
-    $(function() {
+  WorkflowExtension.init_global = function () {
+    $(function () {
 
-      if(!GGRC.current_user || !GGRC.current_user.id){
+      if (!GGRC.current_user || !GGRC.current_user.id){
         return;
       }
       CMS.Models.Person.findOne({
         id: GGRC.current_user.id
-      }).then(function(person){
+      }).then(function (person){
         $('.task-count').ggrc_controllers_mapping_count({
           mapping: 'assigned_tasks',
           instance: person
@@ -605,11 +605,11 @@
   var draft_on_update_mixin = can.Model.Mixin({
 
   }, {
-    before_update: function() {
+    before_update: function () {
       this.status && this.attr("status", "Draft");
     }
   });
-  can.each(_workflow_object_types, function(model_name) {
+  can.each(_workflow_object_types, function (model_name) {
     draft_on_update_mixin.add_to(CMS.Models[model_name]);
   });
 

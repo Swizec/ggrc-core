@@ -6,7 +6,7 @@
 */
 
 
-(function(can) {
+(function (can) {
 
   can.Model.Cacheable("CMS.Models.Workflow", {
     root_object: "workflow",
@@ -44,17 +44,17 @@
       show_view: GGRC.mustache_path + "/workflows/tree.mustache"
     },
 
-    init: function() {
+    init: function () {
       this._super && this._super.apply(this, arguments);
       this.validateNonBlank("title");
     },
   }, {
-    save : function() {
+    save : function () {
       var that = this,
           task_group_title = this.task_group_title,
           redirect_link;
 
-      return this._super.apply(this, arguments).then(function(instance) {
+      return this._super.apply(this, arguments).then(function (instance) {
         redirect_link = instance.viewLink + "#task_group_widget";
         if (!task_group_title) {
           instance.attr('_redirect', redirect_link);
@@ -66,7 +66,7 @@
           assignee: instance.contact,
           context: instance.context,
         });
-        return tg.save().then(function(tg) {
+        return tg.save().then(function (tg) {
           // Prevent the redirect form workflow_page.js
           tg.attr('_no_redirect', true);
           instance.attr('_redirect', redirect_link + "/task_group/" + tg.id);
@@ -76,7 +76,7 @@
     },
     // Check if task groups are slated to start
     //   in the current week/month/quarter/year
-    is_mid_frequency: function() {
+    is_mid_frequency: function () {
       var dfd = new $.Deferred(),
           self = this;
 
@@ -90,7 +90,7 @@
         return moment().dayOfYear(1).quarter(moment().quarter());
       }
       function _check_all_tasks(tasks) {
-        tasks.each(function(task) {
+        tasks.each(function (task) {
           var start, end, current = moment();
           task = task.reify();
           switch(self.frequency) {
@@ -135,10 +135,10 @@
       }
 
       // Check each task in the workflow:
-      this.refresh_all('task_groups', 'task_group_tasks').then(function(s) {
+      this.refresh_all('task_groups', 'task_group_tasks').then(function (s) {
         var tasks = new can.List();
-        self.task_groups.each(function(task_group) {
-          task_group.reify().task_group_tasks.each(function(task) {
+        self.task_groups.each(function (task_group) {
+          task_group.reify().task_group_tasks.each(function (task) {
             tasks.push(task.reify());
           });
         });
@@ -148,7 +148,7 @@
     },
 
     // Get duration from frequency or false for one_time or continuous wfs.
-    frequency_duration: function() {
+    frequency_duration: function () {
       switch (this.frequency) {
         case "weekly": return "week";
         case "monthly": return "month";
@@ -160,24 +160,24 @@
     // start day of month, affects start_date.
     //  Use when month number doesn't matter or is
     //  selectable.
-    start_day_of_month: can.compute(function(val) {
+    start_day_of_month: can.compute(function (val) {
       var newdate;
-      if(val) {
-        while(val.isComputed) {
+      if (val) {
+        while (val.isComputed) {
           val = val();
         }
-        if(val > 31) {
+        if (val > 31) {
           val = 31;
         }
         newdate = new Date(this.start_date || null);
-        while(moment(newdate).daysInMonth() < val) {
+        while (moment(newdate).daysInMonth() < val) {
           newdate.setMonth((newdate.getMonth() + 1) % 12);
         }
         newdate.setDate(val);
         this.attr("start_date", newdate);
       } else {
         newdate = this.attr("start_date");
-        if(newdate) {
+        if (newdate) {
           return newdate.getDate();
         } else {
           return null;
@@ -188,24 +188,24 @@
     // end day of month, affects end_date.
     //  Use when month number doesn't matter or is
     //  selectable.
-    end_day_of_month: can.compute(function(val) {
+    end_day_of_month: can.compute(function (val) {
       var newdate;
-      if(val) {
-        while(val.isComputed) {
+      if (val) {
+        while (val.isComputed) {
           val = val();
         }
-        if(val > 31) {
+        if (val > 31) {
           val = 31;
         }
         newdate = new Date(this.end_date || null);
-        while(moment(newdate).daysInMonth() < val) {
+        while (moment(newdate).daysInMonth() < val) {
           newdate.setMonth((newdate.getMonth() + 1) % 12);
         }
         newdate.setDate(val);
         this.attr("end_date", newdate);
       } else {
         newdate = this.attr("end_date");
-        if(newdate) {
+        if (newdate) {
           return newdate.getDate();
         } else {
           return null;
@@ -216,17 +216,17 @@
     // start month of quarter, affects start_date.
     //  Sets month to be a 31-day month in the chosen quarterly cycle:
     //  1 for Jan-Apr-Jul-Oct, 2 for Feb-May-Aug-Nov, 3 for Mar-Jun-Sep-Dec
-    start_month_of_quarter: can.compute(function(val) {
+    start_month_of_quarter: can.compute(function (val) {
       var newdate;
       var month_lookup = [0, 4, 2]; //31-day months in quarter cycles: January, May, March
 
-      if(val) {
+      if (val) {
         newdate = new Date(this.start_date || null);
         newdate.setMonth(month_lookup[(val - 1) % 3]);
         this.attr("start_date", newdate);
       } else {
         newdate = this.attr("start_date");
-        if(newdate) {
+        if (newdate) {
           return newdate.getMonth() % 3 + 1;
         } else {
           return null;
@@ -237,17 +237,17 @@
     // end month of quarter, affects end_date.
     //  Sets month to be a 31-day month in the chosen quarterly cycle:
     //  1 for Jan-Apr-Jul-Oct, 2 for Feb-May-Aug-Nov, 3 for Mar-Jun-Sep-Dec
-    end_month_of_quarter: can.compute(function(val) {
+    end_month_of_quarter: can.compute(function (val) {
       var newdate;
       var month_lookup = [0, 7, 2]; //31-day months in quarter cycles: January, May, March
 
-      if(val) {
+      if (val) {
         newdate = new Date(this.end_date || null);
         newdate.setMonth(month_lookup[(val - 1) % 3]);
         this.attr("end_date", newdate);
       } else {
         newdate = this.attr("end_date");
-        if(newdate) {
+        if (newdate) {
           return newdate.getMonth() % 3 + 1;
         } else {
           return null;
@@ -258,21 +258,21 @@
     // start month of yesr, affects start_date.
     //  Sets month to the chosen month, and adjusts
     //  day of month to be within chosen month
-    start_month_of_year: can.compute(function(val) {
+    start_month_of_year: can.compute(function (val) {
       var newdate;
-      if(val) {
-        if(val > 12) {
+      if (val) {
+        if (val > 12) {
           val = 12;
         }
         newdate = new Date(this.start_date || null);
-        if(moment(newdate).date(1).month(val - 1).daysInMonth() < newdate.getDate()) {
+        if (moment(newdate).date(1).month(val - 1).daysInMonth() < newdate.getDate()) {
           newdate.setDate(moment(newdate).date(1).month(val - 1).daysInMonth());
         }
         newdate.setMonth(val - 1);
         this.attr("start_date", newdate);
       } else {
         newdate = this.attr("start_date");
-        if(newdate) {
+        if (newdate) {
           return newdate.getMonth() + 1;
         } else {
           return null;
@@ -283,21 +283,21 @@
     // end month of yesr, affects end_date.
     //  Sets month to the chosen month, and adjusts
     //  day of month to be within chosen month
-    end_month_of_year: can.compute(function(val) {
+    end_month_of_year: can.compute(function (val) {
       var newdate;
-      if(val) {
-        if(val > 12) {
+      if (val) {
+        if (val > 12) {
           val = 12;
         }
         newdate = new Date(this.end_date || null);
-        if(moment(newdate).date(1).month(val - 1).daysInMonth() < newdate.getDate()) {
+        if (moment(newdate).date(1).month(val - 1).daysInMonth() < newdate.getDate()) {
           newdate.setDate(moment(newdate).date(1).month(val - 1).daysInMonth());
         }
         newdate.setMonth(val - 1);
         this.attr("end_date", newdate);
       } else {
         newdate = this.attr("end_date");
-        if(newdate) {
+        if (newdate) {
           return newdate.getMonth() + 1;
         } else {
           return null;
@@ -309,16 +309,16 @@
     //  Sets day of month to the first day of the
     //  month that is the selected day of the week
     //  Sunday is 0, Saturday is 6
-    start_day_of_week: can.compute(function(val) {
+    start_day_of_week: can.compute(function (val) {
       var newdate;
-      if(val) {
+      if (val) {
         val = +val;
         newdate = new Date(this.start_date || null);
         newdate.setDate((newdate.getDate() + 7 - newdate.getDay() + val - 1) % 7 + 1);
         this.attr("start_date", newdate);
       } else {
         newdate = this.attr("start_date");
-        if(newdate) {
+        if (newdate) {
           return newdate.getDay();
         } else {
           return null;
@@ -330,16 +330,16 @@
     //  Sets day of month to the first day of the
     //  month that is the selected day of the week
     //  Sunday is 0, Saturday is 6
-    end_day_of_week: can.compute(function(val) {
+    end_day_of_week: can.compute(function (val) {
       var newdate;
-      if(val) {
+      if (val) {
         val = +val;
         newdate = new Date(this.end_date || null);
         newdate.setDate((newdate.getDate() + 7 - newdate.getDay() + val - 1) % 7 + 1);
         this.attr("end_date", newdate);
       } else {
         newdate = this.attr("end_date");
-        if(newdate) {
+        if (newdate) {
           return newdate.getDay();
         } else {
           return null;

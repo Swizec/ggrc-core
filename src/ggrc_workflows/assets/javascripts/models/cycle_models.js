@@ -6,17 +6,17 @@
 */
 
 
-(function(can) {
+(function (can) {
 
   var _mustache_path,
       overdue_compute;
 
-  overdue_compute = can.compute(function(val) {
+  overdue_compute = can.compute(function (val) {
     if (this.attr("status") === "Verified") {
       return "";
     }
     var date = moment(this.attr("next_due_date") || this.attr("end_date"));
-    if(date && date.isBefore(new Date())){
+    if (date && date.isBefore(new Date())){
       return "overdue";
     }
     return "";
@@ -29,7 +29,7 @@
   }
 
   function refresh_attr_wrap(attr){
-    return function(ev, instance) {
+    return function (ev, instance) {
       if (instance instanceof this) {
         refresh_attr(instance, attr);
       }
@@ -66,29 +66,29 @@
         }
       ]
     },
-    init: function(){
+    init: function (){
       var that = this;
       this._super.apply(this, arguments);
       this.bind("created", refresh_attr_wrap('workflow').bind(this));
     }
   }, {
-    init: function() {
+    init: function () {
       var that = this;
       this._super.apply(this, arguments);
-      this.bind("status", function(ev, newVal) {
+      this.bind("status", function (ev, newVal) {
         if (newVal === 'Verified') {
-          new RefreshQueue().enqueue(this.workflow.reify()).trigger().then(function(wfs) {
+          new RefreshQueue().enqueue(this.workflow.reify()).trigger().then(function (wfs) {
             return wfs[0].get_binding("owners").refresh_instances();
-          }).then(function(wf_owner_bindings) {
+          }).then(function (wf_owner_bindings) {
             var current_user = CMS.Models.get_instance(GGRC.current_user);
-            if(~can.inArray(
+            if (~can.inArray(
               current_user,
-              can.map(wf_owner_bindings, function(wf_owner_binding) {
+              can.map(wf_owner_bindings, function (wf_owner_binding) {
                 return wf_owner_binding.instance;
               })
             )) {
-              that.refresh().then(function() {
-                if(that.attr("is_current")) {
+              that.refresh().then(function () {
+                if (that.attr("is_current")) {
                   that.attr("is_current", false);
                   that.save();
                 }
@@ -132,21 +132,21 @@
         footer_view: _mustache_path + "/documents_footer.mustache"
       }],
     },
-    init: function(){
+    init: function (){
       this._super.apply(this, arguments);
       this.bind("created",
         refresh_attr_wrap("cycle_task_group_object_task").bind(this));
       this.validateNonBlank("description");
     }
   }, {
-    workflowFolder: function() {
-      return this.refresh_all('cycle', 'workflow', 'folders').then(function(folders){
+    workflowFolder: function () {
+      return this.refresh_all('cycle', 'workflow', 'folders').then(function (folders){
         if (folders.length === 0) {
           // Workflow folder has not been assigned
           return null;
         }
         return folders[0].instance;
-      }, function(result) {
+      }, function (result) {
         return result;
       });
     }
@@ -192,14 +192,14 @@
       ]
     },
 
-    init: function() {
+    init: function () {
       var that = this;
       this._super.apply(this, arguments);
 
-      this.bind("updated", function(ev, instance) {
+      this.bind("updated", function (ev, instance) {
         if (instance instanceof that) {
           var dfd = instance.refresh_all_force('cycle', 'workflow');
-          dfd.then(function(){
+          dfd.then(function (){
             return $.when(
               instance.refresh_all_force('cycle_task_group_objects'),
               instance.refresh_all_force('cycle_task_group_tasks')
@@ -248,7 +248,7 @@
       ]
     },
 
-    init: function() {
+    init: function () {
       this._super.apply(this, arguments);
       this.bind("updated", refresh_attr_wrap("cycle_task_group").bind(this));
     }
@@ -292,13 +292,13 @@
       ]
     },
 
-    init: function() {
+    init: function () {
       var that = this;
       this._super.apply(this, arguments);
 
-      this.bind("updated", function(ev, instance) {
+      this.bind("updated", function (ev, instance) {
         if (instance instanceof that) {
-          instance.refresh_all_force('cycle_task_group_object', 'task_group_object', 'object').then(function(object) {
+          instance.refresh_all_force('cycle_task_group_object', 'task_group_object', 'object').then(function (object) {
             return instance.refresh_all_force('cycle_task_group', 'cycle', 'workflow');
           });
         }
@@ -306,26 +306,26 @@
     }
   }, {
     overdue: overdue_compute,
-    workflow: function() {
-      return this.refresh_all('cycle', 'workflow').then(function(workflow){
+    workflow: function () {
+      return this.refresh_all('cycle', 'workflow').then(function (workflow){
         return workflow;
       });
     },
-    object: function() {
-      return this.refresh_all('cycle_task_group_object', 'task_group_object', 'object').then(function(object){
+    object: function () {
+      return this.refresh_all('cycle_task_group_object', 'task_group_object', 'object').then(function (object){
         return object;
       });
     },
-    response_options_csv: can.compute(function(val) {
-      if(val != null) {
+    response_options_csv: can.compute(function (val) {
+      if (val != null) {
         this.attr("response_options", $.map(val.split(","), $.proxy("".trim.call, "".trim)));
       } else {
         return (this.attr("response_options") || []).join(", ");
       }
     }),
 
-    selected_response_options_csv: can.compute(function(val) {
-      if(val != null) {
+    selected_response_options_csv: can.compute(function (val) {
+      if (val != null) {
         this.attr("selected_response_options", $.map(val.split(","), $.proxy("".trim.call, "".trim)));
       } else {
         return (this.attr("selected_response_options") || []).join(", ");

@@ -5,24 +5,24 @@
  * Maintained By: brad@reciprocitylabs.com
  */
 
-(function(can, $) {
+(function (can, $) {
   var gcal_findAll, gcalevent_findAll
   , scopes = ['https://www.googleapis.com/auth/calendar'];
 
   can.Model.Cacheable("CMS.Models.GCal", {
 
-    findAll : (gcal_findAll = function(params) {
+    findAll : (gcal_findAll = function (params) {
       return GGRC.gapi_request_with_auth({
         path : "/calendar/v3/users/me/calendarList"
                + (params && params.id ? "/" + params.id : "")
                + "?"
                + $.param($.extend({ minAccessRole : "writer"}, params))
-        , callback : function(dfd, result) {
-          if(result.error) {
+        , callback : function (dfd, result) {
+          if (result.error) {
             dfd.reject(result.error);
           } else {
             var objs = result.items || [result];
-            can.each(objs, function(obj) {
+            can.each(objs, function (obj) {
               obj.selfLink = obj.selfLink || "#";
             });
             dfd.resolve(objs);
@@ -32,28 +32,28 @@
     })
     , findOne : gcal_findAll
 
-    , getPrimary : function() {
+    , getPrimary : function () {
       return GGRC.gapi_request_with_auth({
         path : "/calendar/v3/calendars/primary"
-        , callback : function(dfd, d) { dfd.resolve(d); }
+        , callback : function (dfd, d) { dfd.resolve(d); }
         , scopes : scopes
       });
     }
 
   }, {
 
-    eventsModel : function() {
+    eventsModel : function () {
       var that = this;
       return CMS.Models.GCalEvent.extend({
-        getPath : function() {
+        getPath : function () {
           return "/calendar/v3/calendars/" + that.id + "/events";
         }
       }, {});
     }
-    , refresh : function(params) {
+    , refresh : function (params) {
       return this.constructor.findOne({ id : this.id })
       .then($.proxy(this.constructor, "model"))
-      .done(function(d) {
+      .done(function (d) {
         d.updated();
         //  Trigger complete refresh of object -- slow, but fixes live-binding
         //  redraws in some cases
@@ -64,11 +64,11 @@
   });
 
   function check_path(obj, params) {
-    if(!obj.getPath(params)) {
+    if (!obj.getPath(params)) {
       GGRC.config = GGRC.config || {};
-      return CMS.Models.GCal.getPrimary().then(function(d) {
+      return CMS.Models.GCal.getPrimary().then(function (d) {
         GGRC.config.USER_PRIMARY_CALENDAR = d;
-        if(!GGRC.config.DEFAULT_CALENDAR) {
+        if (!GGRC.config.DEFAULT_CALENDAR) {
           GGRC.config.DEFAULT_CALENDAR = d;
         }
       });
@@ -79,8 +79,8 @@
 
   can.Model.Cacheable("CMS.Models.GCalEvent", {
 
-    getPath : function(params) {
-      if(!params.calendar && !GGRC.config.DEFAULT_CALENDAR) {
+    getPath : function (params) {
+      if (!params.calendar && !GGRC.config.DEFAULT_CALENDAR) {
         return null;
       }
 
@@ -91,23 +91,23 @@
       , (params && params.q ? "?q=" + encodeURIComponent(params.q) : "")].join("");
     }
 
-    , findAll : (gcalevent_findAll = function(params) {
+    , findAll : (gcalevent_findAll = function (params) {
       var dfd = check_path(this, params)
       , that = this;
 
-      if(params && params.response) {
+      if (params && params.response) {
         params.q = "Response #" + params.response.id;
       }
-      return dfd.then(function() {
+      return dfd.then(function () {
         return GGRC.gapi_request_with_auth({
           path : that.proxy("getPath", params)
           , method : "get"
-          , callback : function(dfd, result) {
-            if(result.error) {
+          , callback : function (dfd, result) {
+            if (result.error) {
               dfd.reject(result.error);
-            } else if(result.items) {
+            } else if (result.items) {
               var objs = result.items;
-              can.each(objs, function(obj) {
+              can.each(objs, function (obj) {
                 obj.selfLink = obj.selfLink || "#";
               });
               dfd.resolve(objs);
@@ -121,29 +121,29 @@
       });
     })
     , findOne : gcalevent_findAll
-    , create : function(params) {
+    , create : function (params) {
       var dfd = check_path(this, params)
       , that = this;
-      return dfd.then(function() {
+      return dfd.then(function () {
         return GGRC.gapi_request_with_auth({
           path : that.getPath(params)
           , body : params
           , method : "post"
-          , callback : function(dfd, d) {
+          , callback : function (dfd, d) {
             dfd.resolve(d);
           }
           , scopes : scopes
         });
       });
     }
-    , destroy : function(id) {
+    , destroy : function (id) {
       var dfd = check_path(this, params)
       , that = this;
-      return dfd.then(function() {
+      return dfd.then(function () {
         return GGRC.gapi_request_with_auth({
           path : that.getPath() + "/" + id
           , method : "delete"
-          , callback : function(dfd, d) {
+          , callback : function (dfd, d) {
             dfd.resolve(d);
           }
           , scopes : scopes
@@ -156,26 +156,26 @@
       , attendees: "email_only"
     }
     , serialize : {
-      email_only : function(val) {
-        if(val.reify) {
-          return can.map(val.reify(), function(p) { return {email : p.email}; });
+      email_only : function (val) {
+        if (val.reify) {
+          return can.map(val.reify(), function (p) { return {email : p.email}; });
         }
       }
     }
     , convert : {
-      email_only : function(val) {
+      email_only : function (val) {
         var finds = []
         , result = new CMS.Models.Person.List();
-        can.each(val, function(g_person) {
+        can.each(val, function (g_person) {
           var p;
-          if(p = CMS.Models.Person.findInCacheByEmail(g_person.email)) {
+          if (p = CMS.Models.Person.findInCacheByEmail(g_person.email)) {
             result.push(p);
           } else {
             finds.push(g_person.email);
           }
         });
-        if(finds.length > 0) {
-          CMS.Models.Person.findAll({"email__in" : finds.join(",") }).done(function(np) {
+        if (finds.length > 0) {
+          CMS.Models.Person.findAll({"email__in" : finds.join(",") }).done(function (np) {
             result.push.apply(result, np);
           });
         }
@@ -184,10 +184,10 @@
     }
   }, {
 
-    refresh : function(params) {
+    refresh : function (params) {
       return this.constructor.findOne({ calendar : this.calendar, id : this.id })
       .then($.proxy(this.constructor, "model"))
-      .done(function(d) {
+      .done(function (d) {
         d.updated();
         //  Trigger complete refresh of object -- slow, but fixes live-binding
         //  redraws in some cases
@@ -214,8 +214,8 @@ can.Model.Join("CMS.Models.ObjectEvent", {
     , calendar : "CMS.Models.GCal.stub"
   }
 
-  , model : function(params) {
-    if(typeof params === "object") {
+  , model : function (params) {
+    if (typeof params === "object") {
       params.event = {
         id : params.event_id
         , type : "GCalEvent"
@@ -227,9 +227,9 @@ can.Model.Join("CMS.Models.ObjectEvent", {
   }
 }, {
 
-  serialize : function(attr) {
+  serialize : function (attr) {
     var serial;
-    if(!attr) {
+    if (!attr) {
       serial = this._super.apply(this, arguments);
       serial.event_id = serial.event ? serial.event.id : serial.event_id;
       delete serial.event;

@@ -5,7 +5,7 @@
     Maintained By: brad@reciprocitylabs.com
 */
 
-(function(ns, can) {
+(function (ns, can) {
 
 can.Model.Cacheable("CMS.Models.Document", {
     root_object : "document"
@@ -17,14 +17,14 @@ can.Model.Cacheable("CMS.Models.Document", {
     , create : "POST /api/documents"
     , update : "PUT /api/documents/{id}"
     , destroy : "DELETE /api/documents/{id}"
-    , search : function(request, response) {
+    , search : function (request, response) {
         return $.ajax({
             type : "get"
             , url : "/api/documents"
             , dataType : "json"
             , data : {s : request.term}
-            , success : function(data) {
-                response($.map( data, function( item ) {
+            , success : function (data) {
+                response($.map( data, function ( item ) {
                   return can.extend({}, item.document, {
                     label: item.document.title 
                           ? item.document.title 
@@ -50,7 +50,7 @@ can.Model.Cacheable("CMS.Models.Document", {
     , footer_view : GGRC.mustache_path + "/documents/tree_footer.mustache"
 
   }
-  , init : function() {
+  , init : function () {
     this.validateNonBlank("link");
     this._super.apply(this, arguments);
   }

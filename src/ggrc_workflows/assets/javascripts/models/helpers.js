@@ -5,19 +5,19 @@
     Maintained By: brad@reciprocitylabs.com
 */
 
-;(function(can, $, CMS) {
+;(function (can, $, CMS) {
 
 can.Observe("CMS.ModelHelpers.CycleTask", {
-  findInCacheById : function() { return null; },
+  findInCacheById : function () { return null; },
 }, {
-  init : function() {
+  init : function () {
     this.attr("owners", new CMS.Models.Person.List(this.owners));
   },
-  save : function() {
+  save : function () {
     var that = this;
     // FIXME: temporary fix for 'Could not get any raw data while
     // converting using .models'
-    this._data.owners = $.map(this._data.owners, function(owner){
+    this._data.owners = $.map(this._data.owners, function (owner){
       return {
         id: owner.id,
         type: owner.type,
@@ -31,7 +31,7 @@ can.Observe("CMS.ModelHelpers.CycleTask", {
       sort_index: Number.MAX_SAFE_INTEGER / 2,
       contact: that.contact,
       context: that.context
-    }).save().then(function(task_group_task) {
+    }).save().then(function (task_group_task) {
       return new CMS.Models.CycleTaskGroupObjectTask({
         cycle: that.cycle,
         start_date: that.cycle.reify().start_date,
@@ -47,9 +47,9 @@ can.Observe("CMS.ModelHelpers.CycleTask", {
       }).save();
     });
   },
-  computed_errors: can.compute(function() {
+  computed_errors: can.compute(function () {
     var errors = null;
-    if(!this.attr("title")) {
+    if (!this.attr("title")) {
       errors = { title: "Must be defined" };
     }
     return errors;
@@ -62,11 +62,11 @@ can.Observe("CMS.ModelHelpers.ApprovalWorkflow", {
     original_object: null
   }
 }, {
-  save: function() {
+  save: function () {
     var that = this,
         aws_dfd = this.original_object.get_binding("approval_workflows").refresh_list();
     
-    return aws_dfd.then(function(aws){
+    return aws_dfd.then(function (aws){
       var ret;
       if (aws.length < 1) {
         ret = $.when(
@@ -87,7 +87,7 @@ can.Observe("CMS.ModelHelpers.ApprovalWorkflow", {
               + "workflows_widget'>here</a> to perform a review.<br/><br/>Thanks,<br/>gGRC Team",
             context: that.original_object.context
           }).save()
-        ).then(function(wf) {
+        ).then(function (wf) {
             return $.when(
               wf,
               new CMS.Models.TaskGroup({
@@ -99,7 +99,7 @@ can.Observe("CMS.ModelHelpers.ApprovalWorkflow", {
                 context: wf.context
               }).save()
             );
-        }).then(function(wf, tg) {
+        }).then(function (wf, tg) {
             return $.when(
               wf,
               new CMS.Models.TaskGroupTask({
@@ -127,14 +127,14 @@ can.Observe("CMS.ModelHelpers.ApprovalWorkflow", {
           aws[0].instance.refresh(),
           $.when.apply(
             $,
-            can.map(aws[0].instance.task_groups.reify(), function(tg) {
+            can.map(aws[0].instance.task_groups.reify(), function (tg) {
               return tg.refresh();
             })
-          ).then(function() {
-            return $.when.apply($, can.map(can.makeArray(arguments), function(tg) {
-              return tg.attr("contact", that.contact).save().then(function(tg) {
-                return $.when.apply($, can.map(tg.task_group_tasks.reify(), function(tgt) {
-                  return tgt.refresh().then(function(tgt) {
+          ).then(function () {
+            return $.when.apply($, can.map(can.makeArray(arguments), function (tg) {
+              return tg.attr("contact", that.contact).save().then(function (tg) {
+                return $.when.apply($, can.map(tg.task_group_tasks.reify(), function (tgt) {
+                  return tgt.refresh().then(function (tgt) {
                     return tgt.attr({
                       'contact': that.contact,
                       'end_date': that.end_date,
@@ -149,7 +149,7 @@ can.Observe("CMS.ModelHelpers.ApprovalWorkflow", {
         );
       }
 
-      return ret.then(function(wf) {
+      return ret.then(function (wf) {
         return new CMS.Models.Cycle({
           workflow: wf,
           autogenerate: true,
@@ -158,12 +158,12 @@ can.Observe("CMS.ModelHelpers.ApprovalWorkflow", {
       });
     });
   },
-  computed_errors: (approval_workflow_errors_compute = can.compute(function() {
+  computed_errors: (approval_workflow_errors_compute = can.compute(function () {
     var errors = null;
-    if(!this.attr("contact")) {
+    if (!this.attr("contact")) {
       errors = { contact: "Must be defined" };
     }
-    if(!this.attr("end_date")) {
+    if (!this.attr("end_date")) {
       errors = $.extend(errors, { end_date : "Must be defined" });
     }
     return errors;

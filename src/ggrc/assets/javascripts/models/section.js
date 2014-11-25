@@ -27,7 +27,7 @@ can.Model.Cacheable("CMS.Models.SectionBase", {
   , destroy: "DELETE /api/section_bases/{id}"
   , mixins : ["ownable", "contactable"]
 
-  , model: function(params) {
+  , model: function (params) {
       if (this.shortName !== 'SectionBase')
         return this._super(params);
       if (!params)
@@ -61,7 +61,7 @@ can.Model.Cacheable("CMS.Models.SectionBase", {
     , object_sections: "CMS.Models.ObjectSection.stubs"
   }
 
-  , init: function() {
+  , init: function () {
     this._super.apply(this, arguments);
     this.validateNonBlank("title");
   }
@@ -107,7 +107,7 @@ CMS.Models.SectionBase("CMS.Models.Section", {
     , object_sections : "CMS.Models.ObjectSection.stubs"
     }
 
-  , init: function() {
+  , init: function () {
     this._super.apply(this, arguments);
     // Only Sections (not Clauses) need a parent Directive.
     this.validatePresenceOf("directive");
@@ -120,7 +120,7 @@ CMS.Models.SectionBase("CMS.Models.Section", {
         model : can.Model.Cacheable
       , mapping : "related_and_able_objects"
       , title_plural : "Business Objects"
-      , draw_children : function(){
+      , draw_children : function (){
           return this.instance.type === "Objective";
         }
       , footer_view : GGRC.mustache_path + "/base_objects/tree_footer.mustache"
@@ -184,7 +184,7 @@ CMS.Models.SectionBase("CMS.Models.Clause", {
         model: can.Model.Cacheable
       , mapping: "related_and_able_objects"
       , title_plural: "Business Objects"
-      , draw_children: function(){
+      , draw_children: function (){
           return this.instance.type === "Objective";
         }
       , footer_view: GGRC.mustache_path + "/base_objects/tree_footer.mustache"

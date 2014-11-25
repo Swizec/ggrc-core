@@ -7,30 +7,30 @@
 
 
 // Initialize delegated event handlers
-jQuery(function($) {
+jQuery(function ($) {
 
-  window.natural_comparator = function(a, b) {
+  window.natural_comparator = function (a, b) {
     a = a.slug.toString();
     b = b.slug.toString();
-    if(a===b) return 0;
+    if (a===b) return 0;
 
     a = a.replace(/(?=\D\d)(.)|(?=\d\D)(.)/g, "$1$2|").split("|");
     b = b.replace(/(?=\D\d)(.)|(?=\d\D)(.)/g, "$1$2|").split("|");
 
-    for(var i = 0; i < Math.max(a.length, b.length); i++) {
-      if(+a[i] === +a[i] && +b[i] === +b[i]) {
-        if(+a[i] < +b[i]) return -1;
-        if(+b[i] < +a[i]) return 1;
+    for (var i = 0; i < Math.max(a.length, b.length); i++) {
+      if (+a[i] === +a[i] && +b[i] === +b[i]) {
+        if (+a[i] < +b[i]) return -1;
+        if (+b[i] < +a[i]) return 1;
       } else {
-        if(a[i] < b[i]) return -1;
-        if(b[i] < a[i]) return 1;
+        if (a[i] < b[i]) return -1;
+        if (b[i] < a[i]) return 1;
       }
     }
     return 0;
   };
 
   // On-demand creation of datepicker() objects
-  $('body').on('focus', '[data-toggle="datepicker"]', function(e) {
+  $('body').on('focus', '[data-toggle="datepicker"]', function (e) {
     var $this = $(this);
 
     if (!$this.data('datepicker'))
@@ -38,14 +38,14 @@ jQuery(function($) {
   });
 
   // Turn the arrow when tree node content is shown
-  $('body').on('click', '[data-toggle="collapse"]', function(e) {
+  $('body').on('click', '[data-toggle="collapse"]', function (e) {
     var $this = $(this)
       , $expander_container = $this.closest(':has(.expander, .enddot)')
       , $expander = $expander_container.find('.expander').eq(0)
       , $target = $($this.data('target'))
       ;
 
-    setTimeout(function() {
+    setTimeout(function () {
       if ($target.hasClass('in'))
         $expander.addClass('in');
       else
@@ -55,9 +55,9 @@ jQuery(function($) {
 
   //After the modal template has loaded from the server, but before the
   //  data has loaded to populate into the body, show a spinner
-  $("body").on("loaded", ".modal.modal-slim, .modal.modal-wide", function(e) {
+  $("body").on("loaded", ".modal.modal-slim, .modal.modal-wide", function (e) {
 
-    var spin = function() {
+    var spin = function () {
       $(this).html(
         $(new Spinner().spin().el)
           .css({
@@ -65,7 +65,7 @@ jQuery(function($) {
             left: '50%', top: '50%',
             zIndex : calculate_spinner_z_index
           })
-      ).one("loaded", function() {
+      ).one("loaded", function () {
         $(this).find(".source").each(spin);
       });
     };
@@ -73,12 +73,12 @@ jQuery(function($) {
     $(e.target).find(".modal-body .source").each(spin);
   });
 
-  $('body').on('click', '[data-toggle="list-remove"]', function(e) {
+  $('body').on('click', '[data-toggle="list-remove"]', function (e) {
     e.preventDefault();
     $(this).closest('li').remove();
   });
 
-  $('body').on('click', '[data-toggle="list-select"]', function(e) {
+  $('body').on('click', '[data-toggle="list-select"]', function (e) {
     e.preventDefault();
 
     var $this = $(this)
@@ -97,7 +97,7 @@ jQuery(function($) {
 // This is only used by import to redirect on successful import
 // - this cannot use other response headers because it is proxied through
 //   an iframe to achieve AJAX file upload (using remoteipart)
-jQuery(function($) {
+jQuery(function ($) {
 
   var submit_import = 'form.import div.import-interface input[type=submit]',
       file_select_elem = 'form.import div.import-interface input[type=file]';
@@ -109,40 +109,40 @@ jQuery(function($) {
     $(this).addClass("disabled");
   }
   function checkStatus(result, type, $btn){
-    CMS.Models.BackgroundTask.findOne({id: result.id}, function(task){
+    CMS.Models.BackgroundTask.findOne({id: result.id}, function (task){
       var msg = ($btn && $btn.val() == "Upload and Review") ? $btn.val() : type;
-      if(task.status == "Pending" || task.status == "Running"){
+      if (task.status == "Pending" || task.status == "Running"){
 
         $('body').trigger(
           'ajax:flash',
             { "progress" : msg + " " +  task.status.toLowerCase() + "..."}
         );
         // Task has not finished yet, check again in a while:
-        setTimeout(function(){checkStatus(result, type, $btn);}, 3000);
+        setTimeout(function (){checkStatus(result, type, $btn);}, 3000);
       }
-      else if(task.status == "Success"){
+      else if (task.status == "Success"){
         var $container = $("#results-container");
         $btn && $btn.removeClass("disabled");
         // Check if redirect:
         try{
           var jsonResult = $.parseJSON($(task.result.content).text());
-          if("location" in jsonResult){
+          if ("location" in jsonResult){
             GGRC.navigate(jsonResult.location);
             return;
           }
         } catch(e){}
         // Check if file download (export):
-        if("headers" in task.result){
+        if ("headers" in task.result){
           var headers = task.result.headers;
-          for(var i = 0; i < headers.length; i++){
-            if(headers[i][0] == "Content-Type" && headers[i][1] == "text/csv"){
+          for (var i = 0; i < headers.length; i++){
+            if (headers[i][0] == "Content-Type" && headers[i][1] == "text/csv"){
               window.location.assign("/background_task/"+task.id);
             }
           }
         }
         $container.html(task.result.content);
         $container.find('input[type=submit]').click(onSubmitClick);
-        if(msg === "Upload and Review"){
+        if (msg === "Upload and Review"){
           // Don't display "Upload and Review successful." message;
           // But kill progress message.
           $('body').trigger('ajax:flash', {});
@@ -153,7 +153,7 @@ jQuery(function($) {
             { "success" : msg + " successful."}
         );
       }
-      else if(task.status == "Failure"){
+      else if (task.status == "Failure"){
         $btn && $btn.removeClass("disabled");
         $('body').trigger(
           'ajax:flash',
@@ -164,19 +164,19 @@ jQuery(function($) {
   }
   $(submit_import).click(onSubmitClick);
   // handler to initialize import upload button as disabled
-  $(submit_import).ready(function(){
+  $(submit_import).ready(function (){
     $(submit_import).addClass("disabled");
   });
-  $('body').on('ajax:success', 'form.import', function(e, data, status, xhr) {
+  $('body').on('ajax:success', 'form.import', function (e, data, status, xhr) {
     var $btn = $('form.import .btn.disabled').first();
     if (xhr.getResponseHeader('Content-Type') == 'application/json') {
       var result = $.parseJSON(data);
-      if("location" in result){
+      if ("location" in result){
         // Redirect
        GGRC.navigate(result.location);
       }
       // Check if task has completed:
-      setTimeout(function(){
+      setTimeout(function (){
         checkStatus(result, "Import", $btn);
       }, 500);
     }
@@ -185,14 +185,14 @@ jQuery(function($) {
     }
   });
 
-  $('body').on('click', 'a.export-link', function(e, el){
+  $('body').on('click', 'a.export-link', function (e, el){
     e.preventDefault();
     var url = e.currentTarget.href;
     can.ajax({
       url: url,
-      success: function(data, status, xhr) {
+      success: function (data, status, xhr) {
         var jsonResult = $.parseJSON($(data).html());
-        setTimeout(function(){
+        setTimeout(function (){
           checkStatus(jsonResult, "Export");
         }, 500);
       }
@@ -200,7 +200,7 @@ jQuery(function($) {
   });
 
   // change button to disabled when no file selected, and vice versa
-  $(file_select_elem).change(function(ev) {
+  $(file_select_elem).change(function (ev) {
     if (this.value === "") {
       $(submit_import).each(onSubmitClick);
     } else {
@@ -208,8 +208,8 @@ jQuery(function($) {
     }
   });
 
-  jQuery(function($) {
-    $('body').on('ajax:success', 'form[data-remote][data-update-target]', function(e, data, status, xhr) {
+  jQuery(function ($) {
+    $('body').on('ajax:success', 'form[data-remote][data-update-target]', function (e, data, status, xhr) {
       if (xhr.getResponseHeader('Content-Type') == 'text/html') {
         var $container = $($(this).data('update-target'));
         $container.html(data);
@@ -219,7 +219,7 @@ jQuery(function($) {
   });
 });
 
-jQuery(function($) {
+jQuery(function ($) {
  function refresh_page() {
     setTimeout(can.proxy(window.location.reload, window.location), 10);
   }
@@ -227,8 +227,8 @@ jQuery(function($) {
   $('body').on('ajax:complete', '[data-ajax-complete="refresh"]', refresh_page);
 });
 
-jQuery(function($) {
-  $('body').on('ajax:success', '#helpedit form', function(e, data, status, xhr) {
+jQuery(function ($) {
+  $('body').on('ajax:success', '#helpedit form', function (e, data, status, xhr) {
     var $modal = $(this).closest('.modal');
     $modal.find('.modal-header h1').html(data.help.title);
     $modal.find('.modal-body .help-content').html(data.help.content);
@@ -236,9 +236,9 @@ jQuery(function($) {
   });
 });
 
-jQuery(function($) {
+jQuery(function ($) {
   // Used in object_list sidebars (References, People, Categories)
-  $('body').on('modal:success', '.js-list-container-title a', function(e, data) {
+  $('body').on('modal:success', '.js-list-container-title a', function (e, data) {
     var $this = $(this)
       , $title = $this.closest('.js-list-container-title')
       , $span = $title.find('span')
@@ -258,14 +258,14 @@ jQuery(function($) {
   });
 });
 
-jQuery(function($) {
+jQuery(function ($) {
   can.extend(can.Control.prototype, {
     // Returns a function which will be halted unless `this.element` exists
     //   - useful for callbacks which depend on the controller's presence in
     //     the DOM
-    _ifNotRemoved: function(fn) {
+    _ifNotRemoved: function (fn) {
       var that = this;
-      return function() {
+      return function () {
         if (!that.element)
           return;
         return fn.apply(this, arguments);
@@ -273,19 +273,19 @@ jQuery(function($) {
     },
 
     //make buttons non-clickable when saving
-    bindXHRToButton : function(xhr, el, newtext, disable) {
+    bindXHRToButton : function (xhr, el, newtext, disable) {
       // binding of an ajax to a click is something we do manually
       var $el = $(el)
       , oldtext = $el.text();
 
-      if(newtext) {
+      if (newtext) {
         $el[0].innerHTML = newtext;
       }
       $el.addClass("disabled pending-ajax");
       if (disable !== false) {
         $el.attr("disabled", true);
       }
-      xhr.always(function() {
+      xhr.always(function () {
         // If .text(str) is used instead of innerHTML, the click event may not fire depending on timing
         if ($el.length) {
           $el.removeAttr("disabled").removeClass("disabled pending-ajax")[0].innerHTML = oldtext;
@@ -295,20 +295,20 @@ jQuery(function($) {
   });
 });
 
-jQuery(function($) {
+jQuery(function ($) {
 
   function checkActive(notification_configs) {
     var inputs = $('.notify-wrap').find('input'),
         active_notifications;
 
-    active_notifications = $.map(notification_configs, function(a){
-      if(a.enable_flag) {
+    active_notifications = $.map(notification_configs, function (a){
+      if (a.enable_flag) {
         return a.notif_type;
       }
     });
-    $.map(inputs, function(input) {
+    $.map(inputs, function (input) {
       // Handle the default case, in case notification objects are not set:
-      if(notification_configs.length === 0) {
+      if (notification_configs.length === 0) {
         input.checked = input.value === 'Email_Digest';
       } else {
         input.checked = active_notifications.indexOf(input.value) > -1;
@@ -319,45 +319,45 @@ jQuery(function($) {
   CMS.Models.NotificationConfig.findActive().then(checkActive);
 
   // Don't close the dropdown if clicked on checkbox
-  $('body').on('click', '.notify-wrap', function(ev){
+  $('body').on('click', '.notify-wrap', function (ev){
     ev.stopPropagation();
   });
 
-  $('body').on('click', 'input[name=notifications]', function(ev, el){
+  $('body').on('click', 'input[name=notifications]', function (ev, el){
     var li = $(ev.target).closest('.notify-wrap'),
         inputs = li.find('input'),
         active = [];
 
     inputs.prop('disabled', true);
-    active = $.map(inputs, function(input){
-      if(input.checked){
+    active = $.map(inputs, function (input){
+      if (input.checked){
         return input.value;
       }
     });
-    CMS.Models.NotificationConfig.setActive(active).always(function(response){
+    CMS.Models.NotificationConfig.setActive(active).always(function (response){
       inputs.prop('disabled', false);
     });
   });
 
-  $('body').on('click', '.clear-display-settings', function(e) {
-    CMS.Models.DisplayPrefs.findAll().done(function(data) {
+  $('body').on('click', '.clear-display-settings', function (e) {
+    CMS.Models.DisplayPrefs.findAll().done(function (data) {
       var destroys = [];
-      can.each(data, function(d) {
+      can.each(data, function (d) {
         d.unbind("change"); //forget about listening to changes.  we're going to refresh the page
         destroys.push(d.resetPagePrefs());
       });
-      $.when.apply($, destroys).done(function() { GGRC.navigate(); });
+      $.when.apply($, destroys).done(function () { GGRC.navigate(); });
     });
   })
-  .on('click', '.set-display-settings-default', function(e) {
+  .on('click', '.set-display-settings-default', function (e) {
     var page_token = getPageToken();
-    CMS.Models.DisplayPrefs.findAll().done(function(data) {
+    CMS.Models.DisplayPrefs.findAll().done(function (data) {
       var destroys = [];
-      can.each(data, function(d) {
+      can.each(data, function (d) {
         d.unbind("change"); //forget about listening to changes.  we're going to refresh the page
         destroys.push(d.setPageAsDefault(page_token));
       });
-      $.when.apply($, destroys).done(function() {
+      $.when.apply($, destroys).done(function () {
         $('body').trigger(
           'ajax:flash',
           { "success" : "Saved page layout as default for " + (page_token === "dashboard" ? "dashboard" : page_token) }
@@ -368,10 +368,10 @@ jQuery(function($) {
 });
 
 //Make all external links open in new window.
-jQuery(function($) {
-  $("body").on("click", "a[href]:not([target])", function(e) {
+jQuery(function ($) {
+  $("body").on("click", "a[href]:not([target])", function (e) {
     if (!e.isDefaultPrevented()) {
-      if(/^http/.test(this.protocol) && this.hostname !== window.location.hostname) {
+      if (/^http/.test(this.protocol) && this.hostname !== window.location.hostname) {
         e.preventDefault();
         window.open(this.href);
       }
@@ -436,7 +436,7 @@ function resize_areas() {
 }
 
 
-jQuery(function($) {
+jQuery(function ($) {
 
   // Footer expander animation helper
   function expander(toggle, direction) {
@@ -475,10 +475,10 @@ jQuery(function($) {
     }, {
         duration: duration
       , easing: "easeInOutExpo"
-      , step: function(now, fx) {
+      , step: function (now, fx) {
           $(this).css('clip', 'rect(0px, '+ (width - now + (out ? start : end)) +'px, ' + height + 'px, 0px)');
         }
-      , complete: function() {
+      , complete: function () {
           if (!out) {
             $this.filter(':not(.section-sticky)').fadeIn();
             $(this).hide();
@@ -491,18 +491,18 @@ jQuery(function($) {
     });
 
     // Queue the reverse on mouseout
-    out && $this.closest('li').one("mouseleave", function() {
+    out && $this.closest('li').one("mouseleave", function () {
       expander($this, "in");
     });
   }
 
   // Footer expander animations (verify that an expander exists)
-  $('body').on('mouseenter', '.section-add:has(+ .section-expander), .section-expander:visible:animated', function(e) {
+  $('body').on('mouseenter', '.section-add:has(+ .section-expander), .section-expander:visible:animated', function (e) {
     var $this = $(this);
     expander($this.hasClass('section-add') ? $this : $this.prev('.section-add'), "out");
   });
 
-  $('body').on('click', '.show-long', function(e) {
+  $('body').on('click', '.show-long', function (e) {
     var $this = $(this)
       , $descField = $this.closest('.span12').find('.tree-description')
       ;
@@ -512,25 +512,25 @@ jQuery(function($) {
 
   // activate widget from object nav
 
-  $('body').on('mouseenter', 'ul.internav li a', function(e) {
+  $('body').on('mouseenter', 'ul.internav li a', function (e) {
     var $this = $(this)
     ,   $widgetID = $this.attr("href")
     ,   $targetWidget = $($widgetID)
     ;
 
-    if( ! $targetWidget.hasClass("widget-active") ) {
+    if ( ! $targetWidget.hasClass("widget-active") ) {
       $targetWidget.addClass("widget-active");
     }
   });
 
-  $('body').on('mouseleave', 'ul.internav li a', function(e) {
+  $('body').on('mouseleave', 'ul.internav li a', function (e) {
     var $this = $(this)
     ,   $widgetID = $this.attr("href")
     ,   $targetWidget = $($widgetID)
     ,   control
     ;
 
-    if( $targetWidget.hasClass("widget-active")
+    if ( $targetWidget.hasClass("widget-active")
       && (control = $('.cms_controllers_inner_nav').control('inner_nav'))
       && control.options.contexts.attr('active_widget.selector') !== $widgetID
     ) {
@@ -538,11 +538,11 @@ jQuery(function($) {
     }
   });
 
-  $('body').on('mouseenter', '.widget', function(e) {
+  $('body').on('mouseenter', '.widget', function (e) {
     var $this = $(this)
     ,   $navitem = $('[href=#' + $this.attr('id') + ']').closest('li')
     ;
-    if( ! $this.hasClass("widget-active") ) {
+    if ( ! $this.hasClass("widget-active") ) {
       $this.addClass("widget-active");
       var inner_nav = $('.cms_controllers_inner_nav').control('inner_nav');
       if (inner_nav) {
@@ -551,33 +551,33 @@ jQuery(function($) {
     }
   });
 
-  $('body').on('deactivate', '.widget', function(e) {
+  $('body').on('deactivate', '.widget', function (e) {
     var $this = $(this)
     ,   $navitem = $('[href=#' + $this.attr('id') + ']').closest('li')
     ;
-    if( $this.hasClass("widget-active") ) {
+    if ( $this.hasClass("widget-active") ) {
       $this.removeClass("widget-active");
     }
   });
 
   // show/hide audit lead and firm
-  $('body').on('mouseover', '.ui-autocomplete li a', function(e) {
+  $('body').on('mouseover', '.ui-autocomplete li a', function (e) {
     var $this = $(this);
     $this.addClass("active");
     $this.closest('li').addClass("active");
   });
-  $('body').on('mouseleave', '.ui-autocomplete li a', function(e) {
+  $('body').on('mouseleave', '.ui-autocomplete li a', function (e) {
     var $this = $(this);
     $this.removeClass("active");
     $this.closest('li').removeClass("active");
   });
 
   // Show/hide inner filters
-  $('body').on('click', '.advanced-filter-trigger', function() {
+  $('body').on('click', '.advanced-filter-trigger', function () {
     var $this = $(this),
         $filter = $this.closest('.inner-tree').find('.inner-filter-sticky');
 
-    if($this.hasClass("active")) {
+    if ($this.hasClass("active")) {
       $filter.slideUp('fast');
       $this.removeClass("active");
       $this.html('<i class="grcicon-search"></i> Show Filters');

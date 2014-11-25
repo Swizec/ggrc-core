@@ -5,7 +5,7 @@
     Maintained By: brad@reciprocitylabs.com
 */
 
-(function(can) {
+(function (can) {
 
 can.Model.Cacheable("CMS.Models.OrgGroup", {
   root_object : "org_group"
@@ -77,10 +77,10 @@ can.Model.Cacheable("CMS.Models.OrgGroup", {
     , "DataAsset" : {}
     , "Market" : {}
     }
-  , init : function() {
+  , init : function () {
     var that = this;
     this._super && this._super.apply(this, arguments);
-    $(function(){
+    $(function (){
       that.tree_view_options.child_options[0].model = CMS.Models.Process;
     });
     this.tree_view_options.child_options[1].model = this;
@@ -145,10 +145,10 @@ can.Model.Cacheable("CMS.Models.Project", {
     , "DataAsset" : {}
     , "Market" : {}
     }
-  , init : function() {
+  , init : function () {
     var that = this;
     this._super && this._super.apply(this, arguments);
-    $(function(){
+    $(function (){
       that.tree_view_options.child_options[0].model = CMS.Models.Process;
     });
 
@@ -226,10 +226,10 @@ can.Model.Cacheable("CMS.Models.Facility", {
     , "DataAsset" : {}
     , "Market" : {}
     }
-  , init : function() {
+  , init : function () {
     var that = this
     this._super && this._super.apply(this, arguments);
-    $(function(){
+    $(function (){
       that.tree_view_options.child_options[0].model = CMS.Models.Process;
     });
     this.tree_view_options.child_options[1].model = this;
@@ -313,10 +313,10 @@ can.Model.Cacheable("CMS.Models.Product", {
     , "Product" : {}
     , "Market" : {}
     }
-  , init : function() {
+  , init : function () {
     var that = this
     this._super && this._super.apply(this, arguments);
-    $(function(){
+    $(function (){
       that.tree_view_options.child_options[0].model = CMS.Models.Process;
     });
     this.tree_view_options.child_options[1].model = this;
@@ -396,10 +396,10 @@ can.Model.Cacheable("CMS.Models.DataAsset", {
     , "DataAsset" : {}
     , "Market" : {}
     }
-  , init : function() {
+  , init : function () {
     var that = this;
     this._super && this._super.apply(this, arguments);
-    $(function(){
+    $(function (){
       that.tree_view_options.child_options[0].model = CMS.Models.Process;
     });
     this.tree_view_options.child_options[1].model = this;
@@ -464,10 +464,10 @@ can.Model.Cacheable("CMS.Models.Market", {
     , "DataAsset" : {}
     , "Market" : {}
     }
-  , init : function() {
+  , init : function () {
     var that = this;
     this._super && this._super.apply(this, arguments);
-    $(function(){
+    $(function (){
       that.tree_view_options.child_options[0].model = CMS.Models.Process;
     });
 
@@ -545,10 +545,10 @@ can.Model.Cacheable("CMS.Models.Vendor", {
     , "DataAsset" : {}
     , "Market" : {}
     }
-  , init : function() {
+  , init : function () {
     var that = this;
     this._super && this._super.apply(this, arguments);
-    $(function(){
+    $(function (){
       that.tree_view_options.child_options[0].model = CMS.Models.Process;
     });
     this.tree_view_options.child_options[1].model = this;

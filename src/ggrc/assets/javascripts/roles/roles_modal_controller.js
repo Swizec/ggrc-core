@@ -5,18 +5,18 @@
     Maintained By: david@reciprocitylabs.com
 */
 
-(function(can, $) {
+(function (can, $) {
   GGRC.Controllers.Modals("GGRC.Controllers.RoleModal", {
     defaults : {
       content_view : GGRC.mustache_path + "/roles/modal_content.mustache"
     }
   }, {
-    init : function() {
+    init : function () {
       this._super();
     }
     , set_value : function (item) {
       var instance = this.options.instance;
-      if(!(instance instanceof this.options.model)) {
+      if (!(instance instanceof this.options.model)) {
         instance = this.options.instance
                  = new this.options.model(instance && instance.serialize ? instance.serialize() : instance);
       }
@@ -26,7 +26,7 @@
 
       if (typeof(item.value) == 'undefined') {
         value = $elem.val();
-        if($elem.attr("numeric") && isNaN(parseInt(value, 10))) {
+        if ($elem.attr("numeric") && isNaN(parseInt(value, 10))) {
           value = null;
         }
       } else if ($elem.is("[type=checkbox]")) {
@@ -38,9 +38,9 @@
       if ($elem.is("[null-if-empty]") && value.length == 0)
         value = null;
 
-      if(name.length > 1) {
-        if(can.isArray(value)) {
-          value = new can.Observe.List(can.map(value, function(v) { return new can.Observe({}).attr(name.slice(1).join("."), v); }));
+      if (name.length > 1) {
+        if (can.isArray(value)) {
+          value = new can.Observe.List(can.map(value, function (v) { return new can.Observe({}).attr(name.slice(1).join("."), v); }));
         } else {
           value = new can.Observe({}).attr(name.slice(1).join("."), value);
         }
@@ -65,7 +65,7 @@
         }
       };
 
-      var clear = function(target) {
+      var clear = function (target) {
         target.splice(0, target.length);
       }
 
@@ -90,14 +90,14 @@
       }
     }
 
-    , "input[type=checkbox] change": function(el, ev) {
+    , "input[type=checkbox] change": function (el, ev) {
         var name = el.attr('name').split('.')
           , checked = el.is(':checked')
           , $input
           ;
 
         if (name[1] === '__ALL__') {
-          this.element.find("input[name^='" + name[0] + ".']").each(function(i, input) {
+          this.element.find("input[name^='" + name[0] + ".']").each(function (i, input) {
             $input = $(input);
             if ($input.is(':checked') != checked)
               $input.click();
@@ -116,8 +116,8 @@
     }
   });
 
-  $(function() {
-    $('body').on('click', '[data-toggle="role-modal"]', function(e) {
+  $(function () {
+    $('body').on('click', '[data-toggle="role-modal"]', function (e) {
       var $this = $(this)
         , toggle_type = $(this).data('toggle')
         , modal_id, target, $target, option, href, new_target, modal_type
@@ -132,7 +132,7 @@
         $this.attr('data-target', '#' + modal_id);
       }
       
-      $target.on('hidden', function(ev) {
+      $target.on('hidden', function (ev) {
         if (ev.target === ev.currentTarget)
           $target.remove();
       });
@@ -145,7 +145,7 @@
       var form_target = $trigger.data('form-target')
       , model = CMS.Models[$trigger.attr("data-object-singular")]
       , instance;
-      if($trigger.attr('data-object-id') === "page") {
+      if ($trigger.attr('data-object-id') === "page") {
         instance = GGRC.page_instance();
       } else {
         instance = model.findInCacheById($trigger.attr('data-object-id'));
@@ -168,7 +168,7 @@
         , content_view : GGRC.mustache_path + "/" + $trigger.attr("data-object-plural") + "/modal_content.mustache"
       };
       var modal = GGRC.Controllers.RoleModal.newInstance($target[0], $.extend({ $trigger: $trigger}, options));
-      $target.on('modal:success', function(e, data, xhr) {
+      $target.on('modal:success', function (e, data, xhr) {
         if (form_target == 'refresh') {
           refresh_page();
         } else if (form_target == 'redirect') {
@@ -176,13 +176,13 @@
         } else {
           var dirty;
           $target.modal_form('hide');
-          if($trigger.data("dirty")) {
-            dirty = $($trigger.data("dirty").split(",")).map(function(i, val) {
+          if ($trigger.data("dirty")) {
+            dirty = $($trigger.data("dirty").split(",")).map(function (i, val) {
               return '[href="' + val.trim() + '"]';
             }).get().join(",");
             $(dirty).data('tab-loaded', false);
           }
-          if(dirty) {
+          if (dirty) {
             var $active = $(dirty).filter(".active [href]");
             $active.closest(".active").removeClass("active");
             $active.click();
@@ -196,7 +196,7 @@
 
 })(window.can, window.can.$);
 
-Mustache.registerHelper("permission_checkbox", function(action, resourcetype, contexts) {
+Mustache.registerHelper("permission_checkbox", function (action, resourcetype, contexts) {
   var capitalized_action = can.capitalize(action);
   var checked = false;
   if (resourcetype == "__ALL__") {

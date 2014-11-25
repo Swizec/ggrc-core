@@ -5,7 +5,7 @@
     Maintained By: brad@reciprocitylabs.com
 */
 
-(function(can, $, CMS, GGRC) {
+(function (can, $, CMS, GGRC) {
 
   var scopes = new can.Observe.List(['https://www.googleapis.com/auth/userinfo.email']);
 
@@ -85,13 +85,13 @@
   });
 
   GGRC.gapi_request_with_auth = $.proxy(GGRC.Controllers.GAPI, "gapi_request_with_auth");
-  $(function() {
+  $(function () {
     $(document.body).ggrc_controllers_gapi({ scopes : scopes });
   });
 
   // set up a temporary global auth function so the GAPI onload can find it
   var r = Math.floor(Math.random() * 100000000);
-  window["resolvegapi" + r] = function(gapi) {
+  window["resolvegapi" + r] = function (gapi) {
     GGRC.Controllers.GAPI.gapidfd.resolve(gapi);
     delete window["resolvegapi" + r];
   };

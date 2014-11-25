@@ -5,18 +5,18 @@
     Maintained By: vraj@reciprocitylabs.com
 */
 
-(function(can, $) {
+(function (can, $) {
 
 GGRC.Controllers.Modals("GGRC.Controllers.Unmap", {
     defaults: {
         skip_refresh: true
     }
 }, {
-  init : function() {
+  init : function () {
     this._super();
   }
 
-  , "{$footer} a.btn[data-toggle=delete] click" : function(el, ev) {
+  , "{$footer} a.btn[data-toggle=delete] click" : function (el, ev) {
     this.element.trigger("modal:success", this.options.instance);
   }
 

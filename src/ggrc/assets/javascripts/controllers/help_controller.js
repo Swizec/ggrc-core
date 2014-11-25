@@ -5,7 +5,7 @@
     Maintained By: brad@reciprocitylabs.com
 */
 
-(function(can, $) {
+(function (can, $) {
 
 GGRC.Controllers.Modals("GGRC.Controllers.Help", {
   defaults : {
@@ -15,28 +15,28 @@ GGRC.Controllers.Modals("GGRC.Controllers.Help", {
     , edit_btn_active : false
   }
 }, {
-  init : function() {
+  init : function () {
     //this.options.edit_btn_active = can.compute(this.options.edit_btn_active);
     this._super();
   }
 
-  , "{$content} input.btn[name='commit'] click" : function(el, ev) {
+  , "{$content} input.btn[name='commit'] click" : function (el, ev) {
     if (!this.options.instance.context)
       this.options.instance.attr('context', { id: null });
 
-    this.bindXHRToButton(this.options.instance.save().done(function() {
+    this.bindXHRToButton(this.options.instance.save().done(function () {
       $(document.body).trigger("ajax:flash", { success : "Help content saved successfully"});
     }), el);
   }
 
-  , "{$header} .help-edit click" : function(el, ev) {
+  , "{$header} .help-edit click" : function (el, ev) {
     var that = this;
-    setTimeout(function() {
+    setTimeout(function () {
       that.options.edit_btn_active = that.options.$content.find("#helpedit").is(".in");
     }, 10);
   }
 
-  , find_params : function() {
+  , find_params : function () {
     return {slug : this.options.slug};
   }
 });

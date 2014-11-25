@@ -5,7 +5,7 @@
     Maintained By: brad@reciprocitylabs.com
 */
 
-(function(can, $) {
+(function (can, $) {
 /*  RefreshQueue
  *
  *  enqueue(obj, force=false) -> queue or null
@@ -14,7 +14,7 @@
 
 can.Construct("ModelRefreshQueue", {
 }, {
-    init: function(model) {
+    init: function (model) {
       this.model = model;
       this.ids = [];
       this.deferred = new $.Deferred();
@@ -23,7 +23,7 @@ can.Construct("ModelRefreshQueue", {
       this.updated_at = Date.now();
     }
 
-  , enqueue: function(id) {
+  , enqueue: function (id) {
       if (this.triggered)
         return null;
       else {
@@ -35,15 +35,15 @@ can.Construct("ModelRefreshQueue", {
       }
     }
 
-  , trigger: function() {
+  , trigger: function () {
       var self = this;
       if (!this.triggered) {
         this.triggered = true;
         if (this.ids.length > 0)
-          this.model.findAll({ id__in: this.ids.join(",") }).then(function() {
+          this.model.findAll({ id__in: this.ids.join(",") }).then(function () {
             self.completed = true;
             self.deferred.resolve();
-          }, function() {
+          }, function () {
             self.deferred.reject.apply(self.deferred, arguments);
           });
         else {
@@ -54,7 +54,7 @@ can.Construct("ModelRefreshQueue", {
       return this.deferred;
     }
 
-  , trigger_with_debounce: function(delay, manager) {
+  , trigger_with_debounce: function (delay, manager) {
       var ms_to_wait = (delay || 0) + this.updated_at - Date.now();
 
       if (!this.triggered) {
@@ -80,19 +80,19 @@ can.Construct("RefreshQueueManager", {
       //, Process: 'SystemOrProcess'
     }
 }, {
-    init: function() {
+    init: function () {
       this.null_queue = new ModelRefreshQueue(null);
       this.queues = [];
     }
 
-  , triggered_queues: function() {
-      return can.map(this.queues, function(queue) {
+  , triggered_queues: function () {
+      return can.map(this.queues, function (queue) {
         if (queue.triggered)
           return queue;
       });
     }
 
-  , enqueue: function(obj, force) {
+  , enqueue: function (obj, force) {
       var self = this
         , model = obj.constructor
         , model_name = model.shortName
@@ -117,14 +117,14 @@ can.Construct("RefreshQueueManager", {
 
       if (!force)
         // Check if the ID is already contained in another queue
-        can.each(this.queues, function(queue) {
+        can.each(this.queues, function (queue) {
           if (!found_queue
               && queue.model === model && queue.ids.indexOf(id) > -1)
             found_queue = queue;
         });
 
       if (!found_queue) {
-        can.each(this.queues, function(queue) {
+        can.each(this.queues, function (queue) {
           if (!found_queue && queue.model === model
               && !queue.triggered && queue.ids.length < 50) {
             found_queue = queue.enqueue(id);
@@ -135,7 +135,7 @@ can.Construct("RefreshQueueManager", {
           found_queue = new ModelRefreshQueue(model);
           this.queues.push(found_queue)
           found_queue.enqueue(id);
-          found_queue.deferred.done(function() {
+          found_queue.deferred.done(function () {
             var index = self.queues.indexOf(found_queue);
             if (index > -1)
               self.queues.splice(index, 1);
@@ -149,7 +149,7 @@ can.Construct("RefreshQueueManager", {
 
 can.Construct("RefreshQueue", {
     refresh_queue_manager: new RefreshQueueManager(),
-    refresh_all: function(instance, props, force) {
+    refresh_all: function (instance, props, force) {
       var dfd = new $.Deferred();
 
       _refresh_all(instance, props, dfd);
@@ -174,18 +174,18 @@ can.Construct("RefreshQueue", {
           }
         }
         if (deferred) {
-          deferred.then(function(refreshed_items) {
+          deferred.then(function (refreshed_items) {
             if (next_props.length) {
-              can.each(refreshed_items, function(item) {
+              can.each(refreshed_items, function (item) {
                 var d = new $.Deferred();
                 _refresh_all(item, next_props, d);
                 dfds.push(d);
               });
               // Resolve the original deferred only when all list deferreds
               //   have been resolved
-              $.when.apply($, dfds).then(function(items) {
+              $.when.apply($, dfds).then(function (items) {
                 dfd.resolve(items);
-              }, function() {
+              }, function () {
                 dfd.reject.apply(this, arguments);
               });
               return;
@@ -197,7 +197,7 @@ can.Construct("RefreshQueue", {
             }
             // Last refreshed property was a single instance, return it as such
             dfd.resolve(refreshed_items[0]);
-          }, function() {
+          }, function () {
             dfd.reject.apply(this, arguments);
           });
         } else {
@@ -206,7 +206,7 @@ can.Construct("RefreshQueue", {
       }
     },
 }, {
-    init: function() {
+    init: function () {
       this.objects = [];
       this.queues = [];
       this.deferred = new $.Deferred();
@@ -214,14 +214,14 @@ can.Construct("RefreshQueue", {
       this.completed = false;
     }
 
-  , enqueue: function(obj, force) {
+  , enqueue: function (obj, force) {
       var that = this;
       if (!obj)
         return;
       if (this.triggered)
         return null;
       if (obj.push) {
-        can.each(obj, function(o) {
+        can.each(obj, function (o) {
           that.enqueue(o, force);
         });
         return this;
@@ -236,7 +236,7 @@ can.Construct("RefreshQueue", {
       return this;
     }
 
-  , trigger: function(delay) {
+  , trigger: function (delay) {
       var self = this
         , deferreds = []
         ;
@@ -245,17 +245,17 @@ can.Construct("RefreshQueue", {
         delay = 50;
 
       this.triggered = true;
-      can.each(this.queues, function(queue) {
+      can.each(this.queues, function (queue) {
         deferreds.push(queue.trigger_with_debounce(
             50, self.constructor.refresh_queue_manager));
       });
 
       if (deferreds.length > 0)
-        $.when.apply($, deferreds).then(function() {
-          self.deferred.resolve(can.map(self.objects, function(obj) {
+        $.when.apply($, deferreds).then(function () {
+          self.deferred.resolve(can.map(self.objects, function (obj) {
             return obj.reify();
           }));
-        }, function() {
+        }, function () {
           self.deferred.reject.apply(self.deferred, arguments);
         });
       else

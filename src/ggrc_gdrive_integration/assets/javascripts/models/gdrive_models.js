@@ -5,7 +5,7 @@
  * Maintained By: brad@reciprocitylabs.com
  */
 
-(function(can) {
+(function (can) {
 
 var scopes = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/apps.groups.settings'];
 
@@ -18,9 +18,9 @@ var scopes = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.c
   Reference for search query format:
   https://developers.google.com/drive/search-parameters
 */
-window.process_gapi_query = function(params) {
+window.process_gapi_query = function (params) {
   var qstr = [];
-  for(var i in params) {
+  for (var i in params) {
     switch(i) {
       case 'parents' :
         qstr.push("'" + (params[i].id ? params[i].id : params[i]) + "' in " + i);
@@ -38,50 +38,50 @@ window.process_gapi_query = function(params) {
 
 //Template for all findAll operations on GDrive objects.
 // https://developers.google.com/drive/v2/reference/files/list
-var gdrive_findAll = function(extra_params, extra_path) {
-  return function(params) {
+var gdrive_findAll = function (extra_params, extra_path) {
+  return function (params) {
     var that = this;
     params = params || {};
 
     //Short-circuit for refresh queue, because GAPI doesn't play that.
-    if(params.id__in) {
-      return $.when.apply($, can.map(params.id__in.split(","), function(id) {
+    if (params.id__in) {
+      return $.when.apply($, can.map(params.id__in.split(","), function (id) {
         return that.findOne({id : id});
-      })).then(function() {
+      })).then(function () {
         return can.makeArray(arguments);
       });
     }
 
-    if(params.parentfolderid) {
+    if (params.parentfolderid) {
       params.parents = params.parentfolderid ;
       delete params.parentfolderid;
     }
-    if(!params.parents && !params.id) {
+    if (!params.parents && !params.id) {
       params.parents = "root";
     }
     $.extend(params, extra_params);
     var q = process_gapi_query(params);
 
     var path = "/drive/v2/files";
-    if(params.id) {
+    if (params.id) {
       path += "/" + params.id;
     }
-    if(extra_path) {
+    if (extra_path) {
       path += extra_path;
     }
-    if(q) {
+    if (q) {
       path += "?q=" + encodeURIComponent(q);
     }
 
     return gapi_request_with_auth({
       path : path
       , method : "get" //"post"
-      , callback : function(dfd, result) {
-        if(!result || result.error) {
+      , callback : function (dfd, result) {
+        if (!result || result.error) {
           dfd.reject(result ? result.error : JSON.parse(arguments[1]));
-        } else if(result.items) {
+        } else if (result.items) {
           var objs = result.items;
-          can.each(objs, function(obj) {
+          can.each(objs, function (obj) {
             obj.selfLink = obj.selfLink || "#";
           });
           dfd.resolve(objs);
@@ -95,7 +95,7 @@ var gdrive_findAll = function(extra_params, extra_path) {
 };
 
 var gapi_request_with_auth;
-$(function() {
+$(function () {
   gapi_request_with_auth = GGRC.gapi_request_with_auth;
 });
 /**
@@ -110,8 +110,8 @@ can.Model.Cacheable("CMS.Models.GDriveFile", {
   findAll : gdrive_findAll({ mimeTypeNot : "application/vnd.google-apps.folder" })
   , findOne : gdrive_findAll({})
 
-  , addToParent : function(object, parent) {
-    if(typeof parent === "string") {
+  , addToParent : function (object, parent) {
+    if (typeof parent === "string") {
       parent = { id : parent };
     }
 
@@ -119,21 +119,21 @@ can.Model.Cacheable("CMS.Models.GDriveFile", {
       path : "/drive/v2/files/" + object.id + "/parents"
       , method : "post"
       , body : parent.stub ? parent.stub() : parent
-      , callback : function(dfd, result) {
-        if(result && result.error) {
+      , callback : function (dfd, result) {
+        if (result && result.error) {
           dfd.reject(dfd, result.error.status, result.error);
         } else {
           dfd.resolve();
         }
       }
       , scopes : scopes
-    }).done(function() {
+    }).done(function () {
       object.refresh();
     });
   }
 
-  , copyToParent : function(object, parent) {
-    if(typeof parent === "string") {
+  , copyToParent : function (object, parent) {
+    if (typeof parent === "string") {
       parent = { id : parent };
     }
 
@@ -141,8 +141,8 @@ can.Model.Cacheable("CMS.Models.GDriveFile", {
       path : "/drive/v2/files/" + object.id + "/copy"
       , method : "post"
       , body : { parents : [{id : parent.id }], title : object.title }
-      , callback : function(dfd, result) {
-        if(result && result.error) {
+      , callback : function (dfd, result) {
+        if (result && result.error) {
           dfd.reject(dfd, result.error.status, result.error);
         } else {
           dfd.resolve(result);
@@ -152,31 +152,31 @@ can.Model.Cacheable("CMS.Models.GDriveFile", {
     });
   }
 
-  , removeFromParent : function(object, parent_id) {
-    if(typeof object !== "object") {
+  , removeFromParent : function (object, parent_id) {
+    if (typeof object !== "object") {
       object = this.store[object];
     }
     return gapi_request_with_auth({
       path : "/drive/v2/files/" + parent_id + "/children/" + object.id
       , method : "delete"
-      , callback : function(dfd, result) {
-        if(result && result.error) {
+      , callback : function (dfd, result) {
+        if (result && result.error) {
           dfd.reject(dfd, result.error.status, result.error);
         } else {
           dfd.resolve();
         }
       }
       , scopes : scopes
-    }).done(function() {
+    }).done(function () {
       object.refresh();
     });
   }
-  , destroy : function(id) {
+  , destroy : function (id) {
     return gapi_request_with_auth({
       path : "/drive/v2/files/" + id + "/trash"
       , method : "post"
-      , callback : function(dfd, result) {
-        if(result && result.error) {
+      , callback : function (dfd, result) {
+        if (result && result.error) {
           dfd.reject(dfd, result.error.status, result.error);
         } else {
           dfd.resolve(result);
@@ -186,7 +186,7 @@ can.Model.Cacheable("CMS.Models.GDriveFile", {
     });
   }
 
-  , from_id : function(id) {
+  , from_id : function (id) {
     return new this({ id : id });
   }
 
@@ -196,29 +196,29 @@ can.Model.Cacheable("CMS.Models.GDriveFile", {
   }
 
 }, {
-  findPermissions : function() {
+  findPermissions : function () {
     return CMS.Models.GDriveFilePermission.findAll(this.serialize());
   }
-  , findRevisions : function() {
+  , findRevisions : function () {
     return CMS.Models.GDriveFileRevision.findAll(this.serialize());
   }
-  , refresh : function(params) {
+  , refresh : function (params) {
     return this.constructor.findOne({ id : this.id })
     .then($.proxy(this.constructor, "model"))
-    .done(function(d) {
+    .done(function (d) {
       d.updated();
       //  Trigger complete refresh of object -- slow, but fixes live-binding
       //  redraws in some cases
       can.trigger(d, "change", "*");
     });
   }
-  , addToParent : function(parent) {
+  , addToParent : function (parent) {
     return this.constructor.addToParent(this, parent);
   }
-  , copyToParent : function(parent) {
+  , copyToParent : function (parent) {
     return this.constructor.copyToParent(this, parent);
   }
-  , removeFromParent : function(parent) {
+  , removeFromParent : function (parent) {
     return this.constructor.removeFromParent(this, parent.id || parent);
   }
 });
@@ -234,8 +234,8 @@ CMS.Models.GDriveFile("CMS.Models.GDriveFolder", {
 
   findAll : gdrive_findAll({ mimeType : "application/vnd.google-apps.folder"})
   
-  , create : function(params) {
-    if(!params.parents) {
+  , create : function (params) {
+    if (!params.parents) {
       params.parents = [{ id : 'root'}];
     }
     return gapi_request_with_auth({
@@ -246,8 +246,8 @@ CMS.Models.GDriveFile("CMS.Models.GDriveFolder", {
         , title : params.title
         , parents : params.parents.push ? params.parents : [params.parents]
       }
-      , callback : function(dfd, result) {
-        if(result.error) {
+      , callback : function (dfd, result) {
+        if (result.error) {
           dfd.reject(dfd, result.error.status, result.error);
         } else {
           dfd.resolve(result);
@@ -256,16 +256,16 @@ CMS.Models.GDriveFile("CMS.Models.GDriveFolder", {
       , scopes : scopes
     });
   }
-  , findChildFolders : function(params) {
-    if(typeof params !== "string") {
+  , findChildFolders : function (params) {
+    if (typeof params !== "string") {
       params = params.id;
     }
     return this.findAll({ parents : params });
   }
-  , addChildFolder : function(parent, params) {
+  , addChildFolder : function (parent, params) {
     return this.create($.extend({ parent : parent }, params));
   }
-  , from_id : function(id) {
+  , from_id : function (id) {
     return new this({ id : id });
   }
   //Note that when you get the file and folder objects back from the server
@@ -277,21 +277,21 @@ CMS.Models.GDriveFile("CMS.Models.GDriveFolder", {
   }
 }, {
 
-  findChildFolders : function() {
+  findChildFolders : function () {
     return this.constructor.findChildFolders(this);
   }
-  , findPermissions : function() {
+  , findPermissions : function () {
     return CMS.Models.GDriveFolderPermission.findAll(this.serialize());
   }
 
-  , uploadFiles : function() {
+  , uploadFiles : function () {
     var that = this;
     var dfd = new $.Deferred();
       gapi.load('picker', {'callback': createPicker});
 
       // Create and render a Picker object for searching images.
       function createPicker() {
-        window.oauth_dfd.done(function(token, oauth_user) {
+        window.oauth_dfd.done(function (token, oauth_user) {
           var picker = new google.picker.PickerBuilder()
           .addView(new google.picker.DocsUploadView().setParent(that.id))
           .addView(google.picker.ViewId.DOCS)
@@ -329,7 +329,7 @@ can.Model.Cacheable("CMS.Models.GDriveFilePermission", {
   findAll : gdrive_findAll({}, "/permissions")
   , id : "etag" //id is a user's Permission ID, so using etags instead for cache keys.
 
-  , create : function(params) {
+  , create : function (params) {
     var file = typeof params.file === "object" ? params.file.id : params.file;
 
     return gapi_request_with_auth({
@@ -340,8 +340,8 @@ can.Model.Cacheable("CMS.Models.GDriveFilePermission", {
         , type : params.permission_type || "user"
         , value : params.email || CMS.Models.get_instance("Person", params.person.id).email
       }
-      , callback : function(dfd, result) {
-        if(result.error) {
+      , callback : function (dfd, result) {
+        if (result.error) {
           dfd.reject(dfd, result.error.status, result.error);
         } else {
           result.file = typeof params.file === "object" ? params.file : CMS.Models.GDriveFile.cache[params.file];
@@ -352,17 +352,17 @@ can.Model.Cacheable("CMS.Models.GDriveFilePermission", {
     });
   }
 
-  , destroy : function(etag) {
+  , destroy : function (etag) {
     return this.cache[etag].destroy();
   }
 
-  , findUserPermissionId : function(person) {
+  , findUserPermissionId : function (person) {
     var person_email = typeof person === "string" ? person : person.email;
     return gapi_request_with_auth({
       path : "/drive/v2/permissionIds/" + person_email
       , method : "get"
-      , callback : function(dfd, result) {
-        if(result.error) {
+      , callback : function (dfd, result) {
+        if (result.error) {
           dfd.reject(dfd, result.error.status, result.error);
         } else {
           dfd.resolve(result.id);
@@ -372,14 +372,14 @@ can.Model.Cacheable("CMS.Models.GDriveFilePermission", {
     });
   }
 }, {
-  destroy : function() {
+  destroy : function () {
     var etag = this.etag
     , that = this;
     return gapi_request_with_auth({
       path : this.selfLink.replace(/https?:\/\/[^\/]+/, "") // have to relativize the url
       , method : "delete"
-      , callback : function(dfd, result) {
-        if(result && result.error) {
+      , callback : function (dfd, result) {
+        if (result && result.error) {
           dfd.reject(dfd, result.error.status, result.error);
         } else {
           can.trigger(that, "destroyed", that);
@@ -393,7 +393,7 @@ can.Model.Cacheable("CMS.Models.GDriveFilePermission", {
 });
 
 CMS.Models.GDriveFilePermission("CMS.Models.GDriveFolderPermission", {
-  create : function(params) {
+  create : function (params) {
     var folder = typeof params.folder === "object" ? params.folder.id : params.folder;
 
     return gapi_request_with_auth({
@@ -404,8 +404,8 @@ CMS.Models.GDriveFilePermission("CMS.Models.GDriveFolderPermission", {
         , type : params.permission_type || "user"
         , value : params.email || CMS.Models.get_instance("Person", params.person.id).email
       }
-      , callback : function(dfd, result) {
-        if(result.error) {
+      , callback : function (dfd, result) {
+        if (result.error) {
           dfd.reject(dfd, result.error.status, result.error);
         } else {
           result.folder = typeof params.folder === "object" ? params.folder : CMS.Models.GDriveFolder.cache[params.folder];
@@ -446,9 +446,9 @@ can.Model.Join("CMS.Models.ObjectFolder", {
     , folderable : "CMS.Models.get_stub"
   }
 
-  , model : function(params) {
-    if(typeof params === "object") {
-      if(params.folder_id) {
+  , model : function (params) {
+    if (typeof params === "object") {
+      if (params.folder_id) {
 
         params.folder = new CMS.Models.GDriveFolder({
           id : params.folder_id
@@ -460,7 +460,7 @@ can.Model.Join("CMS.Models.ObjectFolder", {
   }
 }, {
 
-  setup : function() {
+  setup : function () {
     // var update_folder = can.proxy(function() {
     //   this.attr("folder", new CMS.Models.GDriveFolder({
     //     id : this.folder_id
@@ -473,9 +473,9 @@ can.Model.Join("CMS.Models.ObjectFolder", {
     // this.bind("created", update_folder);
   }
 
-  , init : function() {
+  , init : function () {
     this._super.apply(this, arguments);
-    if(!this.folder && this.folder_id) {
+    if (!this.folder && this.folder_id) {
       this.attr("folder", new CMS.Models.GDriveFolder({
         id : this.folder_id
         , parentfolderid : this.parent_folder_id
@@ -485,15 +485,15 @@ can.Model.Join("CMS.Models.ObjectFolder", {
 
   }
 
-  , serialize : function(attr) {
+  , serialize : function (attr) {
     var serial;
-    if(!attr) {
+    if (!attr) {
       serial = this._super.apply(this, arguments);
       serial.folder_id = serial.folder ? serial.folder.id : serial.folder_id;
       delete serial.folder;
       return serial;
     }
-    if(attr === "folder_id") {
+    if (attr === "folder_id") {
       return this.folder_id || this.folder.id;
     }
     return this._super.apply(this, arguments);
@@ -518,8 +518,8 @@ can.Model.Join("CMS.Models.ObjectFile", {
     , fileable : "CMS.Models.get_stub"
   }
 
-  , model : function(params) {
-    if(typeof params === "object" && params.file_id) {
+  , model : function (params) {
+    if (typeof params === "object" && params.file_id) {
       params.file = new CMS.Models.GDriveFile({
         id : params.file_id
         , href : "/drive/v2/files/" + params.file_id
@@ -528,15 +528,15 @@ can.Model.Join("CMS.Models.ObjectFile", {
     return this._super(params);
   }
 }, {
-  serialize : function(attr) {
+  serialize : function (attr) {
     var serial;
-    if(!attr) {
+    if (!attr) {
       serial = this._super.apply(this, arguments);
       serial.file_id = serial.file ? serial.file.id : serial.file_id;
       delete serial.file;
       return serial;
     }
-    if(attr === "file_id") {
+    if (attr === "file_id") {
       return this.file_id || this.file.id;
     }
     return this._super.apply(this, arguments);

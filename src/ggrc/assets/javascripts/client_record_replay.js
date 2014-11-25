@@ -5,7 +5,7 @@
     Maintained By: dan@reciprocitylabs.com
 */
 
-(function($) {
+(function ($) {
 
 /**
  * GGRC.RequestStore caches GGRC API requests in session or local storage.  It
@@ -21,20 +21,20 @@
  * To clear all data:
  *    GGRC.RequestStore.clear()
  */
-GGRC.RequestStore = function() {
+GGRC.RequestStore = function () {
   // From https://www.artandlogic.com/blog/2013/06/ajax-caching-transports-compatible-with-jquery-deferred/
   var storage = (typeof(sessionStorage) == undefined) ?
       (typeof(localStorage) == undefined) ? {
-          getItem: function(key){
+          getItem: function (key){
               return this.store[key];
           },
-          setItem: function(key, value){
+          setItem: function (key, value){
               this.store[key] = value;
           },
-          removeItem: function(key){
+          removeItem: function (key){
               delete this.store[key];
           },
-          clear: function(){
+          clear: function (){
               for (var key in this.store)
               {
                   if (this.store.hasOwnProperty(key)) delete this.store[key];
@@ -45,7 +45,7 @@ GGRC.RequestStore = function() {
 
   // Transport layer for saving responses from API requests and short-
   // circuiting later, duplicate requests
-  var record_replay_transport = function(options, _originalOptions, _jqXHR) {
+  var record_replay_transport = function (options, _originalOptions, _jqXHR) {
     var recording = storage.getItem("RequestStore.record"),
         replaying = storage.getItem("RequestStore.replay");
 
@@ -73,13 +73,13 @@ GGRC.RequestStore = function() {
     _originalOptions._canonical_url = url;
 
     return {
-      send: function(headers, completeCallback) {
+      send: function (headers, completeCallback) {
         var data = null;
         if (replaying) {
           data = storage.getItem("RequestStore:" + url);
           if (data) {
             console.debug('Using cache: ', url);
-            setTimeout(function() {
+            setTimeout(function () {
               completeCallback(200, 'success', { json: JSON.parse(data) });
             }, 1);
           }
@@ -90,18 +90,18 @@ GGRC.RequestStore = function() {
 
         if (!data && (!replaying || recording)) {
           //console.debug('Using server: ', url);
-          jQuery.ajax(_originalOptions).done(function(data, statusText, jqXHR) {
+          jQuery.ajax(_originalOptions).done(function (data, statusText, jqXHR) {
             if (recording) {
               console.debug('Recording: ', url);
               storage.setItem("RequestStore:" + url, JSON.stringify(data));
             }
             completeCallback(jqXHR.status, statusText, { json: data });
-          }).fail(function() {
+          }).fail(function () {
             console.debug('fail', arguments);
           });
         }
       },
-      abort: function() {
+      abort: function () {
         console.debug("Aborted ajax");
       }
     };
@@ -109,7 +109,7 @@ GGRC.RequestStore = function() {
 
   // Only apply Ajax Transport when requested
   var enabled = false;
-  var enable_record_replay_transport = function() {
+  var enable_record_replay_transport = function () {
     if (!enabled) {
       $.ajaxTransport("json", record_replay_transport);
       enabled = true;
@@ -124,7 +124,7 @@ GGRC.RequestStore = function() {
   }
 
   return {
-    set_record: function(state) {
+    set_record: function (state) {
       if (state) {
         enable_record_replay_transport();
         storage.setItem("RequestStore.record", true);
@@ -133,7 +133,7 @@ GGRC.RequestStore = function() {
       }
     },
 
-    set_replay: function(state) {
+    set_replay: function (state) {
       if (state) {
         enable_record_replay_transport();
         storage.setItem("RequestStore.replay", true);
@@ -142,11 +142,11 @@ GGRC.RequestStore = function() {
       }
     },
 
-    clear: function() {
+    clear: function () {
       storage.clear();
     },
 
-    pause: function() {
+    pause: function () {
       this.set_record(false);
       this.set_replay(false);
     }

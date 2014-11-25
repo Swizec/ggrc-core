@@ -5,7 +5,7 @@
     Maintained By: brad@reciprocitylabs.com
 */
 
-(function(can, $) {
+(function (can, $) {
 
 can.Control("CMS.Controllers.Dashboard", {
     defaults: {
@@ -16,7 +16,7 @@ can.Control("CMS.Controllers.Dashboard", {
     }
 
 }, {
-    init: function(el, options) {
+    init: function (el, options) {
       this.init_page_title();
       this.init_page_help();
       this.init_page_header();
@@ -33,7 +33,7 @@ can.Control("CMS.Controllers.Dashboard", {
         this.init_widget_area();
     }
 
-  , init_page_title: function() {
+  , init_page_title: function () {
       var page_title = null;
       if (typeof(this.options.page_title) === "function")
         page_title = this.options.page_title(this);
@@ -43,7 +43,7 @@ can.Control("CMS.Controllers.Dashboard", {
         $("head > title").text(page_title);
     }
 
-  , init_page_help: function() {
+  , init_page_help: function () {
       var page_help = null;
       if (typeof(this.options.page_help) === "function")
         page_help = this.options.page_help(this);
@@ -53,16 +53,16 @@ can.Control("CMS.Controllers.Dashboard", {
         this.element.find("#page-help").attr("data-help-slug", page_help);
     }
 
-  , init_page_header: function() {
+  , init_page_header: function () {
       var that = this;
       if (this.options.header_view) {
-        can.view(this.options.header_view, this.options, function(frag) {
+        can.view(this.options.header_view, this.options, function (frag) {
           that.element.find("#page-header").html(frag);
         });
       }
     }
 
-  , init_widget_area: function() {
+  , init_widget_area: function () {
       this.widget_area_controller = new CMS.Controllers.SortableWidgets(
           this.element.find('.widget-area'), {
               dashboard_controller: this,
@@ -79,7 +79,7 @@ can.Control("CMS.Controllers.Dashboard", {
       }
     }
 
-  , init_inner_nav: function() {
+  , init_inner_nav: function () {
       var $internav = this.element.find('.internav');
       if ($internav.length > 0) {
         this.inner_nav_controller = new CMS.Controllers.InnerNav(
@@ -89,17 +89,17 @@ can.Control("CMS.Controllers.Dashboard", {
       }
     }
 
-  , init_widget_descriptors: function() {
+  , init_widget_descriptors: function () {
       var that = this;
 
       this.options.widget_descriptors = this.options.widget_descriptors || {};
     }
 
-  , init_default_widgets: function() {
+  , init_default_widgets: function () {
       var that = this
         ;
 
-      can.each(this.options.default_widgets, function(name) {
+      can.each(this.options.default_widgets, function (name) {
         var descriptor = that.options.widget_descriptors[name]
           ;
 
@@ -107,36 +107,36 @@ can.Control("CMS.Controllers.Dashboard", {
       });
     }
 
-  , hide_widget_area: function() {
+  , hide_widget_area: function () {
       this.get_active_widget_containers().hide();
     }
 
-  , show_widget_area: function() {
+  , show_widget_area: function () {
       this.get_active_widget_containers().show();
     }
 
   , " widgets_updated" : "update_inner_nav"
 
-  , " updateCount": function(el, ev, count) {
+  , " updateCount": function (el, ev, count) {
       this.inner_nav_controller.update_widget_count($(ev.target), count);
     }
 
-  , " inner_nav_sort_updated": function(el, ev, widget_ids) {
+  , " inner_nav_sort_updated": function (el, ev, widget_ids) {
         this.apply_widget_sort(widget_ids);
       }
 
-  , apply_widget_sort: function(widget_ids) {
+  , apply_widget_sort: function (widget_ids) {
       var that = this
         ;
 
-      can.each(this.get_active_widget_containers().toArray(), function(elem) {
+      can.each(this.get_active_widget_containers().toArray(), function (elem) {
         $(elem).trigger("apply_widget_sort", [widget_ids])
       });
     }
 
-  , update_inner_nav: function(el, ev, data) {
+  , update_inner_nav: function (el, ev, data) {
       if (this.inner_nav_controller) {
-        if(data) {
+        if (data) {
           this.inner_nav_controller.update_widget(data.widget || data, data.index);
         } else {
           this.inner_nav_controller.update_widget_list(
@@ -145,21 +145,21 @@ can.Control("CMS.Controllers.Dashboard", {
       }
     }
 
-  , get_active_widget_containers: function() {
+  , get_active_widget_containers: function () {
       return this.element.find(".widget-area");
     }
 
-  , get_active_widget_elements: function() {
+  , get_active_widget_elements: function () {
       return this.element.find("section.widget[id]:not([id=])").toArray();
     }
 
-  , add_widget_from_descriptor: function() {
+  , add_widget_from_descriptor: function () {
       var descriptor = {}
         , that = this
         ;
 
       // Construct the final descriptor from one or more arguments
-      can.each(arguments, function(name_or_descriptor) {
+      can.each(arguments, function (name_or_descriptor) {
         if (typeof(name_or_descriptor) === "string")
           name_or_descriptor =
             that.options.widget_descriptors[name_or_descriptor];
@@ -205,14 +205,14 @@ can.Control("CMS.Controllers.Dashboard", {
       return control;
     }
 
-  , add_dashboard_widget_from_descriptor: function(descriptor) {
+  , add_dashboard_widget_from_descriptor: function (descriptor) {
       return this.add_widget_from_descriptor({
         controller: CMS.Controllers.DashboardWidgets,
         controller_options: $.extend(descriptor, { dashboard_controller: this })
       });
     }
 
-  , add_dashboard_widget_from_name: function(name) {
+  , add_dashboard_widget_from_name: function (name) {
       var descriptor = this.options.widget_descriptors[name];
       if (!descriptor)
         console.debug("Unknown descriptor: ", name);
@@ -220,14 +220,14 @@ can.Control("CMS.Controllers.Dashboard", {
         return this.add_dashboard_widget_from_descriptor(descriptor);
     }
 
-  , make_tree_view_descriptor_from_model_descriptor: function(descriptor) {
+  , make_tree_view_descriptor_from_model_descriptor: function (descriptor) {
       return {
         content_controller: CMS.Controllers.TreeView,
         content_controller_options: descriptor,
         content_controller_selector: "ul",
         widget_initial_content: '<ul class="tree-structure new-tree"></ul>',
         widget_id: descriptor.model.table_singular,
-        widget_name: descriptor.widget_name || function() {
+        widget_name: descriptor.widget_name || function () {
           var $objectArea = $(".object-area");
           if ( $objectArea.hasClass("dashboard-area") ) {
             return descriptor.model.title_plural;
@@ -243,12 +243,12 @@ can.Control("CMS.Controllers.Dashboard", {
       }
     }
 
-  , make_list_view_descriptor_from_model_descriptor: function(descriptor) {
+  , make_list_view_descriptor_from_model_descriptor: function (descriptor) {
       return {
         content_controller: GGRC.Controllers.ListView,
         content_controller_options: descriptor,
         widget_id: descriptor.model.table_singular,
-        widget_name: descriptor.widget_name || function() {
+        widget_name: descriptor.widget_name || function () {
           var $objectArea = $(".object-area");
           if ( $objectArea.hasClass("dashboard-area") ) {
             return descriptor.model.title_plural;
@@ -269,23 +269,23 @@ can.Control("CMS.Controllers.Dashboard", {
 CMS.Controllers.Dashboard("CMS.Controllers.PageObject", {
 
 }, {
-    init: function() {
+    init: function () {
       this.options.model = this.options.instance.constructor;
       this._super();
     }
 
-  , init_page_title: function() {
+  , init_page_title: function () {
       // Reset title when page object is modified
       var that = this
         , that_super = this._super
         ;
-      this.options.instance.bind("change", function() {
+      this.options.instance.bind("change", function () {
         that_super.apply(that);
       });
       this._super();
     }
 
-  , init_widget_descriptors: function() {
+  , init_widget_descriptors: function () {
       var that = this;
 
       this.options.widget_descriptors = this.options.widget_descriptors || {};
@@ -302,7 +302,7 @@ can.Control("CMS.Controllers.InnerNav", {
     , instance : null
   }
 }, {
-    init: function(options) {
+    init: function (options) {
       var that = this
         ;
 
@@ -317,11 +317,11 @@ can.Control("CMS.Controllers.InnerNav", {
         this.options.contexts = new can.Observe(this.options.contexts);
 
       // FIXME: Initialize from `*_widget` hash when hash has no `#!`
-      can.bind.call(window, 'hashchange', function() {
+      can.bind.call(window, 'hashchange', function () {
         that.route(window.location.hash);
       });
 
-      can.view(this.options.internav_view, this.options, function(frag) {
+      can.view(this.options.internav_view, this.options, function (frag) {
         function fn() {
           that.element.append(frag);
           that.route(window.location.hash);
@@ -336,7 +336,7 @@ can.Control("CMS.Controllers.InnerNav", {
       this.on();
     }
 
-  , route: function(path) {
+  , route: function (path) {
       if (path.substr(0, 2) === "#!") {
         path = path.substr(2);
       } else if (path.substr(0, 1) === "#") {
@@ -352,7 +352,7 @@ can.Control("CMS.Controllers.InnerNav", {
       }
     }
 
-  , display_path: function(path) {
+  , display_path: function (path) {
       var step = path.split("/")[0],
           rest = path.substr(step.length + 1),
           widget_list = this.options.widget_list;
@@ -371,7 +371,7 @@ can.Control("CMS.Controllers.InnerNav", {
       }
     }
 
-  , display_widget_path: function(path) {
+  , display_widget_path: function (path) {
       var active_widget_selector = this.options.contexts.active_widget.selector
         , $active_widget = $(active_widget_selector)
         , widget_controller = $active_widget.control()
@@ -384,7 +384,7 @@ can.Control("CMS.Controllers.InnerNav", {
       }
     }
 
-  , sortable: function() {
+  , sortable: function () {
       return this.element.sortable({
           placeholder: 'drop-placeholder'
         , items : "li:not(.hidden-widgets-list)"
@@ -394,18 +394,18 @@ can.Control("CMS.Controllers.InnerNav", {
 
   , " sortupdate": "apply_widget_list_sort"
 
-  , apply_widget_list_sort: function() {
+  , apply_widget_list_sort: function () {
       var widget_ids
         ;
 
-      widget_ids = this.element.find("li > a").map(function() {
+      widget_ids = this.element.find("li > a").map(function () {
         return $(this).attr("href");
       }).toArray();
 
       this.element.trigger("inner_nav_sort_updated", [widget_ids]);
     }
 
-  , set_active_widget : function(widget) {
+  , set_active_widget : function (widget) {
     var active_widget = widget;
 
     if (typeof widget === 'string') {
@@ -418,7 +418,7 @@ can.Control("CMS.Controllers.InnerNav", {
     this.show_active_widget();
   }
 
-  , show_active_widget : function(selector) {
+  , show_active_widget : function (selector) {
     var that = this
       , widget = $(selector || this.options.contexts.attr('active_widget').selector);
     if (widget.length) {
@@ -432,7 +432,7 @@ can.Control("CMS.Controllers.InnerNav", {
     }
   }
 
-  , find_widget_by_target: function(target) {
+  , find_widget_by_target: function (target) {
       var i
         , widget
         ;
@@ -443,23 +443,23 @@ can.Control("CMS.Controllers.InnerNav", {
       }
     }
 
-  , widget_by_selector : function(selector) {
-    return $.map(this.options.widget_list, function(widget) {
+  , widget_by_selector : function (selector) {
+    return $.map(this.options.widget_list, function (widget) {
       return widget.selector === selector ? widget : undefined;
     })[0] || undefined;
   }
 
-  , "{document.body} loaded" : function(body, ev) {
+  , "{document.body} loaded" : function (body, ev) {
     this.element.sortable("enable");
   }
 
-  , update_widget_list : function(widget_elements) {
+  , update_widget_list : function (widget_elements) {
       var starttime = Date.now()
         , widget_list = this.options.widget_list.slice(0)
         , that = this
         ;
 
-      can.each(widget_elements, function(widget_element, index) {
+      can.each(widget_elements, function (widget_element, index) {
         widget_list.splice(
           can.inArray(
             that.update_widget(widget_element, index)
@@ -467,12 +467,12 @@ can.Control("CMS.Controllers.InnerNav", {
           , 1);
       });
 
-      can.each(widget_list, function(widget) {
+      can.each(widget_list, function (widget) {
         that.options.widget_list.splice(can.inArray(widget, that.options.widget_list), 1);
       });
     }
 
-  , update_widget : function(widget_element, index) {
+  , update_widget : function (widget_element, index) {
       var $widget = $(widget_element)
         , widget = this.widget_by_selector("#" + $widget.attr("id"))
         , $header = $widget.find(".header h2")
@@ -484,7 +484,7 @@ can.Control("CMS.Controllers.InnerNav", {
         , existing_index
         ;
 
-      if(this.delayed_display) {
+      if (this.delayed_display) {
         clearTimeout(this.delayed_display.timeout);
         this.delayed_display.timeout = setTimeout(this.delayed_display.fn, 50);
       }
@@ -518,8 +518,8 @@ can.Control("CMS.Controllers.InnerNav", {
 
       index = (index == null) ? this.options.widget_list.length : index;
 
-      if(existing_index !== index) {
-        if(existing_index > -1) {
+      if (existing_index !== index) {
+        if (existing_index > -1) {
           if (index >= this.options.widget_list.length) {
             this.options.widget_list.splice(existing_index, 1);
             this.options.widget_list.push(widget);
@@ -534,7 +534,7 @@ can.Control("CMS.Controllers.InnerNav", {
       return widget;
   }
 
-  , update_widget_count : function($el, count) {
+  , update_widget_count : function ($el, count) {
       var widget_id = $el.closest('.widget').attr('id'),
           widget = this.widget_by_selector("#" + widget_id);
 
@@ -547,7 +547,7 @@ can.Control("CMS.Controllers.InnerNav", {
       this.update_add_more_link();
     },
 
-    update_add_more_link: function() {
+    update_add_more_link: function () {
       var has_hidden_widgets = false,
           $hidden_widgets = $('.hidden-widgets-list'),
           instance = this.options.instance || {},
@@ -559,7 +559,7 @@ can.Control("CMS.Controllers.InnerNav", {
       }
 
       // Update has hidden widget attr
-      $.map(this.options.widget_list, function(widget){
+      $.map(this.options.widget_list, function (widget){
         if (widget.has_count && widget.count === 0 &&
             !widget.force_show && !show_all_tabs) {
           has_hidden_widgets = true;
@@ -572,10 +572,10 @@ can.Control("CMS.Controllers.InnerNav", {
       }
       this.show_hide_titles();
     },
-    "{window} resize" : function(el, ev) {
+    "{window} resize" : function (el, ev) {
       this.show_hide_titles();
     },
-    show_hide_titles: function() {
+    show_hide_titles: function () {
       var $el = this.element,
           $last = $el.children().not(':hidden,.inner-nav-button').last(),
           widgets = this.options.widget_list,
@@ -587,11 +587,11 @@ can.Control("CMS.Controllers.InnerNav", {
           threshold = are_shown ? 180 : 180 + 70*num_visible,
           do_show = $el.width() - last_pos.left > threshold;
 
-      widgets.forEach(function(widget) {
+      widgets.forEach(function (widget) {
         widget.attr('show_title', do_show);
       });
     },
-    '.closed click' : function(el, ev) {
+    '.closed click' : function (el, ev) {
       var $link = el.closest('a'),
           widget = this.widget_by_selector($link.attr('href')),
           active_widget = this.options.contexts.attr("active_widget"),

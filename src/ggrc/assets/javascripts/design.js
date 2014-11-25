@@ -12,10 +12,10 @@
 jQuery(function ($) {
 
   //render out templates function
-  var renderExternalTmpl = function(item) {
+  var renderExternalTmpl = function (item) {
     var file = '/design/templates/' + item.name;
     if ($(item.selector).length > 0) {
-      $.when($.get(file)).done(function(tmplData) {
+      $.when($.get(file)).done(function (tmplData) {
         $(item.selector).append(tmplData)
         //$.templates({ tmpl: tmplData });
         //$(item.selector).append($.render.tmpl(item.data));
@@ -29,26 +29,26 @@ jQuery(function ($) {
 
 
 
-  $(document).on("click", "#expand_all", function(event) {
+  $(document).on("click", "#expand_all", function (event) {
     //$('.row-fluid-slotcontent').show("fast");
     $('.row-fluid-slotcontent').addClass("in");
     $('.expander').addClass("toggleExpanded");
   });
 
-  $(document).on("click", "#shrink_all", function(event) {
+  $(document).on("click", "#shrink_all", function (event) {
     //$('.row-fluid-slotcontent').hide("fast");
     $('.row-fluid-slotcontent').removeClass("in");
     $('.expander').removeClass("toggleExpanded");
   });
 
   /*Checkbutton in modals widget function*/
-  $(document).on("click", ".checkbutton", function(event) {
+  $(document).on("click", ".checkbutton", function (event) {
     $(this).children("i").toggleClass("grcicon-blank");
     $(this).children("i").toggleClass("grcicon-x-grey");
   });
 
   /*Toggle widget function*/
-  $(document).on("click", ".accordion-toggle", function(event) {
+  $(document).on("click", ".accordion-toggle", function (event) {
     $(this).children("i").toggleClass("grcicon-blue-expand");
   });
 
@@ -58,13 +58,13 @@ jQuery(function ($) {
     $(this).children(".expander").toggleClass("toggleExpanded");
   });*/
 
-  $(document).on("click", ".expandAll", function(event) {
+  $(document).on("click", ".expandAll", function (event) {
     // $("h3.trigger").toggleClass("active").next().slideToggle("fast");
     $(this).children("i").toggleClass("grcicon-blue-expand");
   });
 
   //Handle remove buttons
-  $(document).on("click", ".removeCircleButton", function(event){
+  $(document).on("click", ".removeCircleButton", function (event){
     //alert("here");
     $('#confirmModal').on('hidden', function () {
       $(this).closest('.controlSlot').remove();
@@ -81,7 +81,7 @@ jQuery(function ($) {
   });
 */
 
-  $(document).on("click", ".greyOut", function(event){
+  $(document).on("click", ".greyOut", function (event){
     $(this).closest('.singlecontrolSlot').remove();
   });
 
@@ -106,7 +106,7 @@ jQuery(function ($) {
   }
   
 //if includes a xpander we need to toggle it.
-$('body').on('click', '.grcicon-more', function(e) {
+$('body').on('click', '.grcicon-more', function (e) {
   //bootstrap data toggle opens this one up, but ...
   
   e.preventDefault();
@@ -129,7 +129,7 @@ $('body').on('click', '.grcicon-more', function(e) {
 
 
 
-  $("[id$=-more]").each(function(i){
+  $("[id$=-more]").each(function (i){
       var el = $(this);
       if (el.hasClass("in")) {
         //its open close it!  
@@ -144,13 +144,13 @@ $('body').on('click', '.grcicon-more', function(e) {
 
   // show/hide widget
 
-  $('body').on('click', '.widget-trigger', function(e) {
+  $('body').on('click', '.widget-trigger', function (e) {
     e.preventDefault();
     var $this = $(this),
         $widgetBody = $this.closest(".widget").find(".widget-body"),
         $icon = $this.find("i");
 
-    if( $this.hasClass("active") ) {
+    if ( $this.hasClass("active") ) {
       $widgetBody.slideUp("fast");
       $this.removeClass("active");
       $icon
@@ -168,13 +168,13 @@ $('body').on('click', '.grcicon-more', function(e) {
 
   // show/hide list item
 
-  $('body').on('click', '.list-trigger', function(e) {
+  $('body').on('click', '.list-trigger', function (e) {
     e.preventDefault();
     var $this = $(this),
         $listBody = $this.closest(".wlist-title").next(),
         $icon = $this.find("i");
 
-    if( $this.hasClass("active") ) {
+    if ( $this.hasClass("active") ) {
       $listBody.slideUp("fast");
       $this.removeClass("active");
       $icon
@@ -192,19 +192,19 @@ $('body').on('click', '.grcicon-more', function(e) {
   
   // nicer hover
 
-  $('body').on('mouseenter', '.people-list li', function(e) {
+  $('body').on('mouseenter', '.people-list li', function (e) {
     $(this).removeClass('.halfopacity');
     //$(this).find(".additional").slideDown("fast");
   });
 
-  $('body').on('mouseleave', '.people-list li', function(e) {
+  $('body').on('mouseleave', '.people-list li', function (e) {
     $(this).addClass('.halfopacity');
     //$(this).find(".additional").slideUp("fast");
   });
 
-  $('body').on('click', '.people-list li', function(e) {
+  $('body').on('click', '.people-list li', function (e) {
 
-    if( $(this).find(".additional").hasClass("shown") ) {
+    if ( $(this).find(".additional").hasClass("shown") ) {
 
     } else {
       //brute force ugly
@@ -218,7 +218,7 @@ $('body').on('click', '.grcicon-more', function(e) {
 
   // add item in target list
 
-  $('body').on('click', '.add-me', function(e) {
+  $('body').on('click', '.add-me', function (e) {
     
     e.preventDefault();
     
@@ -268,7 +268,7 @@ $('body').on('click', '.grcicon-more', function(e) {
 
   // show filters in modals
 
-  $('body').on('click', '#makeAccountable', function(e) {
+  $('body').on('click', '#makeAccountable', function (e) {
     e.preventDefault();
     $(this).closest(".btn-group").find(".dropdown-toggle").html("is Accountable");
     $(this).closest(".btn-group").find(".dropdown-toggle").removeClass('btn-warning');
@@ -279,7 +279,7 @@ $('body').on('click', '.grcicon-more', function(e) {
     
   });
 
-  $('body').on('click', '#makeResponsible', function(e) {
+  $('body').on('click', '#makeResponsible', function (e) {
     e.preventDefault();
     $(this).closest(".btn-group").find(".dropdown-toggle").html("is Responsible");
     $(this).closest(".btn-group").find(".dropdown-toggle").removeClass('btn-warning');
@@ -291,18 +291,18 @@ $('body').on('click', '.grcicon-more', function(e) {
   });
 
 
-  $(document).on("click", "#removeMe", function(event){
+  $(document).on("click", "#removeMe", function (event){
     event.preventDefault();
-    $(this).closest('li').slideUp("slow", function() { jQuery(this).remove(); });
+    $(this).closest('li').slideUp("slow", function () { jQuery(this).remove(); });
   });
   
-  $('body').on('click', '#showFilters', function(e) {
+  $('body').on('click', '#showFilters', function (e) {
     e.preventDefault();
     var $this = $(this),
         $filters = $this.closest(".modal-body").find(".filter-group"),
         $searchableLists = $this.closest(".modal-body").find(".filter-block .people-list");
         
-    if( $this.hasClass("active") ) {
+    if ( $this.hasClass("active") ) {
       $filters.hide();
       $this.removeClass("active");        
       $searchableLists.removeClass("short");
@@ -313,13 +313,13 @@ $('body').on('click', '.grcicon-more', function(e) {
     }      
   });
 
-  $('body').on('click', '#showCategories', function(e) {
+  $('body').on('click', '#showCategories', function (e) {
     e.preventDefault();
     var $this = $(this),
         $filters = $this.closest(".modal-body").find(".category-group"),
         $searchableLists = $this.closest(".modal-body").find(".filter-block .people-list");
         
-    if( $this.hasClass("active") ) {
+    if ( $this.hasClass("active") ) {
       $filters.hide();
       $this.removeClass("active");        
       $searchableLists.removeClass("short");
@@ -331,7 +331,7 @@ $('body').on('click', '.grcicon-more', function(e) {
   });
 
 
-    $('body').on('click', '#showGRCDirectory', function(e) {
+    $('body').on('click', '#showGRCDirectory', function (e) {
     e.preventDefault();
     var $this = $(this),
         $categoryfilters = $this.closest(".modal-body").find(".category-group"),
@@ -347,7 +347,7 @@ $('body').on('click', '.grcicon-more', function(e) {
     //}      
   });
 
-$('body').on('click', '#showCompanyDirectory', function(e) {
+$('body').on('click', '#showCompanyDirectory', function (e) {
     e.preventDefault();
     var $this = $(this),
         $categoryfilters = $this.closest(".modal-body").find(".category-group"),
@@ -372,7 +372,7 @@ $('body').on('click', '#showCompanyDirectory', function(e) {
 
   // status js
   var userHasPriviledge = true;
-  $('body').on('click', '#actionButton', function(e) {
+  $('body').on('click', '#actionButton', function (e) {
     e.preventDefault();
 
     var fullDate = new Date();
@@ -386,7 +386,7 @@ $('body').on('click', '#showCompanyDirectory', function(e) {
         $status = $this.closest(".modal").find("#statusValue"),
         $currentStatus = $this.closest(".modal").find("#statusValue").html();
 
-    if(userHasPriviledge) {
+    if (userHasPriviledge) {
 
       if ($currentStatus === "Draft") {
         $status
@@ -418,9 +418,9 @@ $('body').on('click', '#showCompanyDirectory', function(e) {
 
 function toggleGovernance() {
    var interval = 200;
-  $('.govWidget').each(function(i){
+  $('.govWidget').each(function (i){
     var el = $(this);
-    if(el.hasClass('active')){
+    if (el.hasClass('active')){
       $('#grcbutton-governance').addClass('halfopacity').removeClass('active');
       $.cookie('toggle_governance', null);
       el.delay(i*interval).slideUp(interval);
@@ -435,18 +435,18 @@ function toggleGovernance() {
 
 }
 
-jQuery(function($) {
+jQuery(function ($) {
   if ($.cookie('toggle_governance') == '1')
     toggleGovernance();
   else
     $('.govWidget').hide();
 
-  $('body').on('click', '#grcbutton-governance', function(e) {
+  $('body').on('click', '#grcbutton-governance', function (e) {
     toggleGovernance();
     e.preventDefault();
   });
 });
 
-$(document).load(function(){
+$(document).load(function (){
   $("#program_start_date").hide();
 });

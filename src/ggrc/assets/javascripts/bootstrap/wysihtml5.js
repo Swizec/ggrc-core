@@ -5,14 +5,14 @@
     Maintained By: brad@reciprocitylabs.com
 */
 
-!function($) {
+!function ($) {
 
   "use strict"; // jshint ;_;
   
   // Insert http:// before links
   var createLink = wysihtml5.commands.createLink
     , old_exec = createLink.exec;
-  createLink.exec = function(composer, command, value) {
+  createLink.exec = function (composer, command, value) {
     var url = typeof(value) === "object" ? value.href : value;
 
     // Inject the http:// if no prefix was included
@@ -33,8 +33,8 @@
   // Patch iframe issues
   // Sometimes the plugin will throw a "cannot read property document of null" error
   if (window.rangy) {
-    rangy.addInitListener(function() {
-      rangy.dom.getIframeDocument = function(iframeEl, no_recurse) {
+    rangy.addInitListener(function () {
+      rangy.dom.getIframeDocument = function (iframeEl, no_recurse) {
         if (typeof iframeEl.contentDocument) {
           return iframeEl.contentDocument;
         } else if (typeof iframeEl.contentWindow) {
@@ -48,7 +48,7 @@
         }
       };
 
-      rangy.dom.getIframeWindow = function(iframeEl, no_recurse) {
+      rangy.dom.getIframeWindow = function (iframeEl, no_recurse) {
         if (typeof iframeEl.contentWindow) {
           return iframeEl.contentWindow;
         } else if (typeof iframeEl.contentDocument) {

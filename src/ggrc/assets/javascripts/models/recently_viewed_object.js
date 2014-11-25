@@ -7,8 +7,8 @@
 
 can.Model.LocalStorage("GGRC.Models.RecentlyViewedObject", {
 
-  newInstance : function(attrs) {
-    if(attrs instanceof can.Model) {
+  newInstance : function (attrs) {
+    if (attrs instanceof can.Model) {
       var title = (attrs.title && attrs.title.trim()) || (attrs.name && attrs.name.trim()) || (attrs.email && attrs.email.trim());
       return new this({
         type : attrs.constructor.shortName
@@ -23,11 +23,11 @@ can.Model.LocalStorage("GGRC.Models.RecentlyViewedObject", {
 
 }, {
 
-  init : function() {
+  init : function () {
     this.attr("model", GGRC.Models[this.type] || CMS.Models[this.type]);
   }
 
-  , stub : function() {
+  , stub : function () {
     return can.extend(this._super(), { title : this.title, viewLink : this.viewLink });
   }
 });

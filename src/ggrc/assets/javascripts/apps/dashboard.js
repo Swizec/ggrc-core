@@ -13,10 +13,10 @@
 //= require sections/section
 //= require pbc/system
 
-(function(namespace, $) {
+(function (namespace, $) {
 
-var sort_by_name_email = function(list) {
-  return new list.constructor(can.makeArray(list).sort(function(a,b) {
+var sort_by_name_email = function (list) {
+  return new list.constructor(can.makeArray(list).sort(function (a,b) {
     a = a.person || a;
     b = b.person || b;
     a = (can.trim(a.name) || can.trim(a.email)).toLowerCase();
@@ -31,9 +31,9 @@ var admin_list_descriptors = {
   "people" : {
       model : CMS.Models.Person
     , roles: new can.Observe.List()
-    , init : function() {
+    , init : function () {
         var self = this;
-        CMS.Models.Role.findAll({ scope__in: "System,Admin" }).done(function(roles) {
+        CMS.Models.Role.findAll({ scope__in: "System,Admin" }).done(function (roles) {
           self.roles.replace(sort_by_name_email(roles));
         });
       }
@@ -59,7 +59,7 @@ var admin_list_descriptors = {
   }
 };
 
-$(function() {
+$(function () {
 var admin_widgets = new GGRC.WidgetList("ggrc_admin", {
   admin : {
     "people" : {
@@ -69,10 +69,10 @@ var admin_widgets = new GGRC.WidgetList("ggrc_admin", {
       , "widget_id" : "people_list"
       , "widget_icon" : "person"
       , "show_filter" : false
-      , widget_name: function() {
+      , widget_name: function () {
         return "People";
       }
-      , widget_info : function() {
+      , widget_info : function () {
         return "";
       }
     }
@@ -83,10 +83,10 @@ var admin_widgets = new GGRC.WidgetList("ggrc_admin", {
       , "widget_id" : "roles_list"
       , "widget_icon" : "role"
       , "show_filter" : false
-      , widget_name: function() {
+      , widget_name: function () {
         return "Roles";
       }
-      , widget_info : function() {
+      , widget_info : function () {
         return "";
       }
     }
@@ -96,10 +96,10 @@ var admin_widgets = new GGRC.WidgetList("ggrc_admin", {
       , "content_controller_options": admin_list_descriptors["events"]
       , "widget_id" : "events_list"
       , "widget_icon" : "event"
-      , widget_name: function() {
+      , widget_name: function () {
         return "Events";
       }
-      , widget_info : function() {
+      , widget_info : function () {
         return "";
       }
     }
@@ -117,14 +117,14 @@ var admin_widgets = new GGRC.WidgetList("ggrc_admin", {
     extra_page_options = {
         Program: {
             header_view: GGRC.mustache_path + "/programs/page_header.mustache"
-          , page_title: function(controller) {
+          , page_title: function (controller) {
               return "GRC Program: " + controller.options.instance.title;
             }
 
         }
       , Person: {
             header_view: GGRC.mustache_path + "/people/page_header.mustache"
-          , page_title: function(controller) {
+          , page_title: function (controller) {
               var instance = controller.options.instance;
               return /dashboard/.test(window.location)
                 ? "GRC: My Work"
@@ -140,7 +140,7 @@ var admin_widgets = new GGRC.WidgetList("ggrc_admin", {
       model_name = instance.constructor.shortName;
 
       // Ensure each extension has had a chance to initialize widgets
-      can.each(GGRC.extensions, function(extension) {
+      can.each(GGRC.extensions, function (extension) {
         if (extension.init_widgets)
           extension.init_widgets();
       });
@@ -152,10 +152,10 @@ var admin_widgets = new GGRC.WidgetList("ggrc_admin", {
         , default_widgets: defaults || GGRC.default_widgets || []
         , instance: GGRC.page_instance()
         , header_view: GGRC.mustache_path + "/base_objects/page_header.mustache"
-        , page_title: function(controller) {
+        , page_title: function (controller) {
             return controller.options.instance.title;
           }
-        , page_help: function(controller) {
+        , page_help: function (controller) {
             return controller.options.instance.constructor.table_singular;
           }
         }, extra_page_options[model_name]));
@@ -167,7 +167,7 @@ var admin_widgets = new GGRC.WidgetList("ggrc_admin", {
       });
 
       // Ensure each extension has had a chance to initialize admin widgets
-      can.each(GGRC.extensions, function(extension) {
+      can.each(GGRC.extensions, function (extension) {
         if (extension.init_admin_widgets)
           extension.init_admin_widgets();
       });
@@ -179,7 +179,7 @@ var admin_widgets = new GGRC.WidgetList("ggrc_admin", {
     }
 
 
-  $("body").on("click", ".note-trigger, .edit-notes", function(ev) {
+  $("body").on("click", ".note-trigger, .edit-notes", function (ev) {
     ev.stopPropagation();
     var $object = $(ev.target).closest("[data-object-id]")
     , type = $object.data("object-type")

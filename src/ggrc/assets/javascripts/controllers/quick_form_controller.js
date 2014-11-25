@@ -4,7 +4,7 @@
     Created By: brad@reciprocitylabs.com
     Maintained By: brad@reciprocitylabs.com
 */
-;(function(cam, $, GGRC) {
+;(function (cam, $, GGRC) {
 
 GGRC.Controllers.Modals("GGRC.Controllers.QuickForm", {
   defaults : {
@@ -13,32 +13,32 @@ GGRC.Controllers.Modals("GGRC.Controllers.QuickForm", {
   }
 }, {
 
-  init : function() {
-    if(this.options.instance && !this.options.model) {
+  init : function () {
+    if (this.options.instance && !this.options.model) {
       this.options.model = this.options.instance.constructor;
     }
     this.options.$content = this.element;
     this.options.instance.refresh();
   }
 
-  , "input, textarea, select change" : function(el, ev) {
+  , "input, textarea, select change" : function (el, ev) {
     var that = this;
-    if(!el.is("[data-lookup]")) {
+    if (!el.is("[data-lookup]")) {
       this.set_value_from_element(el);
-      setTimeout(function() {
+      setTimeout(function () {
         that.options.instance.save();
       }, 100);
     }
   }
 
-  , autocomplete_select : function(el, event, ui) {
+  , autocomplete_select : function (el, event, ui) {
     var that = this;
     var prop = el.attr("name").split(".").slice(0, -1).join(".");
-    if(this._super.apply(this, arguments) !== false) {
-      setTimeout(function() {
-        that.options.instance.save().then(function() {
+    if (this._super.apply(this, arguments) !== false) {
+      setTimeout(function () {
+        that.options.instance.save().then(function () {
           var obj = that.options.instance.attr(prop);
-          if(obj.attr) {
+          if (obj.attr) {
             obj.attr("saved", true);
           }
         });
@@ -48,49 +48,49 @@ GGRC.Controllers.Modals("GGRC.Controllers.QuickForm", {
     }
   }
 
-  , "input, select, textarea click" : function(el, ev) {
+  , "input, select, textarea click" : function (el, ev) {
     this._super && this._super.apply(this, arguments);
     ev.stopPropagation();
   }
 
-  , ".dropdown-menu > li click" : function(el, ev){
+  , ".dropdown-menu > li click" : function (el, ev){
     ev.stopPropagation();
     var that = this;
     this.set_value({ name: el.data('name'), value: el.data('value') });
-    setTimeout(function() {
+    setTimeout(function () {
       that.options.instance.save();
       $(el).closest('.open').removeClass('open');
     }, 100);
   }
 
-  , "button[data-name][data-value]:not(.disabled), a.undoable[data-toggle*=modal] click": function(el, ev) {
+  , "button[data-name][data-value]:not(.disabled), a.undoable[data-toggle*=modal] click": function (el, ev) {
 
     var that = this
       , name = el.data('name')
       , old_value = {};
 
 
-    if(el.data('openclose')){
+    if (el.data('openclose')){
       var action = el.data('openclose'),
           main = el.closest('.item-main'),
           openclose = main.find('.openclose'),
           isOpened = openclose.hasClass('active');
 
       // We can't use main.openclose(action) here because content may not be loaded yet
-      if(action === 'trigger'){
+      if (action === 'trigger'){
         openclose.trigger('click');
       }
-      else if(action === 'close' && isOpened){
+      else if (action === 'close' && isOpened){
         openclose.trigger('click');
       }
-      else if(action === 'open' && !isOpened){
+      else if (action === 'open' && !isOpened){
         openclose.trigger('click');
       }
     }
 
     old_value[el.data("name")] = this.options.instance.attr(el.data("name"));
-    if(el.data("also-undo")) {
-      can.each(el.data("also-undo").split(","), function(attrname) {
+    if (el.data("also-undo")) {
+      can.each(el.data("also-undo").split(","), function (attrname) {
         attrname = attrname.trim();
         old_value[attrname] = that.options.instance.attr(attrname);
       });
@@ -99,9 +99,9 @@ GGRC.Controllers.Modals("GGRC.Controllers.QuickForm", {
     // Check if the undo button was clicked:
     this.options.instance.attr('_undo') || that.options.instance.attr('_undo', []);
 
-    if(el.is("[data-toggle*=modal")) {
-      setTimeout(function() {
-        $(".modal:visible").one("modal:success", function() {
+    if (el.is("[data-toggle*=modal")) {
+      setTimeout(function () {
+        $(".modal:visible").one("modal:success", function () {
           that.options.instance.attr('_undo').unshift(old_value);
         });
       }, 100);
@@ -111,17 +111,17 @@ GGRC.Controllers.Modals("GGRC.Controllers.QuickForm", {
       that.options.instance.attr('_undo').unshift(old_value);
 
       that.options.instance.attr('_disabled', 'disabled');
-      that.options.instance.refresh().then(function(instance){
+      that.options.instance.refresh().then(function (instance){
         that.set_value({ name: el.data('name'), value: el.data('value') });
         return instance.save();
-      }).then(function(){
+      }).then(function (){
         that.options.instance.attr('_disabled', '');
       });
     }
   }
 
 
-  , "a.undo click" : function(el, ev){
+  , "a.undo click" : function (el, ev){
     ev.stopPropagation();
     var that = this
       , name = el.data('name')
@@ -129,12 +129,12 @@ GGRC.Controllers.Modals("GGRC.Controllers.QuickForm", {
 
     new_value = that.options.instance.attr('_undo').shift();
     that.options.instance.attr('_disabled', 'disabled');
-    that.options.instance.refresh().then(function(instance){
-      can.each(new_value, function(value, name) {
+    that.options.instance.refresh().then(function (instance){
+      can.each(new_value, function (value, name) {
         that.set_value({ name: name, value: value });
       });
       return instance.save();
-    }).then(function(){
+    }).then(function (){
       that.options.instance.attr('_disabled', '');
     });
   }
@@ -173,19 +173,19 @@ can.Component.extend({
     attributes: {}
   },
   events: {
-    init: function() {
+    init: function () {
       this.scope.attr("controller", this);
     },
     // The inserted event fires when the component content is added to the DOM.
     //  At this time, live bound rendering should be resolved, which is not the
     //  case during init.
-    inserted: function(el) {
+    inserted: function (el) {
       var that = this;
-      this.element.find("input:not([data-mapping], [data-lookup])").each(function(i, el) {
+      this.element.find("input:not([data-mapping], [data-lookup])").each(function (i, el) {
         that.scope.attributes.attr($(el).attr("name"), $(el).val());
       });
     },
-    "a[data-toggle=submit]:not(.disabled) click": function(el){
+    "a[data-toggle=submit]:not(.disabled) click": function (el){
       var that = this,
         join_model_class, join_object;
 
@@ -214,7 +214,7 @@ can.Component.extend({
         );
       }
       this.bindXHRToButton(
-        join_object.save().done(function() {
+        join_object.save().done(function () {
           el.trigger("modal:success", join_object);
         }),
         el
@@ -222,27 +222,27 @@ can.Component.extend({
     },
     // this works like autocomplete_select on all modal forms and
     //  descendant class objects.
-    autocomplete_select : function(el, event, ui) {
+    autocomplete_select : function (el, event, ui) {
       var that = this;
-      setTimeout(function() {
+      setTimeout(function () {
         that.scope.attr(el.attr("name"), ui.item);
       });
     },
-    "input[null-if-empty] change" : function(el) {
+    "input[null-if-empty] change" : function (el) {
       if (!el.val()) {
         this.scope.attributes.attr(el.attr("name"), null);
       }
     },
-    "input:not([data-mapping], [data-lookup]) change" : function(el) {
+    "input:not([data-mapping], [data-lookup]) change" : function (el) {
       this.scope.attributes.attr(el.attr("name"), el.val());
     },
-    ".ui-autocomplete-input modal:success" : function(el, ev, data, options) {
+    ".ui-autocomplete-input modal:success" : function (el, ev, data, options) {
       var that = this,
         multi_map = data.multi_map,
         join_model_class,
         join_object;
       
-      if(multi_map){
+      if (multi_map){
         var length = data.arr.length, 
             my_data;
 
@@ -257,13 +257,13 @@ can.Component.extend({
                       || new CMS.Models.Context({id : null})
                       },
                       this.scope.attributes.serialize())
-          ).save().done(function() {
+          ).save().done(function () {
             that.element.find("a[data-toggle=submit]").trigger("modal:success");
           });
         }
       
         else{
-          for(var i = 0; i < length-1; i++){
+          for (var i = 0; i < length-1; i++){
             my_data = data.arr[i];
             
             GGRC.Mappings.make_join_object(
@@ -274,7 +274,7 @@ can.Component.extend({
                         || new CMS.Models.Context({id : null})
                         },
                         this.scope.attributes.serialize())
-            ).save().done(function(){});
+            ).save().done(function (){});
           }
           my_data = data.arr[length-1];
           GGRC.Mappings.make_join_object(
@@ -285,7 +285,7 @@ can.Component.extend({
                       || new CMS.Models.Context({id : null})
                       },
                       this.scope.attributes.serialize())
-          ).save().done(function() {
+          ).save().done(function () {
             that.element.find("a[data-toggle=submit]").trigger("modal:success");
           });
         }
@@ -306,7 +306,7 @@ can.Component.extend({
                       this.scope.attributes.serialize())
           );
         }
-        join_object.save().done(function() {
+        join_object.save().done(function () {
            that.element.find("a[data-toggle=submit]").trigger("modal:success");
         });
       }
@@ -316,8 +316,8 @@ can.Component.extend({
     // Mapping-based autocomplete selectors use this helper to
     //  attach the mapping autocomplete ui widget.  These elements should
     //  be decorated with data-mapping attributes.
-    mapping_autocomplete : function(options) {
-      return function(el) {
+    mapping_autocomplete : function (options) {
+      return function (el) {
         var $el = $(el);
         $el.ggrc_mapping_autocomplete({
           controller : options.contexts.attr("controller"),
@@ -349,10 +349,10 @@ can.Component.extend({
     attributes: {}
   },
   events: {
-    init: function() {
+    init: function () {
       this.scope.attr("controller", this);
       this.scope.attr("model", this.scope.model || this.scope.instance.constructor);
-      if(!this.scope.instance._transient) {
+      if (!this.scope.instance._transient) {
         //only refresh if there's not currently an edit modal spawned.
         this.scope.instance.refresh();
       }
@@ -360,9 +360,9 @@ can.Component.extend({
     //currently we don't support proxy object updates in mappings, so for now a change
     //  to a connected object (assuming we are operating on a proxy object) will trigger
     //  a deletion of the proxy object and creation of a new one.
-    autocomplete_select : function(el, event, ui) {
+    autocomplete_select : function (el, event, ui) {
       var that = this;
-      setTimeout(function() {
+      setTimeout(function () {
         var serial = that.scope.instance.serialize();
         delete serial[el.attr("name")];
         delete serial[el.attr("name") + "_id"];
@@ -374,14 +374,14 @@ can.Component.extend({
         delete serial.updated_at;
         delete serial.provisional_id;
         serial[el.attr("name")] = ui.item.stub();
-        that.scope.instance.destroy().then(function() {
+        that.scope.instance.destroy().then(function () {
           new that.scope.model(serial).save();
         });
       });
     },
     // null-if-empty attributes are a pattern carried over from GGRC.Controllers.Modals
     //  Useful for connected objects.
-    "input[null-if-empty] change" : function(el) {
+    "input[null-if-empty] change" : function (el) {
       if (!el.val()) {
         this.scope.instance.attr(el.attr("name"), null);
       }
@@ -389,9 +389,9 @@ can.Component.extend({
     // data-mapping is the element decoration that triggers an autocomplete based on a
     //  mapping to a parent instance.  The mapping_autocomplete helper defined below is
     //  generally for these.
-    "input:not([data-mapping]), select change" : function(el) {
-      if(el.is("[type=checkbox][multiple]")) {
-        if(!this.scope.instance[el.attr("name")]) {
+    "input:not([data-mapping]), select change" : function (el) {
+      if (el.is("[type=checkbox][multiple]")) {
+        if (!this.scope.instance[el.attr("name")]) {
           this.scope.instance.attr(el.attr("name"), new can.List());
         }
         this.scope.instance
@@ -399,7 +399,7 @@ can.Component.extend({
         .replace(
           can.map(
             this.element.find("input[name='" + el.attr("name") + "']:checked"),
-            function(el) {
+            function (el) {
               return $(el).val();
             }
           )
@@ -411,8 +411,8 @@ can.Component.extend({
     },
   },
   helpers: {
-    mapping_autocomplete : function(options) {
-      return function(el) {
+    mapping_autocomplete : function (options) {
+      return function (el) {
         $(el).ggrc_mapping_autocomplete({ controller : options.contexts.attr("controller") });
       };
     }

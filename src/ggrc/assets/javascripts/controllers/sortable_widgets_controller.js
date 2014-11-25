@@ -8,7 +8,7 @@
 //= require can.jquery-all
 //= require models/display_prefs
 
-(function(can, $) {
+(function (can, $) {
   var default_widget_sort = [
      "info_widget"
    , "program_widget"
@@ -39,10 +39,10 @@ can.Control("CMS.Controllers.SortableWidgets", {
     , sort : default_widget_sort
   }
 
-  , init : function(el, opts) {
+  , init : function (el, opts) {
     this._super && this._super.apply(this, arguments);
     var that = this;
-    CMS.Models.DisplayPrefs.findAll().done(function(data) {
+    CMS.Models.DisplayPrefs.findAll().done(function (data) {
       var m = data[0] || new CMS.Models.DisplayPrefs();
       m.save();
       that.defaults.model = m;
@@ -50,22 +50,22 @@ can.Control("CMS.Controllers.SortableWidgets", {
   }
 }, {
 
-  init : function() {
+  init : function () {
     this.options.page_token = window.getPageToken();
     var page_sorts = this.options.model.getSorts(this.options.page_token);
     var that = this;
 
     var this_sort = page_sorts.attr($(this.element).attr("id"));
-    if(this_sort && this_sort instanceof can.Observe.List) {
+    if (this_sort && this_sort instanceof can.Observe.List) {
       this.options.sort = this_sort;
     } else {
-      this.options.sort = new can.Observe.List(can.map(this.options.sort, function(id) {
+      this.options.sort = new can.Observe.List(can.map(this.options.sort, function (id) {
         return that.element.find("#" + id).length ? id : undefined;
       }));
       //put everything NOT in the default sort at the bottom.
       this.options.sort.push.apply(
         this.options.sort
-        , this.element.find("section[id]").map(function(i, sec) {
+        , this.element.find("section[id]").map(function (i, sec) {
             return ~can.inArray(sec.id, that.options.sort) ? undefined : sec.id;
           })
         );
@@ -75,10 +75,10 @@ can.Control("CMS.Controllers.SortableWidgets", {
     }
 
     var firstchild = null;
-    can.each(this_sort, function(id) {
+    can.each(this_sort, function (id) {
       firstchild || (firstchild = $("#" + id));
       var $widget = $("#" + id).detach();
-      if(!$widget.length) {
+      if (!$widget.length) {
         that.options.dashboard_controller.add_dashboard_widget_from_name(
           id.substr(0, id.indexOf("_widget")));
         $widget = $("#" + id);
@@ -100,7 +100,7 @@ can.Control("CMS.Controllers.SortableWidgets", {
     //this.force_add_widget_bottom();
   }
 
-  , sortable: function() {
+  , sortable: function () {
       return this.element.sortable({
           connectWith: '.widget-area'
         , placeholder: 'drop-placeholder'
@@ -112,8 +112,8 @@ can.Control("CMS.Controllers.SortableWidgets", {
   , " sortremove" : "update_event"
   , " sortupdate" : "update_event"
   , " sortreceive": "update_event"
-  , update_event : function(el, ev, data) {
-      if(this.is_initialized) {
+  , update_event : function (el, ev, data) {
+      if (this.is_initialized) {
         this.sortable().sortable("refresh");
         this.options.sort.replace(this.element.sortable("toArray"));
         this.options.model.save();
@@ -121,16 +121,16 @@ can.Control("CMS.Controllers.SortableWidgets", {
       }
     }
 
-  , " apply_widget_sort": function(el, ev, widget_ids) {
+  , " apply_widget_sort": function (el, ev, widget_ids) {
       this.apply_widget_sort(widget_ids);
     }
 
-  , apply_widget_sort: function(widget_ids) {
+  , apply_widget_sort: function (widget_ids) {
       var $container = this.element
         , $prev = null
         ;
 
-      can.each(widget_ids, function(id) {
+      can.each(widget_ids, function (id) {
         var $elem = $container.find(id)
           ;
 
@@ -146,9 +146,9 @@ can.Control("CMS.Controllers.SortableWidgets", {
       this.update_event();
     }
 
-  , " widgets_updated" : function(el, ev, widget) {
+  , " widgets_updated" : function (el, ev, widget) {
     var index;
-    if(!this.element.is(ev.target) && widget) {
+    if (!this.element.is(ev.target) && widget) {
       ev.stopPropagation();
       index = can.inArray($(widget).attr("id"), this.options.sort);
       this.element.trigger("widgets_updated", {widget : widget, index : (~index ? index : null) });

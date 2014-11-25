@@ -12,7 +12,7 @@ can.Model.Cacheable("CMS.Models.SystemOrProcess", {
     , category : "business"
     , findAll : "GET /api/systems_or_processes"
 
-    , model : function(params) {
+    , model : function (params) {
         if (this.shortName !== 'SystemOrProcess')
           return this._super(params);
         if (!params)
@@ -67,13 +67,13 @@ can.Model.Cacheable("CMS.Models.SystemOrProcess", {
       , "Objective" : {}
       }
 }, {
-    system_or_process: function() {
+    system_or_process: function () {
       if (this.attr('is_biz_process'))
         return 'process';
       else
         return 'system';
     }
-    , system_or_process_capitalized: function() {
+    , system_or_process_capitalized: function () {
       var str = this.system_or_process();
       return str.charAt(0).toUpperCase() + str.slice(1);
     }
@@ -113,7 +113,7 @@ CMS.Models.SystemOrProcess("CMS.Models.System", {
       title : ""
     , url : ""
     }
-  , init : function() {
+  , init : function () {
     this._super && this._super.apply(this, arguments);
     this.tree_view_options = $.extend({}, CMS.Models.SystemOrProcess.tree_view_options, {
       // systems is a special case; can be imported to programs
@@ -126,7 +126,7 @@ CMS.Models.SystemOrProcess("CMS.Models.System", {
     this.validateNonBlank("title");
   } //don't rebind the ObjectDocument/ObjectPerson events.
 }, {
-    init : function() {
+    init : function () {
       this._super && this._super.apply(this, arguments);
       this.attr('is_biz_process', false);
     }
@@ -171,14 +171,14 @@ CMS.Models.SystemOrProcess("CMS.Models.Process", {
       title : ""
     , url : ""
     }
-  , init : function() {
+  , init : function () {
     this._super && this._super.apply(this, arguments);
     this.tree_view_options = $.extend({}, CMS.Models.SystemOrProcess.tree_view_options);
     this.tree_view_options.child_options[1].model = this;
     this.validateNonBlank("title");
   } //don't rebind the ObjectDocument/ObjectPerson events.
 }, {
-    init : function() {
+    init : function () {
       this._super && this._super.apply(this, arguments);
       this.attr('is_biz_process', true);
     }

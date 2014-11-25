@@ -27,19 +27,19 @@ CMS.Controllers.Filterable("CMS.Controllers.DashboardWidgets", {
   }
 }, {
 
-  init : function() {
-    if(!this.options.model && GGRC.page_model) {
+  init : function () {
+    if (!this.options.model && GGRC.page_model) {
       this.options.model = GGRC.infer_object_type(GGRC.page_object);
     }
 
-    if(!this.options.widget_icon && this.options.model) {
+    if (!this.options.widget_icon && this.options.model) {
       this.options.widget_icon = this.options.model.table_singular;
     }
-    if(this.options.widget_icon && !/^grcicon/.test(this.options.widget_icon)) {
+    if (this.options.widget_icon && !/^grcicon/.test(this.options.widget_icon)) {
       this.options.widget_icon = "grcicon-" + this.options.widget_icon + "-color";
     }
 
-    if(!this.options.object_category && this.options.model) {
+    if (!this.options.object_category && this.options.model) {
       this.options.object_category = this.options.model.category;
     }
 
@@ -54,7 +54,7 @@ CMS.Controllers.Filterable("CMS.Controllers.DashboardWidgets", {
       ;
   }
 
-  , prepare: function() {
+  , prepare: function () {
       if (this._prepare_deferred)
         return this._prepare_deferred;
 
@@ -66,7 +66,7 @@ CMS.Controllers.Filterable("CMS.Controllers.DashboardWidgets", {
       return this._prepare_deferred;
     }
 
-  , draw_widget : function(frag, prefs) {
+  , draw_widget : function (frag, prefs) {
 
     this.element.html(frag[0]);
     this.element.trigger("widgets_updated", this.element);
@@ -75,26 +75,26 @@ CMS.Controllers.Filterable("CMS.Controllers.DashboardWidgets", {
 
     var content = this.element
       , controller_content = null;
-    if(prefs.length < 1) {
+    if (prefs.length < 1) {
       prefs.push(new CMS.Models.DisplayPrefs());
       prefs[0].save();
     }
 
-    if(prefs[0].getCollapsed(window.getPageToken(), this.element.attr("id"))) {
+    if (prefs[0].getCollapsed(window.getPageToken(), this.element.attr("id"))) {
 
       this.element
       .find(".widget-showhide > a")
       .showhide("hide");
 
       content.add(this.element).css("height", "");
-      if(content.is(".ui-resizable")) {
+      if (content.is(".ui-resizable")) {
         content.resizable("destroy");
       }
     } else {
       content.trigger("min_size");
     }
 
-    if(this.options.content_controller) {
+    if (this.options.content_controller) {
       controller_content = this.element.find(this.options.content_selector);
       if (this.options.content_controller_selector)
         controller_content =
@@ -118,7 +118,7 @@ CMS.Controllers.Filterable("CMS.Controllers.DashboardWidgets", {
     }
   }
 
-  , display: function() {
+  , display: function () {
       var that = this
        , tracker_stop = GGRC.Tracker.start(
           "DashboardWidget", "display", this.options.model.shortName)
@@ -127,7 +127,7 @@ CMS.Controllers.Filterable("CMS.Controllers.DashboardWidgets", {
       if (this._display_deferred)
         return this._display_deferred;
 
-      this._display_deferred = this.prepare().then(function() {
+      this._display_deferred = this.prepare().then(function () {
         if (that.content_controller && that.content_controller.display) {
           return that.content_controller.display();
         }
@@ -153,13 +153,13 @@ CMS.Controllers.Filterable("CMS.Controllers.DashboardWidgets", {
     ev.stopPropagation();
     ev.originalEvent && ev.originalEvent.stopPropagation();
   }*/
-  , " updateCount" : function(el, ev, count) {
+  , " updateCount" : function (el, ev, count) {
     this.options.widget_count.attr('count', ''+count);
   }
 
-  , display_path: function(path) {
+  , display_path: function (path) {
       var that = this;
-      return this.display().then(function() {
+      return this.display().then(function () {
         if (that.content_controller && that.content_controller.display_path)
           return that.content_controller.display_path(path);
       });

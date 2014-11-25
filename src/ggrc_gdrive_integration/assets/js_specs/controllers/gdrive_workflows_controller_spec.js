@@ -2,17 +2,17 @@ window.GGRC = window.GGRC || {};
 GGRC.config = GGRC.config || {};
 GGRC.config.GAPI_ADMIN_GROUP = GGRC.config.GAPI_ADMIN_GROUP || "admins@example.com";
 
-describe("GDrive Workflows Controller", function() {
+describe("GDrive Workflows Controller", function () {
   var ctl;
-  beforeEach(function() {
-    waitsFor(function() {
+  beforeEach(function () {
+    waitsFor(function () {
       return (ctl = $(document.body).control(GGRC.Controllers.GDriveWorkflow));
     }, 5000);
   });
-  describe("#update_permission_for", function() {
+  describe("#update_permission_for", function () {
 
     var item, permissionId, role, saved_object;
-    beforeEach(function() {
+    beforeEach(function () {
       item = new CMS.Models.GDriveFolder({
         id : "a folder id"
         , userPermission : {
@@ -23,7 +23,7 @@ describe("GDrive Workflows Controller", function() {
       role = "writer";
       saved_object = undefined;
 
-      spyOn(CMS.Models.GDriveFolderPermission.prototype, "save").andCallFake(function() {
+      spyOn(CMS.Models.GDriveFolderPermission.prototype, "save").andCallFake(function () {
         saved_object = this;
         expect(saved_object.folder).toBe(item);
         expect(saved_object.role).toBe(role);
@@ -31,10 +31,10 @@ describe("GDrive Workflows Controller", function() {
       });
     });
 
-    it("creates permission object for user by email address", function() {
+    it("creates permission object for user by email address", function () {
       var person = "foo@example.com";
       
-      spyOn(CMS.Models.GDriveFolder.prototype, "findPermissions").andCallFake(function() { return $.when([]); });
+      spyOn(CMS.Models.GDriveFolder.prototype, "findPermissions").andCallFake(function () { return $.when([]); });
 
       ctl.update_permission_for(item, person, permissionId, role);
       expect(saved_object).toBeDefined();
@@ -42,13 +42,13 @@ describe("GDrive Workflows Controller", function() {
       expect(saved_object.permission_type).toBe("user");
     });
 
-    it("creates permission object for user by Person object", function() {
+    it("creates permission object for user by Person object", function () {
       var person = new CMS.Models.Person({
         id : 1
         , email : "foo@example.com"
       });
 
-      spyOn(CMS.Models.GDriveFolder.prototype, "findPermissions").andCallFake(function() { return $.when([]); });
+      spyOn(CMS.Models.GDriveFolder.prototype, "findPermissions").andCallFake(function () { return $.when([]); });
 
       ctl.update_permission_for(item, person, permissionId, role);
       expect(saved_object).toBeDefined();
@@ -56,8 +56,8 @@ describe("GDrive Workflows Controller", function() {
       expect(saved_object.permission_type).toBe("user");
     });
 
-    it("creates group permission object when passed Admin group", function() {
-      spyOn(CMS.Models.GDriveFolder.prototype, "findPermissions").andCallFake(function() { return $.when([]); });
+    it("creates group permission object when passed Admin group", function () {
+      spyOn(CMS.Models.GDriveFolder.prototype, "findPermissions").andCallFake(function () { return $.when([]); });
 
       ctl.update_permission_for(item, GGRC.config.GAPI_ADMIN_GROUP, permissionId, role);
       expect(saved_object).toBeDefined();
@@ -66,11 +66,11 @@ describe("GDrive Workflows Controller", function() {
     });
 
     //This spec is no longer correct, as all of the extant permissions are now divined in resolve_permissions --BM 4/5/2014
-    xit("does not create permissions for users who already have an equivalent permission", function() {
+    xit("does not create permissions for users who already have an equivalent permission", function () {
       var person = "foo@example.com";
       
       spyOn(CMS.Models.GDriveFolder.prototype, "findPermissions")
-      .andCallFake(function() {
+      .andCallFake(function () {
         return $.when([{
           "id" : permissionId
           , "email" : person
@@ -82,11 +82,11 @@ describe("GDrive Workflows Controller", function() {
       expect(saved_object).not.toBeDefined();
     });
 
-    it("creates writer permission for users who currently have reader", function() {
+    it("creates writer permission for users who currently have reader", function () {
       var person = "foo@example.com";
       
       spyOn(CMS.Models.GDriveFolder.prototype, "findPermissions")
-      .andCallFake(function() {
+      .andCallFake(function () {
         return $.when([{
           "id" : permissionId
           , "email" : person
@@ -100,17 +100,17 @@ describe("GDrive Workflows Controller", function() {
       expect(saved_object.permission_type).toBe("user");
     });
 
-    afterEach(function() {
+    afterEach(function () {
       delete CMS.Models.GDriveFolder.cache;
       delete CMS.Models.GDriveFolderPermission.cache;
     });
   });
 
-  describe("#create_folder_if_nonexistent", function() {
+  describe("#create_folder_if_nonexistent", function () {
 
-    describe("given a Program", function() {
+    describe("given a Program", function () {
 
-      it("calls out to create_program_folder and does nothing else", function() {
+      it("calls out to create_program_folder and does nothing else", function () {
         var program = new CMS.Models.Program({
           id : 1
           , title : "a program"
@@ -129,9 +129,9 @@ describe("GDrive Workflows Controller", function() {
 
     });
 
-    describe("given an Audit", function() {
+    describe("given an Audit", function () {
       var audit;
-      beforeEach(function() {
+      beforeEach(function () {
         audit = new CMS.Models.Audit({
           id : 1
           , title : "an audit"
@@ -143,13 +143,13 @@ describe("GDrive Workflows Controller", function() {
         spyOn(ctl, "create_program_folder").andReturn($.when());
       });
 
-      it("recursively calls for program", function() {
+      it("recursively calls for program", function () {
         spyOn(ctl, "create_folder_if_nonexistent").andReturn($.when());
         ctl.create_folder_if_nonexistent.originalValue.call(ctl, audit);
         expect(ctl.create_folder_if_nonexistent).toHaveBeenCalledWith(jasmine.any(CMS.Models.Program));
       });
 
-      it("calls out to create_audit_folder", function() {
+      it("calls out to create_audit_folder", function () {
 
         spyOn(ctl.request_create_queue, "push").andThrow("ERROR: function pushed audit folder creation onto the Request queue");
         spyOn(ctl, "link_request_to_new_folder_or_audit_folder").andThrow("ERROR: function tried linking a audit to another Audit's folder");
@@ -158,14 +158,14 @@ describe("GDrive Workflows Controller", function() {
         expect(ctl.create_audit_folder).toHaveBeenCalledWith(audit.constructor, jasmine.any(Object), audit);
       });
 
-      it("links in Requests that have no objectives", function() {
+      it("links in Requests that have no objectives", function () {
         var request = new CMS.Models.Request({
           id : 1
           , audit : audit
         });
         var sanity = false;
         audit.requests.push(request);
-        spyOn(CMS.Models.ObjectFolder.prototype, "save").andCallFake(function() {
+        spyOn(CMS.Models.ObjectFolder.prototype, "save").andCallFake(function () {
           sanity = true;
           expect(this instanceof CMS.Models.ObjectFolder).toBe(true);
           expect(this.folderable.reify()).toBe(request);
@@ -178,10 +178,10 @@ describe("GDrive Workflows Controller", function() {
 
     });
 
-    describe("given a Request", function() {
+    describe("given a Request", function () {
 
       var request;
-      beforeEach(function() {
+      beforeEach(function () {
         request = new CMS.Models.Request({
           id : 1
           , audit : new CMS.Models.Audit({
@@ -190,7 +190,7 @@ describe("GDrive Workflows Controller", function() {
         });
         request.audit.reify().attr("requests", [request]);
         spyOn(can.Model.Cacheable.prototype, "get_mapping").andReturn([]);
-        spyOn(can.Model.Cacheable.prototype, "get_binding").andReturn({ refresh_instances : function() { return $.when(); }});
+        spyOn(can.Model.Cacheable.prototype, "get_binding").andReturn({ refresh_instances : function () { return $.when(); }});
         spyOn(ctl, "link_request_to_new_folder_or_audit_folder");
         spyOn(ctl.request_create_queue, "push");
 
@@ -199,15 +199,15 @@ describe("GDrive Workflows Controller", function() {
         spyOn(RefreshQueue.prototype, "trigger").andReturn($.when());
       });
 
-      it("recursively creates an audit folder", function() {
+      it("recursively creates an audit folder", function () {
         ctl.create_folder_if_nonexistent(request);
         expect(ctl.create_audit_folder).toHaveBeenCalledWith(request.audit.reify().constructor, jasmine.any(Object), request.audit.reify());
       });
 
-      it("calls out to create_request_folder if audit is created", function() {
+      it("calls out to create_request_folder if audit is created", function () {
         ctl.request_create_queue.push.andThrow("ERROR: queued request when audit create was not in progress");
-        can.Model.Cacheable.prototype.get_mapping.andCallFake(function() {
-          if(this instanceof CMS.Models.Audit) {
+        can.Model.Cacheable.prototype.get_mapping.andCallFake(function () {
+          if (this instanceof CMS.Models.Audit) {
             return [{}];
           } else {
             return [];
@@ -217,7 +217,7 @@ describe("GDrive Workflows Controller", function() {
         expect(ctl.link_request_to_new_folder_or_audit_folder).toHaveBeenCalledWith(request.constructor, jasmine.any(Object), request);
       });
 
-      it("queues Request if Audit create is in progress", function() {
+      it("queues Request if Audit create is in progress", function () {
         try {
           ctl._audit_create_in_progress = true;
           ctl.link_request_to_new_folder_or_audit_folder.andThrow("ERROR: created request folder while audit create is in progress");
@@ -233,9 +233,9 @@ describe("GDrive Workflows Controller", function() {
 
   });
 
-  describe("UserRole created event", function() {
+  describe("UserRole created event", function () {
 
-    it("calls update_permissions only for program with matching context", function() {
+    it("calls update_permissions only for program with matching context", function () {
       spyOn(ctl, "update_permissions").andReturn(new $.Deferred().resolve({}));
 
       var p1 = new CMS.Models.Program({id : 1, context : { id : 1 }});
@@ -250,10 +250,10 @@ describe("GDrive Workflows Controller", function() {
 
       ctl["{CMS.Models.UserRole} created"](CMS.Models.UserRole, {}, userrole);
 
-      waitsFor(function() {
+      waitsFor(function () {
         return ctl.update_permissions.callCount;
       }, "waiting on delayed update_permissions");
-      runs(function() {
+      runs(function () {
         expect(ctl.update_permissions).toHaveBeenCalledWith(CMS.Models.Program, jasmine.any(Object), p1);
         expect(ctl.update_permissions).not.toHaveBeenCalledWith(CMS.Models.Program, jasmine.any(Object), p2);
       });
@@ -261,7 +261,7 @@ describe("GDrive Workflows Controller", function() {
 
   });
 
-  afterEach(function() {
+  afterEach(function () {
     delete CMS.Models.Program.cache;
     delete CMS.Models.Audit.cache;
     delete CMS.Models.Request.cache;

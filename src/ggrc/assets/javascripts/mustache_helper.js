@@ -1403,7 +1403,7 @@ Mustache.registerHelper("local_time_range", function (value, start, end, options
     }
   }
 
-  while(start.isBefore(end) || start.isSame(end)) {
+  while (start.isBefore(end) || start.isSame(end)) {
     tokens.push("<option value='", start.diff(sod), "'", selected(start), ">", start.format("hh:mm A"), "</option>\n");
     start.add(1, "hour");
   }

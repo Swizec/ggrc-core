@@ -6,7 +6,7 @@
 */
 
 
-(function(can, $) {
+(function (can, $) {
 
 can.Control("StickyHeader", {
     defaults: {
@@ -30,7 +30,7 @@ can.Control("StickyHeader", {
       , margin: 30
     }
 }, {
-    init : function() {
+    init : function () {
       this.options = can.extend(this.options, {
         scroll_area: this.element.closest(this.options.scroll_area_selector)
       });
@@ -38,7 +38,7 @@ can.Control("StickyHeader", {
     }
 
     // Handle window scrolling
-  , "{scroll_area} scroll" : function(el, ev) {
+  , "{scroll_area} scroll" : function (el, ev) {
     // Only process if this section is visible
     if (!this.element.is(":visible"))
       return;
@@ -48,7 +48,7 @@ can.Control("StickyHeader", {
     this.update_items('footer');
   }
 
-  , "{scroll_area} updateSticky" : function(el, ev) {
+  , "{scroll_area} updateSticky" : function (el, ev) {
     // `updateSticky` is triggered manually by controllers and other event
     //    handlers, namely `TreeViewController` and `$.fn.openclose`
     // Only process if this section is visible
@@ -64,14 +64,14 @@ can.Control("StickyHeader", {
   }
 
     // Resize clones on window resize
-  , "{window} resize" : function(el, ev) {
+  , "{window} resize" : function (el, ev) {
     // Update the header/footer positions
     this.update_items('header');
     this.update_items('footer');
   }
 
     // Updates the given set of sticky items
-  , update_items : function(type) {
+  , update_items : function (type) {
     var items = this.find_items(type);
 
     for (var i = items.length - 1; i >= 0; i--) {
@@ -98,7 +98,7 @@ can.Control("StickyHeader", {
   }
 
     // Find all sticky-able headers in the document
-  , find_items : function(type) {
+  , find_items : function (type) {
     var old_items = this['_'+type] || $()
       , items = this['_'+type] = this.element.find(this.options[type + '_selector']).filter(':not(.sticky-clone):visible')
       , self = this
@@ -107,7 +107,7 @@ can.Control("StickyHeader", {
       ;
 
     // Remove all items that no longer are active
-    old_items.not(items).each(function() {
+    old_items.not(items).each(function () {
       self.remove($(this));
     });
 
@@ -131,7 +131,7 @@ can.Control("StickyHeader", {
   }
 
     // Determine whether a header's content section is within the scrolling viewport
-  , in_viewport : function(el) {
+  , in_viewport : function (el) {
     var data = el.data('sticky')
     if (data.clone && data.clone[0] && data.clone[0].parentNode) {
       el = data.clone;
@@ -167,7 +167,7 @@ can.Control("StickyHeader", {
       return data.margin = false;
   }
 
-  , compute_offset : function(el, items) {
+  , compute_offset : function (el, items) {
     // Compute heights of above items
     var offset = 0
       , data = el.data('sticky')
@@ -207,7 +207,7 @@ can.Control("StickyHeader", {
   }
 
     // Clones (if one doesn't exist) and prepares an item
-  , clone : function(el) {
+  , clone : function (el) {
     // Compute heights of above items
     var data = el.data('sticky');
     !data.clone && (data.clone = $("<" + el[0].tagName + ">").addClass("sticky-clone").width(el.width()).height(el.height()).html("&nbsp;"));
@@ -217,9 +217,9 @@ can.Control("StickyHeader", {
   }
 
     // Determine the selector that "selected" a given element
-  , selector_of : function(el, type) {
+  , selector_of : function (el, type) {
     var selector = '';
-    can.each(this.options[type + '_selector'].split(','), function(part) {
+    can.each(this.options[type + '_selector'].split(','), function (part) {
       if (el.is(part))
         selector = part;
     });
@@ -227,7 +227,7 @@ can.Control("StickyHeader", {
   }
 
     // Reposition a clone
-  , position_element : function(el) {
+  , position_element : function (el) {
     var data = el.data('sticky')
       , clone = data.clone
       , source = el
@@ -254,7 +254,7 @@ can.Control("StickyHeader", {
   }
 
     // Detach an element's sticky data
-  , remove : function(el) {
+  , remove : function (el) {
     var data = el.data('sticky')
       , clone = data && data.clone
       ;
@@ -274,11 +274,11 @@ can.Control("StickyHeader", {
   }
 
     // Clean up when destroyed
-  , destroy : function() {
+  , destroy : function () {
     var items = $().add(this._header || $()).add(this._footer || $())
       , self = this
       ;
-    items.each(function() {
+    items.each(function () {
       self.remove($(this));
     });
     delete this._header;

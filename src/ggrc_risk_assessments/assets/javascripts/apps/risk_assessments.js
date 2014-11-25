@@ -5,7 +5,7 @@
  * Maintained By: dan@reciprocitylabs.com
  */
 
-(function($, CMS, GGRC) {
+(function ($, CMS, GGRC) {
   var RiskAssessmentsExtension = {},
       _risk_assessments_object_types = ["Program"];
   GGRC.extensions.push(RiskAssessmentsExtension);
@@ -13,7 +13,7 @@
   RiskAssessmentsExtension.name = "risk_assessments";
 
   // Register RA models for use with `infer_object_type`
-  RiskAssessmentsExtension.object_type_decision_tree = function() {
+  RiskAssessmentsExtension.object_type_decision_tree = function () {
     return {
       "risk_assessment": CMS.Models.RiskAssessment
     };

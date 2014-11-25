@@ -5,7 +5,7 @@
     Maintained By: brad@reciprocitylabs.com
 */
 
-(function(can, $) {
+(function (can, $) {
 
 can.Control("GGRC.Controllers.InfoWidget", {
   defaults : {
@@ -13,9 +13,9 @@ can.Control("GGRC.Controllers.InfoWidget", {
     , instance : null
     , widget_view : GGRC.mustache_path + "/base_objects/info.mustache"
   }
-  , init : function() {
+  , init : function () {
     var that = this;
-    $(function() {
+    $(function () {
       if (GGRC.page_object) {
         $.extend(that.defaults, {
           model : GGRC.infer_object_type(GGRC.page_object)
@@ -25,7 +25,7 @@ can.Control("GGRC.Controllers.InfoWidget", {
     });
   }
 }, {
-  init : function() {
+  init : function () {
     var that = this;
 
     if (this.element.data('widget-view')) {
@@ -36,13 +36,13 @@ can.Control("GGRC.Controllers.InfoWidget", {
         model : this.options.model
       , instance : this.options.instance
       });
-    can.view(this.get_widget_view(this.element), this.options.context, function(frag) {
+    can.view(this.get_widget_view(this.element), this.options.context, function (frag) {
       that.element.html(frag);
     });
 
   }
 
-  , get_widget_view: function(el) {
+  , get_widget_view: function (el) {
       var widget_view = $(el)
             .closest('[data-widget-view]').attr('data-widget-view');
       if (widget_view && widget_view.length > 0)

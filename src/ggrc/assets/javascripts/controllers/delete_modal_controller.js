@@ -5,24 +5,24 @@
     Maintained By: vraj@reciprocitylabs.com
 */
 
-(function(can, $) {
+(function (can, $) {
 
 GGRC.Controllers.Modals("GGRC.Controllers.Delete", {
     defaults: {
         skip_refresh: true
     }
 }, {
-  init : function() {
+  init : function () {
     this._super();
   }
 
-  , "{$footer} a.btn[data-toggle=delete]:not(:disabled) click" : function(el, ev) {
+  , "{$footer} a.btn[data-toggle=delete]:not(:disabled) click" : function (el, ev) {
     var that = this,
     // Disable the cancel button.
         cancel_button = this.element.find("a.btn[data-dismiss=modal]"),
         modal_backdrop = this.element.data("modal_form").$backdrop;
 
-    this.bindXHRToButton(this.options.instance.destroy().then(function(instance) {
+    this.bindXHRToButton(this.options.instance.destroy().then(function (instance) {
       // If this modal is spawned from an edit modal, make sure that one does
       // not refresh the instance post-delete.
       var parent_controller = $(that.options.$trigger).closest('.modal').control();
@@ -39,7 +39,7 @@ GGRC.Controllers.Modals("GGRC.Controllers.Delete", {
       return new $.Deferred(); // on success, just let the modal be destroyed or navigation happen.
                                // Do not re-enable the form elements.
 
-    }).fail(function(xhr, status){
+    }).fail(function (xhr, status){
       $(document.body).trigger("ajax:flash", { error : xhr.responseText });
     }), el.add(cancel_button).add(modal_backdrop));
   }

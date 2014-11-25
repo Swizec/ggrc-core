@@ -5,7 +5,7 @@
     Maintained By: brad@reciprocitylabs.com
 */
 
-;(function(can) {
+;(function (can) {
 
 can.Model.Cacheable("CMS.Models.Audit", {
   root_object : "audit"
@@ -68,15 +68,15 @@ can.Model.Cacheable("CMS.Models.Audit", {
       , parent_find_param : "audit.id"
     }]
   }
-  , init : function() {
+  , init : function () {
     this._super && this._super.apply(this, arguments);
     this.validatePresenceOf("program");
     this.validatePresenceOf("contact");
     this.validateNonBlank("title");
-    this.validate(["_transient.audit_firm", "audit_firm"], function(newVal, prop) {
+    this.validate(["_transient.audit_firm", "audit_firm"], function (newVal, prop) {
       var audit_firm = this.attr("audit_firm");
       var audit_firm_text = this.attr("_transient.audit_firm");
-      if(!audit_firm && audit_firm_text
+      if (!audit_firm && audit_firm_text
         || (audit_firm_text !== "" && audit_firm_text != null && audit_firm != null && audit_firm_text !== audit_firm.reify().title)) {
         return "No valid org group selected for firm";
       }
@@ -85,18 +85,18 @@ can.Model.Cacheable("CMS.Models.Audit", {
     CMS.Models.Role.findAll({name__in: "Auditor"});
   }
 }, {
-  object_model: can.compute(function() {
+  object_model: can.compute(function () {
     return CMS.Models[this.attr("object_type")];
   }),
-  save : function() {
+  save : function () {
 
     var that = this;
     // Make sure the context is always set to the parent program
-    if(this.context == null || this.context.id == null){
+    if (this.context == null || this.context.id == null){
       this.attr('context', this.program.reify().context);
     }
 
-    return this._super.apply(this, arguments).then(function(instance) {
+    return this._super.apply(this, arguments).then(function (instance) {
       // Since Audits have a non-standard url for viewing, the url has to be set here
       // so that the browser can be redirected properly after creating.
       instance.attr('_redirect',
@@ -104,22 +104,22 @@ can.Model.Cacheable("CMS.Models.Audit", {
       return instance;
     });
   },
-  after_save: function() {
+  after_save: function () {
     var that = this;
     
     new RefreshQueue().enqueue(this.program.reify()).trigger()
-    .then(function(programs) {
+    .then(function (programs) {
       return $.when(
         programs[0],
         programs[0].get_binding("program_authorized_people").refresh_instances(),
         CMS.Models.Role.findAll({ name : "ProgramReader" })
       );
-    }).then(function(program, person_bindings, reader_roles) {
-      var authorized_people = can.map(person_bindings, function(pb) {
+    }).then(function (program, person_bindings, reader_roles) {
+      var authorized_people = can.map(person_bindings, function (pb) {
         return pb.instance;
       });
 
-      if(Permission.is_allowed("create", "UserRole", program.context)
+      if (Permission.is_allowed("create", "UserRole", program.context)
         && !~can.inArray(
           that.contact.reify(),
           authorized_people
@@ -132,7 +132,7 @@ can.Model.Cacheable("CMS.Models.Audit", {
       }
     });
   },
-  findAuditors : function(return_list){
+  findAuditors : function (return_list){
     // If return_list is true, use findAuditors in the
     //  classical way, where the exact state of the list
     //  isn't needed immeidately (as in a Mustache helper);
@@ -144,8 +144,8 @@ can.Model.Cacheable("CMS.Models.Audit", {
       dfds = []
       ;
 
-    if(return_list) {
-      $.map(loader.list, function(binding) {
+    if (return_list) {
+      $.map(loader.list, function (binding) {
         // FIXME: This works for now, but is sad.
         if (!binding.instance.selfLink)
           return;
@@ -158,7 +158,7 @@ can.Model.Cacheable("CMS.Models.Audit", {
             });
           }
         }
-        if(role.selfLink) {
+        if (role.selfLink) {
           checkRole();
         } else {
           role.refresh().then(checkRole);
@@ -166,20 +166,20 @@ can.Model.Cacheable("CMS.Models.Audit", {
       });
       return auditors_list;
     } else {
-      return loader.refresh_instances().then(function() {
-        $.map(loader.list, function(binding) {
+      return loader.refresh_instances().then(function () {
+        $.map(loader.list, function (binding) {
           // FIXME: This works for now, but is sad.
 
-          dfds.push(new $.Deferred(function(dfd) {
+          dfds.push(new $.Deferred(function (dfd) {
 
             if (!binding.instance.selfLink) {
-              binding.instance.refresh().then(function() {
+              binding.instance.refresh().then(function () {
                 dfd.resolve(binding.instance);
               });
             } else {
               dfd.resolve(binding.instance);
             }
-          }).then(function(instance) {
+          }).then(function (instance) {
 
             var role = instance.role.reify();
             function checkRole() {
@@ -190,14 +190,14 @@ can.Model.Cacheable("CMS.Models.Audit", {
                 });
               }
             }
-            if(role.selfLink) {
+            if (role.selfLink) {
               checkRole();
             } else {
               return role.refresh().then(checkRole);
             }
           }));
         });
-        return $.when.apply($, dfds).then(function() {
+        return $.when.apply($, dfds).then(function () {
           return auditors_list;
         });
       });
@@ -206,14 +206,14 @@ can.Model.Cacheable("CMS.Models.Audit", {
 });
 
 can.Model.Mixin("requestorable", {
-  before_create : function() {
-    if(!this.requestor) {
+  before_create : function () {
+    if (!this.requestor) {
       this.attr('requestor', { id: GGRC.current_user.id, type : "Person" });
     }
   }
-  , form_preload : function(new_object_form) {
-    if(new_object_form) {
-      if(!this.requestor) {
+  , form_preload : function (new_object_form) {
+    if (new_object_form) {
+      if (!this.requestor) {
         this.attr('requestor', { id: GGRC.current_user.id, type : "Person" });
       }
     }
@@ -253,38 +253,38 @@ can.Model.Cacheable("CMS.Models.Request", {
       , allow_creating : true
     }]
   }
-  , init : function() {
+  , init : function () {
     this._super.apply(this, arguments);
     this.validateNonBlank("description");
     this.validateNonBlank("due_on");
     this.validatePresenceOf("assignee");
-    if(this === CMS.Models.Request) {
-      this.bind("created", function(ev, instance) {
-        if(instance.constructor === CMS.Models.Request) {
+    if (this === CMS.Models.Request) {
+      this.bind("created", function (ev, instance) {
+        if (instance.constructor === CMS.Models.Request) {
           instance.audit.reify().refresh();
         }
       });
     }
   }
 }, {
-  init : function() {
+  init : function () {
     this._super && this._super.apply(this, arguments);
     function setAssigneeFromAudit() {
-      if(!this.selfLink && !this.assignee && this.audit) {
+      if (!this.selfLink && !this.assignee && this.audit) {
         this.attr("assignee", this.audit.reify().contact || {id : null});
       }
     }
     setAssigneeFromAudit.call(this);
 
     this.bind("audit", setAssigneeFromAudit);
-    this.attr("response_model_class", can.compute(function() {
+    this.attr("response_model_class", can.compute(function () {
       return can.capitalize(this.attr("request_type")
-          .replace(/ [a-z]/g, function(a) { return a.slice(1).toUpperCase(); }))
+          .replace(/ [a-z]/g, function (a) { return a.slice(1).toUpperCase(); }))
         + "Response";
     }, this));
   }
 
-  , display_name : function() {
+  , display_name : function () {
       var desc = this.description
         , max_len = 20;
       out_name = desc;
@@ -294,32 +294,32 @@ can.Model.Cacheable("CMS.Models.Request", {
       }
       return 'Request "' + out_name + '"';
     }
-  , before_create : function() {
+  , before_create : function () {
     var audit, that = this;
-    if(!this.assignee) {
+    if (!this.assignee) {
       audit = this.audit.reify();
       (audit.selfLink ? $.when(audit) : audit.refresh())
-      .then(function(audit) {
+      .then(function (audit) {
         that.attr('assignee', audit.contact);
       });
     }
   }
-  , after_save: function() {
+  , after_save: function () {
     var that = this;
 
-    new RefreshQueue().enqueue(this.audit.reify()).trigger().then(function(audits) {
+    new RefreshQueue().enqueue(this.audit.reify()).trigger().then(function (audits) {
       return new RefreshQueue().enqueue(audits[0].program).trigger();
-    }).then(function(programs) {
+    }).then(function (programs) {
       return $.when(
         programs[0],
         programs[0].get_binding("program_authorized_people").refresh_instances(),
         CMS.Models.Role.findAll({ name : "ProgramReader" }));
-    }).then(function(program, people_bindings, reader_roles) {
-      var authorized_people = can.map(people_bindings, function(pb) {
+    }).then(function (program, people_bindings, reader_roles) {
+      var authorized_people = can.map(people_bindings, function (pb) {
         return pb.instance;
       });
 
-      if(Permission.is_allowed("create", "UserRole", program.context)
+      if (Permission.is_allowed("create", "UserRole", program.context)
         && !~can.inArray(
           that.assignee.reify(),
           authorized_people
@@ -332,18 +332,18 @@ can.Model.Cacheable("CMS.Models.Request", {
       }
     });
   },
-  before_save: function(notifier) {
+  before_save: function (notifier) {
     var that = this,
         obj = this.audit_object_object ? this.audit_object_object.reify() : this.audit_object_object,
         matching_objs;
-    if(that.audit_object
+    if (that.audit_object
        && (!that.audit_object_object
            || that.audit_object.reify().auditable.id !== that.audit_object_object.id
     )) {
       return;
     }
-    if(obj && (matching_objs = can.map(this.get_mapping("audit_objects_via_audit"), function(mapping) {
-      if(mapping.instance === obj)
+    if (obj && (matching_objs = can.map(this.get_mapping("audit_objects_via_audit"), function (mapping) {
+      if (mapping.instance === obj)
         return mapping;
     })).length < 1) {
       notifier.queue(
@@ -351,7 +351,7 @@ can.Model.Cacheable("CMS.Models.Request", {
           audit: this.audit,
           auditable: this.audit_object_object,
           context: this.audit.reify().context
-        }).save().then(function(ao) {
+        }).save().then(function (ao) {
           that.attr("audit_object", ao.stub());
         })
       );
@@ -359,13 +359,13 @@ can.Model.Cacheable("CMS.Models.Request", {
       that.attr("audit_object", matching_objs && matching_objs.length && matching_objs[0].mappings[0].instance.stub() || null);
     }
   }
-  , form_preload : function(new_object_form) {
+  , form_preload : function (new_object_form) {
     var audit, that = this;
-    if(new_object_form) {
-      if(!this.assignee && this.audit) {
+    if (new_object_form) {
+      if (!this.assignee && this.audit) {
         audit = this.audit.reify();
         (audit.selfLink ? $.when(audit) : audit.refresh())
-        .then(function(audit) {
+        .then(function (audit) {
           that.attr('assignee', audit.contact);
         });
       }
@@ -380,16 +380,16 @@ can.Model.Cacheable("CMS.Models.Response", {
   root_object : "response"
   , root_collection : "responses"
   , subclasses : []
-  , init : function() {
+  , init : function () {
     this._super && this._super.apply(this, arguments);
 
     function refresh_request(ev, instance) {
-      if(instance instanceof CMS.Models.Response) {
+      if (instance instanceof CMS.Models.Response) {
         instance.request.reify().refresh();
       }
     }
     this.cache = {};
-    if(this !== CMS.Models.Response) {
+    if (this !== CMS.Models.Response) {
       CMS.Models.Response.subclasses.push(this);
     } else {
       this.bind("created", refresh_request);
@@ -404,7 +404,7 @@ can.Model.Cacheable("CMS.Models.Response", {
   , findAll : "GET /api/responses"
   , findOne : "GET /api/responses/{id}"
   , destroy : "DELETE /api/responses/{id}"
-  , model : function(params) {
+  , model : function (params) {
     var found = false;
     if (this.shortName !== 'Response')
       return this._super(params);
@@ -418,19 +418,19 @@ can.Model.Cacheable("CMS.Models.Response", {
       if (params.type && params.type !== 'Response')
         return CMS.Models[params.type].model(params);
     } else {
-      can.each(this.subclasses, function(m) {
-        if(m.root_object === params.response_type + "_response") {
+      can.each(this.subclasses, function (m) {
+        if (m.root_object === params.response_type + "_response") {
           params = m.model(params);
           found = true;
           return false;
-        } else if(m.root_object in params) {
+        } else if (m.root_object in params) {
           params = m.model(m.object_from_resource(params));
           found = true;
           return false;
         }
       });
     }
-    if(found) {
+    if (found) {
       return params;
     } else {
       console.debug("Invalid Response:", params);
@@ -470,7 +470,7 @@ can.Model.Cacheable("CMS.Models.Response", {
       , footer_view : GGRC.mustache_path + "/base_objects/tree_footer.mustache"
       , allow_mapping : false
       , allow_creating: false
-      , exclude_option_types : function() {
+      , exclude_option_types : function () {
         var types = {
           "DocumentationResponse" : "Document"
           , "InterviewResponse" : "Person"
@@ -503,7 +503,7 @@ can.Model.Cacheable("CMS.Models.Response", {
     }]
   }
 }, {
-    display_name : function() {
+    display_name : function () {
       var desc = this.description
         , max_len = 20;
       out_name = desc;
@@ -513,13 +513,13 @@ can.Model.Cacheable("CMS.Models.Response", {
       }
       return 'Response "' + out_name + '"';
     }
-  , before_create : function() {
-    if(!this.contact) {
+  , before_create : function () {
+    if (!this.contact) {
       this.attr("contact", this.request.reify().assignee);
     }
   }
-  , preload_form : function(new_object_form) {
-    if(new_object_form && !this.contact) {
+  , preload_form : function (new_object_form) {
+    if (new_object_form && !this.contact) {
       this.attr("contact", this.request.reify().assignee);
     }
   }
@@ -535,12 +535,12 @@ CMS.Models.Response("CMS.Models.DocumentationResponse", {
   , findOne : "GET /api/documentation_responses/{id}"
   , destroy : "DELETE /api/documentation_responses/{id}"
   , attributes : {}
-  , init : function() {
+  , init : function () {
     this._super && this._super.apply(this, arguments);
     can.extend(this.attributes, CMS.Models.Response.attributes);
     this.cache = CMS.Models.Response.cache;
   }
-  , process_args : function(args, names) {
+  , process_args : function (args, names) {
     var params = this._super(args, names);
     params[this.root_object].response_type = "documentation";
     return params;
@@ -556,25 +556,25 @@ CMS.Models.Response("CMS.Models.InterviewResponse", {
   , findOne : "GET /api/interview_responses/{id}"
   , destroy : "DELETE /api/interview_responses/{id}"
   , attributes : {}
-  , init : function() {
+  , init : function () {
     this._super && this._super.apply(this, arguments);
     can.extend(this.attributes, CMS.Models.Response.attributes);
     this.cache = CMS.Models.Response.cache;
   }
-  , process_args : function(args, names) {
+  , process_args : function (args, names) {
     var params = this._super(args, names);
     params[this.root_object].response_type = "interview";
     return params;
   }
 }, {
-  save : function() {
+  save : function () {
     var that = this;
-    if(this.isNew()) {
+    if (this.isNew()) {
       var audit = this.request.reify().audit.reify()
         , auditors_dfd = audit.findAuditors();
 
-      return auditors_dfd.then(function(auditors) {
-        if(auditors.length > 0){
+      return auditors_dfd.then(function (auditors) {
+        if (auditors.length > 0){
           that.mark_for_addition("people", auditors[0].person);
         }
         that.mark_for_addition("people", that.contact);
@@ -595,12 +595,12 @@ CMS.Models.Response("CMS.Models.PopulationSampleResponse", {
   , findOne : "GET /api/population_sample_responses/{id}"
   , destroy : "DELETE /api/population_sample_responses/{id}"
   , attributes : {}
-  , init : function() {
+  , init : function () {
     this._super && this._super.apply(this, arguments);
     can.extend(this.attributes, CMS.Models.Response.attributes);
     this.cache = CMS.Models.Response.cache;
   }
-  , process_args : function(args, names) {
+  , process_args : function (args, names) {
     var params = this._super(args, names);
     params[this.root_object].response_type = "population sample";
     return params;
@@ -623,7 +623,7 @@ can.Model.Cacheable("CMS.Models.Meeting", {
     , end_at : "datetime"
   }
   , defaults : {}
-  , init : function() {
+  , init : function () {
     this._super && this._super.apply(this, arguments);
     this.validateNonBlank("title");
     this.validateNonBlank("start_at");
@@ -634,15 +634,15 @@ can.Model.Cacheable("CMS.Models.Meeting", {
       var that = this;
       this._super && this._super.apply(this, arguments);
 
-      this.each(function(value, name) {
+      this.each(function (value, name) {
         if (value === null)
           that.removeAttr(name);
       });
-        that.bind("change", function(){
-          if(typeof that.response !== "undefined" && !that._preloaded_people){
+        that.bind("change", function (){
+          if (typeof that.response !== "undefined" && !that._preloaded_people){
             that._preloaded_people = true;
 
-            can.map(that.response.reify().people, function(person){
+            can.map(that.response.reify().people, function (person){
               that.mark_for_addition("people", person);
             });
           }

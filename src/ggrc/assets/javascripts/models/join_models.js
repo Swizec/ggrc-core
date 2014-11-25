@@ -5,21 +5,21 @@
     Maintained By: brad@reciprocitylabs.com
 */
 
-(function(can, $) {
+(function (can, $) {
 
 can.Model.Cacheable("can.Model.Join", {
   join_keys : null
-  , setup : function() {
+  , setup : function () {
     this._super.apply(this, arguments);
   }
-  , init : function() {
+  , init : function () {
     this._super && this._super.apply(this, arguments);
     function reinit(ev, instance) {
       if (instance instanceof can.Model.Join) {
         instance.reinit();
       //can.proxy(this, "reinit"));
 
-        can.each(instance.constructor.join_keys, function(cls, key) {
+        can.each(instance.constructor.join_keys, function (cls, key) {
           var obj;
           if (instance[key].reify && instance[key].reify().refresh)
             obj = instance[key].reify();
@@ -36,23 +36,23 @@ can.Model.Cacheable("can.Model.Join", {
     }
   }
 }, {
-    init: function() {
+    init: function () {
       this._super.apply(this, arguments);
       var that = this;
-      can.each(this.constructor.join_keys, function(cls, key) {
-        that.bind(key + ".stub_destroyed", function() {
+      can.each(this.constructor.join_keys, function (cls, key) {
+        that.bind(key + ".stub_destroyed", function () {
           // Trigger `destroyed` on self, since it was destroyed on the server
           that.destroyed();
         });
       });
     }
 
-  , reinit : function() {
+  , reinit : function () {
       this.init_join_objects();
     }
 
-  , init_join_object_with_type: function(attr) {
-      if(this[attr] instanceof can.Model) {
+  , init_join_object_with_type: function (attr) {
+      if (this[attr] instanceof can.Model) {
         return;
       }
 
@@ -66,12 +66,12 @@ can.Model.Cacheable("can.Model.Join", {
             , object_id
             , this[attr]
             ) || this[attr]);
-      } else if(object_id) {
+      } else if (object_id) {
         this.attr(attr, CMS.Models.get_instance(this[attr]));
       }
     }
 
-  , init_join_object: function(attr, model_name) {
+  , init_join_object: function (attr, model_name) {
       var object_id = this[attr + "_id"] || (this[attr] || {}).id;
 
       if (object_id)
@@ -82,11 +82,11 @@ can.Model.Cacheable("can.Model.Join", {
             ).stub() || this[attr]);
     }
 
-  , init_join_objects: function() {
+  , init_join_objects: function () {
       var that = this
         ;
 
-      can.each(this.constructor.join_keys, function(model, attr) {
+      can.each(this.constructor.join_keys, function (model, attr) {
         if (model === can.Model.Cacheable)
           that.init_join_object_with_type(attr);
         else
@@ -116,7 +116,7 @@ can.Model.Join("CMS.Models.Relationship", {
   , create: "POST /api/relationships"
   , destroy: "DELETE /api/relationships/{id}"
 }, {
-  reinit: function() {
+  reinit: function () {
     var that = this;
 
     this.attr("source", CMS.Models.get_instance(
@@ -251,21 +251,21 @@ can.Model.Join("CMS.Models.UserRole", {
     , role : CMS.Models.Role
   }
 }, {
-  save: function() {
+  save: function () {
     var roles,
         that = this
         _super =  this._super;
-    if(!this.role && this.role_name) {
+    if (!this.role && this.role_name) {
       roles = can.map(
         CMS.Models.Role.cache,
-        function(role) { if(role.name === this.role_name) return role; }
+        function (role) { if (role.name === this.role_name) return role; }
       );
-      if(roles.length > 0) {
+      if (roles.length > 0) {
         this.attr("roles", roles[0].stub());
         return _super.apply(this, arguments);
       } else {
-        return CMS.Models.Role.findAll({ name__in : this.role_name }).then(function(roles) {
-          if(roles.length < 1) {
+        return CMS.Models.Role.findAll({ name__in : this.role_name }).then(function (roles) {
+          if (roles.length < 1) {
             return new $.Deferred().reject("Role not found");
           }
           that.attr("role", roles[0].stub());

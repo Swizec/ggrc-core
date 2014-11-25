@@ -5,7 +5,7 @@
     Maintained By: dan@reciprocitylabs.com
 */
 
-(function(can, $) {
+(function (can, $) {
 
   /* Modal Selector
    *
@@ -68,7 +68,7 @@
       new_object_title: null,
     },
 
-    launch: function($trigger, options) {
+    launch: function ($trigger, options) {
       // Extract parameters from data attributes
 
       var href = $trigger.attr('data-href') || $trigger.attr('href')
@@ -81,7 +81,7 @@
       return $target;
     }
   }, {
-    init: function() {
+    init: function () {
       var self = this
         , _data_changed = false
         ;
@@ -111,10 +111,10 @@
       );
     },
 
-    "{join_list} change" : function() {
+    "{join_list} change" : function () {
       var self = this;
       this.active_list.replace(
-        can.map(this.options.join_list, function(join) {
+        can.map(this.options.join_list, function (join) {
           return new can.Observe({
             option: CMS.Models.get_instance(
               self.options.option_model.shortName || CMS.Models.get_link_type(join, self.options.option_attr),
@@ -124,7 +124,7 @@
         }));
     },
 
-    fetch_data: function() {
+    fetch_data: function () {
       var self = this
         , join_query = can.extend({}, this.options.join_query)
         ;
@@ -138,12 +138,12 @@
       return $.when(
         this.options.option_model.findAll(
           $.extend({}, this.option_query),
-          function(options) {
+          function (options) {
             self.option_list.replace(options);
           }),
         this.options.join_model.findAll(
           $.extend({}, join_query),
-          function(joins) {
+          function (joins) {
             //can.each(joins, function(join) {
             //  join.attr('_removed', false);
             //});
@@ -152,7 +152,7 @@
         );
     },
 
-    post_init: function() {
+    post_init: function () {
       var self = this
         , deferred = $.Deferred()
         ;
@@ -167,7 +167,7 @@
       can.view(
         this.options.base_modal_view,
         this.context,
-        function(frag) {
+        function (frag) {
           $(self.element).html(frag);
           deferred.resolve();
           //self.post_draw();
@@ -179,12 +179,12 @@
       return deferred;
     },
 
-    post_draw: function() {
+    post_draw: function () {
       var self = this
         , $option_list = $(this.element).find('.selector-list ul')
         ;
 
-      this.options.join_list.forEach(function(join, index, list) {
+      this.options.join_list.forEach(function (join, index, list) {
         $option_list
           .find('li[data-id=' + join[self.options.option_attr].id + '] input[type=checkbox]')
           .prop('checked', true);
@@ -193,7 +193,7 @@
 
     // EVENTS
 
-    " hide": function(el, ev) {
+    " hide": function (el, ev) {
       // FIXME: This should only happen if there has been a change.
       //   - (actually, the "Related Widget" should just be Can-ified instead)
       var list_target = this.options.$trigger.data('list-target');
@@ -201,18 +201,18 @@
         setTimeout(can.proxy(GGRC.navigate, GGRC), 10);
     },
 
-    ".option_column li.tree-item click": function(el, ev) {
+    ".option_column li.tree-item click": function (el, ev) {
       var option = el.data('option')
         ;
 
-      el.closest('.modal-content').find('li').each(function() {
+      el.closest('.modal-content').find('li').each(function () {
         $(this).removeClass('selected');
       });
       el.addClass('selected');
       this.context.attr('selected_option', option);
     },
 
-    ".option_column li.tree-item input[type='checkbox'] change": function(el, ev) {
+    ".option_column li.tree-item input[type='checkbox'] change": function (el, ev) {
       var self = this
         , option = el.closest('li').data('option')
         , join = this.find_join(option.id)
@@ -230,7 +230,7 @@
         } else {
           // Otherwise, create it
           join = this.get_new_join(option.id, option.constructor.shortName);
-          join.save().then(function() {
+          join.save().then(function () {
             //join.refresh().then(function() {
               self.options.join_list.push(join);
               self.element.trigger("relationshipcreated", join);
@@ -251,8 +251,8 @@
             // FIXME: The data should be updated in bulk, and only when "Save"
             //   is clicked.  Right now, it updates continuously.
             //join.attr('_removed', true);
-            join.refresh().done(function() {
-              join.destroy().then(function() {
+            join.refresh().done(function () {
+              join.destroy().then(function () {
                 join_index = self.options.join_list.indexOf(join);
                 if (join_index >= 0) {
                   self.options.join_list.splice(join_index, 1);
@@ -265,7 +265,7 @@
       }
     },
 
-    ".btn-add modal:success" : function(el, ev, data) {
+    ".btn-add modal:success" : function (el, ev, data) {
       this.option_list.unshift(data);
       this.context.attr('selected_option', data);
       this.element.find(".tree-item[data-id=" + data.id + "] input[type=checkbox]").click();
@@ -273,13 +273,13 @@
 
     // HELPERS
 
-    find_join: function(option_id) {
+    find_join: function (option_id) {
       var self = this
         ;
 
       return can.reduce(
         this.options.join_list,
-        function(result, join) {
+        function (result, join) {
           if (result)
             return result;
           if (self.match_join(option_id, join))
@@ -288,13 +288,13 @@
         null);
     },
 
-    match_join: function(option_id, join) {
+    match_join: function (option_id, join) {
       return join[this.options.option_id_field] == option_id ||
         (join[this.options.option_attr]
          && join[this.options.option_attr].id == option_id)
     },
 
-    get_new_join: function(option_id, option_type) {
+    get_new_join: function (option_id, option_type) {
       var join_params = {};
       join_params[this.options.option_attr] = {}
       join_params[this.options.option_attr].id = option_id;
@@ -315,11 +315,11 @@
       return new (this.options.join_model)(join_params);
     },
 
-    get_join_object_id: function() {
+    get_join_object_id: function () {
       return this.options.join_object_id || this.options.join_object.id;
     },
 
-    get_join_object_type: function() {
+    get_join_object_type: function () {
       return this.options.join_object_type || this.options.join_object.constructor.shortName;
     },
 
@@ -619,8 +619,8 @@
     return options;
   }
 
-  $(function() {
-    $('body').on('click', '[data-toggle="modal-relationship-selector"]', function(e) {
+  $(function () {
+    $('body').on('click', '[data-toggle="modal-relationship-selector"]', function (e) {
       var $this = $(this)
         ;
 
@@ -641,22 +641,22 @@
           , object_side: $this.data('object-side')
           , relationship_type: $this.data('relationship-type')
           , join_query: $this.data('join-query')
-        })).on("relationshipcreated relationshipdestroyed", function(ev, data) {
+        })).on("relationshipcreated relationshipdestroyed", function (ev, data) {
           $this.trigger("modal:" + ev.type, data);
         });
     });
   });
 
-  $(function() {
-    $('body').on('click', '[data-toggle="modal-selector"]', function(e) {
+  $(function () {
+    $('body').on('click', '[data-toggle="modal-selector"]', function (e) {
       var $this = $(this)
         , options = $this.data('modal-selector-options')
         , data_set = can.extend({}, $this.data())
         ;
 
-      can.each($this.data(), function(v, k) {
-        data_set[k.replace(/[A-Z]/g, function(s) { return "_" + s.toLowerCase(); })] = v; //this is just a mapping of keys to underscored keys
-        if(/[A-Z]/.test(k)) //if we haven't changed the key at all, don't delete the original
+      can.each($this.data(), function (v, k) {
+        data_set[k.replace(/[A-Z]/g, function (s) { return "_" + s.toLowerCase(); })] = v; //this is just a mapping of keys to underscored keys
+        if (/[A-Z]/.test(k)) //if we haven't changed the key at all, don't delete the original
           delete data_set[k];
       });
 
@@ -670,7 +670,7 @@
 
       // Trigger the controller
       GGRC.Controllers.ModalSelector.launch($this, options)
-      .on("relationshipcreated relationshipdestroyed", function(ev, data) {
+      .on("relationshipcreated relationshipdestroyed", function (ev, data) {
         $this.trigger("modal:" + ev.type, data);
       });
     });
@@ -694,7 +694,7 @@
     , last_selected_option_type: null
     , last_option_search_term: ""
 
-    , launch: function($trigger, options) {
+    , launch: function ($trigger, options) {
         // Extract parameters from data attributes
 
         var href = $trigger.attr('data-href') || $trigger.attr('href')
@@ -707,7 +707,7 @@
         return $target;
       }
   }, {
-      init: function() {
+      init: function () {
         var self = this;
 
         this.object_list = new can.Observe.List();
@@ -717,8 +717,8 @@
         this.results_lists = {};
 
         if (this.options.binding) {
-          this.options.binding.refresh_list().then(function(mappings) {
-            can.each(can.makeArray(mappings), function(mapping, i) {
+          this.options.binding.refresh_list().then(function (mappings) {
+            can.each(can.makeArray(mappings), function (mapping, i) {
               var instance = mapping.instance
                 , model_name = instance.constructor.shortName
                 ;
@@ -742,7 +742,7 @@
         this.init_data()
       }
 
-    , init_menu: function() {
+    , init_menu: function () {
         var menu
           , lookup = {
               governance: 0
@@ -762,7 +762,7 @@
               , items: []
               }
             ];
-          can.each(this.options.option_descriptors, function(descriptor) {
+          can.each(this.options.option_descriptors, function (descriptor) {
             menu[lookup[descriptor.model.category] || 0].items.push({
                 model_name: descriptor.model.shortName
               , model_display: descriptor.model.title_plural
@@ -773,10 +773,10 @@
         }
       }
 
-    , init_bindings: function() {
+    , init_bindings: function () {
       }
 
-    , init_view: function() {
+    , init_view: function () {
         var self = this
           , deferred = $.Deferred()
           ;
@@ -784,13 +784,13 @@
         can.view(
           this.options.base_modal_view,
           this.context,
-          function(frag) {
+          function (frag) {
             self.element.html(frag);
             self.options.$header = self.element.find('.modal-header');
             deferred.resolve();
             self.element.trigger('loaded');
             self.element.find(".selector-list").cms_controllers_infinite_scroll();
-            setTimeout(function() {
+            setTimeout(function () {
               if (self.emlement) {
                 self.element.find('#search').focus();
               }
@@ -803,18 +803,18 @@
         return deferred;
       }
 
-    , init_data: function() {
+    , init_data: function () {
         /*return $.when(
           this.refresh_option_list()
         );*/
       }
 
-    , init_context: function() {
+    , init_context: function () {
         if (!this.context) {
           // Calculate the total number of options
           var option_type_count = 0;
           if (this.options.option_type_menu) {
-            can.each(this.options.option_type_menu, function(type) { option_type_count += type.items.length; })
+            can.each(this.options.option_type_menu, function (type) { option_type_count += type.items.length; })
           }
 
           this.context = new can.Observe($.extend({
@@ -832,7 +832,7 @@
         return this.context;
       }
 
-    , get_result_for_option: function(option) {
+    , get_result_for_option: function (option) {
         var self = this
           , option_model_name = option && option.constructor.shortName
           , option_result = {
@@ -849,18 +849,18 @@
         return option_result;
       }
 
-    , insert_options: function(options, prepend) {
+    , insert_options: function (options, prepend) {
         var self = this
           , option_results
           , context = {}
           , dfd = $.Deferred()
           ;
-        options_results = can.map(can.makeArray(options), function(option) {
+        options_results = can.map(can.makeArray(options), function (option) {
           return self.get_result_for_option(option);
         });
         context.options = options_results;
         context.selected_object = this.options.selected_object;
-        can.view(this.options.option_items_view, new can.Map(context), function(frag) {
+        can.view(this.options.option_items_view, new can.Map(context), function (frag) {
           if (self.element) {
             if (prepend)
               self.element.find('.option_column ul.new-tree').prepend(frag);
@@ -872,25 +872,25 @@
         return dfd;
       }
 
-    , _start_pager: function(objects, page_size, active_fn, draw_fn) {
+    , _start_pager: function (objects, page_size, active_fn, draw_fn) {
         var self = this
           , pager
           ;
 
-        pager = function(objects) {//request_limit, render_limit) {
+        pager = function (objects) {//request_limit, render_limit) {
           var refresh_queue = new RefreshQueue()
             ;
 
           self._show_next_page = null;
 
           refresh_queue.enqueue(objects.slice(0, page_size));
-          refresh_queue.trigger().then(function(options) {
+          refresh_queue.trigger().then(function (options) {
             if (active_fn()) {
               draw_fn(options);
 
               //  Enforce minimum wait between render operations
-              setTimeout(function() {
-                self._show_next_page = function() {
+              setTimeout(function () {
+                self._show_next_page = function () {
                   if (objects.length > page_size) {
                     pager(objects.slice(page_size));
                   }
@@ -903,7 +903,7 @@
         pager(objects);
       }
 
-    , show_next_page: function() {
+    , show_next_page: function () {
         if (this._show_next_page) {
           this._show_next_page();
         }
@@ -911,7 +911,7 @@
 
     , ".selector-list scrollNext": "show_next_page"
 
-    , refresh_option_list: function() {
+    , refresh_option_list: function () {
         var self = this
           , current_option_model = this.options.option_model
           , current_option_model_name = current_option_model.shortName
@@ -920,13 +920,13 @@
           , draw_fn
           ;
 
-        active_fn = function() {
+        active_fn = function () {
           return self.element &&
                  self.options.option_model === current_option_model &&
                  self.options.option_search_term === current_search_term;
         };
 
-        draw_fn = function(options) {
+        draw_fn = function (options) {
           self.insert_options(options);
         };
 
@@ -950,7 +950,7 @@
               current_search_term || '',
               [current_option_model_name],
               permission_parms)
-          .then(function(search_result) {
+          .then(function (search_result) {
             var options;
             if (active_fn()) {
               options = search_result.getResultsForType(current_option_model_name);
@@ -960,7 +960,7 @@
           });
       }
 
-    , set_option_descriptor: function(option_type) {
+    , set_option_descriptor: function (option_type) {
         var self = this
           , descriptor = this.options.option_descriptors[option_type]
           ;
@@ -974,7 +974,7 @@
         this.context.attr('option_detail_view', descriptor.detail_view);
         this.context.attr('option_descriptor', descriptor);
         this.context.attr('selected_option', null);
-        this.context.attr('selected_result', can.compute(function() {
+        this.context.attr('selected_result', can.compute(function () {
           return self.get_result_for_option(self.context.attr('selected_option'));
         }));
         this.context.attr('related_table_plural', descriptor.related_table_plural);
@@ -991,7 +991,7 @@
         this.refresh_option_list();
       }
 
-    , on_select_option_type: function(el, ev) {
+    , on_select_option_type: function (el, ev) {
         this.set_option_descriptor($(el).val());
         this.element.find("#search").focus();
       }
@@ -1002,7 +1002,7 @@
 
     , ".option_column li.tree-item click": "on_select_option"
 
-    , on_select_option: function(el) {
+    , on_select_option: function (el) {
         var instance = el.data('option')
           , page_instance = GGRC.page_instance();
 
@@ -1016,12 +1016,12 @@
 
     , ".map-button click": "on_map"
 
-    , on_map: $.debounce(500, true, function(el, ev) {
+    , on_map: $.debounce(500, true, function (el, ev) {
         var that = this
           , join_instance = this.create_join()
           ;
 
-        if(el.hasClass('disabled')){
+        if (el.hasClass('disabled')){
           return;
         }
         if (!join_instance) {
@@ -1029,12 +1029,12 @@
             error: "Select an object to map" });
         } else {
           join_instance.save()
-            .done(function() {
+            .done(function () {
               $(document.body).trigger('ajax:flash',
                   { success: that.context.selected_option.constructor.shortName + " mapped successfully."});
               $(that.element).modal_form('hide');
             })
-            .fail(function(xhr) {
+            .fail(function (xhr) {
               // Currently, the only error we encounter here is uniqueness
               // constraint violations.  Let's use a nicer message!
               //that.element.trigger("ajax:flash", { error : xhr.responseText });
@@ -1046,7 +1046,7 @@
         }
       })
 
-    , create_join: function() {
+    , create_join: function () {
         if (this.context.selected_option) {
           var context_id = null
             , context_object
@@ -1068,29 +1068,29 @@
         }
       }
 
-    , " hide": function(el, ev) {
+    , " hide": function (el, ev) {
         // Ensure element is fully removed from DOM after bootstrap 'hide'
         if (this.element)
           this.element.remove();
       }
 
-    , " modal:success" : function(el, ev, data, options) {
+    , " modal:success" : function (el, ev, data, options) {
         var self = this;
         // Scroll so the top element (the one just added) is in view
         this.element.find(".option_column ul.new-tree").parent().scrollTop(0);
-        this.search_reset().then(function() {
+        this.search_reset().then(function () {
           // Move the just-created object to the top
           self.move_option_to_top_and_select(data);
-          if(options && options.map_and_save && self.element){
+          if (options && options.map_and_save && self.element){
             self.on_map(self.element.find('.map-button'));
           }
         });
       }
 
-    , move_option_to_top_and_select: function(option) {
+    , move_option_to_top_and_select: function (option) {
 
         // If element is null, the modal was closed and we don't need to do anything
-        if(!this.element){
+        if (!this.element){
           return;
         }
 
@@ -1110,7 +1110,7 @@
         this.context.attr('selected_option', option);
         // Explicitly insert the option -- with paging, the object may not yet
         //   be in the list.
-        this.insert_options([option], true).then(function() {
+        this.insert_options([option], true).then(function () {
           var option_column = self.element.find('.option_column ul.new-tree').first()
             , option_row = option_column.find('li[data-id=' + option.id + ']')
             ;
@@ -1118,14 +1118,14 @@
         });
       }
 
-    , "#search keyup": function(el, ev) {
+    , "#search keyup": function (el, ev) {
         var self = this
           , $el = $(el)
           , term = $el.val()
           ;
         if (term !== this.options.option_search_term) {
           this.options.option_search_term = term;
-          setTimeout(function() {
+          setTimeout(function () {
             if (self.options.option_search_term === term) {
               self.refresh_option_list();
               self.constructor.last_option_search_term = term;
@@ -1134,7 +1134,7 @@
         }
       }
 
-    , search_reset : function() {
+    , search_reset : function () {
         this.element.find("#search").val("").focus();
         this.options.option_search_term = "";
         this.constructor.last_option_search_term = "";
@@ -1143,7 +1143,7 @@
 
     , ".search-reset click" : "search_reset"
 
-  , " ajax:flash" : function(el, ev, mesg) {
+  , " ajax:flash" : function (el, ev, mesg) {
       var that = this
         , $flash = this.options.$header.find(".flash")
         ;
@@ -1153,9 +1153,9 @@
 
       ev.stopPropagation();
 
-      can.each(["success", "warning", "error"], function(type) {
+      can.each(["success", "warning", "error"], function (type) {
         var tmpl;
-        if(mesg[type]) {
+        if (mesg[type]) {
           tmpl = '<div class="alert alert-'
           + type
           +'"><a href="#" class="close" data-dismiss="alert">&times;</a><span>'
@@ -1176,12 +1176,12 @@
     , column_view : GGRC.mustache_path + "/selectors/multitype_option_column.mustache"
     , detail_view : GGRC.mustache_path + "/selectors/multitype_option_detail.mustache"
 
-    , from_join_model: function(join_model, join_option_attr, model, options) {
+    , from_join_model: function (join_model, join_option_attr, model, options) {
         join_model = this.get_model(join_model);
         model = this.get_model(model);
 
         // The 'object_attr' is the join key that is *not* the 'option_attr'
-        join_object_attr = can.map(join_model.join_keys, function(v, k) {
+        join_object_attr = can.map(join_model.join_keys, function (v, k) {
           if (k !== join_option_attr)
             return k;
         })[0];
@@ -1204,7 +1204,7 @@
         }, options), {});
       }
 
-    , get_model: function(model) {
+    , get_model: function (model) {
         if (model.shortName)
           return model;
         else if (CMS.Models[model])
@@ -1213,7 +1213,7 @@
           console.error("Unknown model: ", model);
       }
 
-    , get_new_join: function(object, option, context_id) {
+    , get_new_join: function (object, option, context_id) {
         var join_params = {};
 
         join_params[this.join_option_attr] = {};
@@ -1252,7 +1252,7 @@
       join_descriptors[option_model_name] = GGRC.Mappings.get_canonical_mapping(object_model_name, option_model_name);
     }
 
-    can.each(join_descriptors, function(descriptor, far_model_name) {
+    can.each(join_descriptors, function (descriptor, far_model_name) {
       var option_model_name = descriptor.option_model_name || far_model_name
         , extra_options = modal_descriptor_view_options[option_model_name]
         ;
@@ -1291,16 +1291,16 @@
     return option_set;
   }
 
-  $(function() {
-    $('body').on('click', '[data-toggle="multitype-modal-selector"]', function(e) {
+  $(function () {
+    $('body').on('click', '[data-toggle="multitype-modal-selector"]', function (e) {
       var $this = $(this)
         , options
         , data_set = can.extend({}, $this.data())
         ;
 
-      can.each($this.data(), function(v, k) {
-        data_set[k.replace(/[A-Z]/g, function(s) { return "_" + s.toLowerCase(); })] = v; //this is just a mapping of keys to underscored keys
-        if(/[A-Z]/.test(k)) //if we haven't changed the key at all, don't delete the original
+      can.each($this.data(), function (v, k) {
+        data_set[k.replace(/[A-Z]/g, function (s) { return "_" + s.toLowerCase(); })] = v; //this is just a mapping of keys to underscored keys
+        if (/[A-Z]/.test(k)) //if we haven't changed the key at all, don't delete the original
           delete data_set[k];
       });
 
@@ -1318,7 +1318,7 @@
 
       // Trigger the controller
       GGRC.Controllers.MultitypeModalSelector.launch($this, options)
-      .on("relationshipcreated relationshipdestroyed", function(ev, data) {
+      .on("relationshipcreated relationshipdestroyed", function (ev, data) {
         $this.trigger("modal:" + ev.type, data);
       });
     });
@@ -1346,18 +1346,18 @@
         , join_model: null
       }
   },{
-    init: function(){
+    init: function (){
       GGRC.Controllers.MultitypeModalSelector.prototype.init.apply(this, arguments);
       this.refresh_option_list();
     }
 
-    , init_menu: function() {
+    , init_menu: function () {
         var menu,
           all_models = [],
           lookup,
           selected_object =  this.options.selected_object.type;
 
-        if(selected_object === "TaskGroup") { //workflow/TaskGroup don't have People/Groups sub catagory
+        if (selected_object === "TaskGroup") { //workflow/TaskGroup don't have People/Groups sub catagory
           lookup = {
               governance: 0
             , business: 1
@@ -1378,7 +1378,7 @@
               model_display:"All Objects"
             });
 
-            can.each(this.options.option_descriptors, function(descriptor) {
+            can.each(this.options.option_descriptors, function (descriptor) {
               if (descriptor.model.category == "workflow" ||
                   descriptor.model.category == "undefined" ||
                   descriptor.model.category == "entities"){
@@ -1424,7 +1424,7 @@
               model_display:"All Objects"
             });
 
-            can.each(this.options.option_descriptors, function(descriptor) {
+            can.each(this.options.option_descriptors, function (descriptor) {
               if (descriptor.model.category == "workflow" || descriptor.model.category == "undefined"){
                 return;
               }
@@ -1449,18 +1449,18 @@
               "Program","Regulation", "Policy", "Standard", "Contract", "Clause", "Section", "Objective", "Control",
               "Person", "System", "Process", "DataAsset", "Product", "Project", "Facility" , "Market"
               ],
-              function(key) {
+              function (key) {
                 return CMS.Models[key];
               }
             );
     }
 
-    , init_context: function() {
+    , init_context: function () {
       if (!this.context) {
         // Calculate the total number of options
         var option_type_count = 0;
         if (this.options.option_type_menu) {
-          can.each(this.options.option_type_menu, function(type) { option_type_count += type.items.length; })
+          can.each(this.options.option_type_menu, function (type) { option_type_count += type.items.length; })
         }
 
         var display_selection = this.options.option_descriptors[this.options.default_option_descriptor].model.title_plural;
@@ -1484,19 +1484,19 @@
       return this.context;
     }
 
-    , ".addFilterRule click": function() {
+    , ".addFilterRule click": function () {
       this.context.filter_list.push({
           value: "",
           model_name: this.options.option_type_menu_2[0].model_singular
         });
     }
 
-    , ".remove_filter click": function(el) {
+    , ".remove_filter click": function (el) {
       var index = el.data('index');
       this.context.filter_list.splice(index, 1);
     }
 
-    , init_view: function() {
+    , init_view: function () {
         var self = this
           , deferred = $.Deferred()
           ;
@@ -1504,13 +1504,13 @@
         can.view(
           this.options.base_modal_view,
           this.context,
-          function(frag) {
+          function (frag) {
             self.element.html(frag);
             self.options.$header = self.element.find('.modal-header');
             deferred.resolve();
             self.element.trigger('loaded');
             self.element.find(".results-wrap").cms_controllers_infinite_scroll();
-            setTimeout(function() {
+            setTimeout(function () {
               if (self.emlement) {
                 self.element.find('#search').focus();
               }
@@ -1525,10 +1525,10 @@
 
     , ".results-wrap scrollNext": "show_next_page"
 
-    , move_option_to_top_and_select: function(option) {
+    , move_option_to_top_and_select: function (option) {
 
         // If element is null, the modal was closed and we don't need to do anything
-        if(!this.element){
+        if (!this.element){
           return;
         }
 
@@ -1548,7 +1548,7 @@
 
         // Explicitly insert the option -- with paging, the object may not yet
         //   be in the list.
-        this.insert_options([option], true).then(function() {
+        this.insert_options([option], true).then(function () {
           var option_column = self.element.find('.option_column ul.new-tree').first()
             , option_row = option_column.find('li[data-id=' + option.id + ']')
             , check_box = option_row.find('input.object-check-single')
@@ -1559,25 +1559,25 @@
         });
     }
 
-    , " modal:success" : function(el, ev, data, options) {
+    , " modal:success" : function (el, ev, data, options) {
         var self = this;
         // Scroll so the top element (the one just added) is in view
         this.element.find(".option_column ul.new-tree").parent().scrollTop(0);
-        this.search_reset().then(function() {
+        this.search_reset().then(function () {
           // Move the just-created object to the top
           self.move_option_to_top_and_select(data);
-          if(options && options.map_and_save && self.element){
+          if (options && options.map_and_save && self.element){
             self.on_map(self.element.find('.map-button'));
           }
         });
     }
     //Over write the parent class method to select the row.
     //The row is selected by selecting the check box
-    , ".option_column li.tree-item click": function(el, ev){}
+    , ".option_column li.tree-item click": function (el, ev){}
 
-    , update_selected_items: function(el, ev){
+    , update_selected_items: function (el, ev){
         var $check = $(this.element).find('.object-check-single'),
-          selected = $.grep($check, function(e){ return (e.checked == true && e.disabled == false );});
+          selected = $.grep($check, function (e){ return (e.checked == true && e.disabled == false );});
         //Update Map button, #of items selected
         this.context.attr('item_selected', (selected.length >= 1));
         this.context.attr('items_selected', (selected.length));
@@ -1586,12 +1586,12 @@
         //If all the items are selected, top select all should be checked
     }
 
-    , ".option_column input.object-check-single click": function(el, ev){
+    , ".option_column input.object-check-single click": function (el, ev){
         ev.stopPropagation();
         this.update_selected_items(el, ev);
     }
 
-    , "input[type=checkbox].object-check-all click": function(el, ev) {
+    , "input[type=checkbox].object-check-all click": function (el, ev) {
       var $el = $(el)
         , $check = $(this.element).find('.object-check-single:not(:disabled)');
 
@@ -1599,25 +1599,25 @@
       this.update_selected_items(el, ev);
     }
 
-    , reset_selection_count: function(){
+    , reset_selection_count: function (){
         this.context.attr('item_selected', false);
         this.context.attr('items_selected', 0);
     }
 
-    , "#search keyup": function(el, ev) {
+    , "#search keyup": function (el, ev) {
         if (ev.which == 13) {
           this.context.attr("option_search_term", el.val());
           this.triggerModalSearch();
         }
       }
 
-    , "input[null-if-empty] change" : function(el, ev) {
-      if(el.val() === "") {
+    , "input[null-if-empty] change" : function (el, ev) {
+      if (el.val() === "") {
         this.context.attr(el.attr("name"), null);
       }
     }
 
-    , refresh_option_list: function() {
+    , refresh_option_list: function () {
         var self = this
           , current_option_model = this.options.option_model
           , current_option_model_name = current_option_model.shortName
@@ -1627,13 +1627,13 @@
           , ctx = this.context
           ;
 
-        active_fn = function() {
+        active_fn = function () {
           return self.element &&
                  self.options.option_model === current_option_model &&
                  self.options.option_search_term === current_search_term;
         };
 
-        draw_fn = function(options) {
+        draw_fn = function (options) {
           self.insert_options(options);
         };
 
@@ -1663,7 +1663,7 @@
             .then(function (search_result){
               var options = [], op1, temp ;
               if (active_fn()) {
-                for(var i = 0; i < models.length; i++){
+                for (var i = 0; i < models.length; i++){
                   op1 = search_result.getResultsForType(models[i]);
                   temp = options.concat(op1);
                   options = temp;
@@ -1682,7 +1682,7 @@
               current_search_term || '',
               [current_option_model_name],
               permission_parms)
-          .then(function(search_result) {
+          .then(function (search_result) {
             var options = [];
 
             if (active_fn()) {
@@ -1698,7 +1698,7 @@
     //Search button click
     , ".modalSearchButton:not([disabled]) click": "triggerModalSearch"
 
-    , triggerModalSearch: function() {
+    , triggerModalSearch: function () {
       this.element.find('.modalSearchButton').attr('disabled','disabled');
 
       //Get the selected object value
@@ -1713,25 +1713,25 @@
         search_text = this.element.find('.results-wrap span.info');
 
       // Remove Search Criteria text
-      if(search_text.length)
+      if (search_text.length)
         search_text.hide();
 
-      if(item_selected !== undefined)
+      if (item_selected !== undefined)
         selected = item_selected;
 
       this.set_option_descriptor(selected);
 
-      ctx.filter_list.each(function(filter_obj) {
-        if(cancel_filter || !filter_obj.search_filter) {
+      ctx.filter_list.each(function (filter_obj) {
+        if (cancel_filter || !filter_obj.search_filter) {
           cancel_filter = true;
           self.element.find('.modalSearchButton').removeAttr('disabled');
           return;
         }
-        if(selected === "AllObjects") {//create a multi filter
+        if (selected === "AllObjects") {//create a multi filter
           var loaders , local_loaders = [], multi_loader;
           //Create a multi-list loader
           loaders = GGRC.Mappings.get_mappings_for(filter_obj.search_filter.constructor.shortName);
-          can.each(loaders, function(loader, name) {
+          can.each(loaders, function (loader, name) {
             if (loader instanceof GGRC.ListLoaders.DirectListLoader
                 || loader instanceof GGRC.ListLoaders.ProxyListLoader) {
               local_loaders.push(name);
@@ -1752,7 +1752,7 @@
           );
         }
       });
-      if(cancel_filter) {
+      if (cancel_filter) {
         //missing search term.
         this.element.find('.modalSearchButton').removeAttr('disabled');
         //Also show a message that the search term should not be empty
@@ -1763,24 +1763,24 @@
         // For All Objects, make sure to load only those objects in the list of all_models
         // Multilist loader might load objects like g-drive folder and context
         // The Search list loader will filter those objects
-        if(selected === "AllObjects") {
-            filters.push(new GGRC.ListLoaders.SearchListLoader(function(binding) {
+        if (selected === "AllObjects") {
+            filters.push(new GGRC.ListLoaders.SearchListLoader(function (binding) {
               return GGRC.Models.Search.search_for_types(
                 term,
                 self.options.all_models,
                 { contact_id: binding.instance && binding.instance.id }
-                ).then(function(mappings) {
+                ).then(function (mappings) {
                   return mappings.entries;
                 });
             }).attach(ctx.owner || {}));
         }
-        else if(ctx.owner || term){
-          filters.push(new GGRC.ListLoaders.SearchListLoader(function(binding) {
+        else if (ctx.owner || term){
+          filters.push(new GGRC.ListLoaders.SearchListLoader(function (binding) {
               return GGRC.Models.Search.search_for_types(
                 term,
                 [selected],
                 { contact_id: binding.instance && binding.instance.id }
-                ).then(function(mappings) {
+                ).then(function (mappings) {
                   return mappings.entries;
                 });
             }).attach(ctx.owner || {}));
@@ -1801,18 +1801,18 @@
         self.option_list.replace([]);
         self.element.find('.option_column ul.new-tree').empty();
 
-        loader.refresh_stubs().then(function(options) {
-          var active_fn = function() {
+        loader.refresh_stubs().then(function (options) {
+          var active_fn = function () {
             return self.element && self.last_loader === loader;
           };
 
-          var draw_fn = function(options) {
+          var draw_fn = function (options) {
             self.insert_options(options);
           };
 
           self.option_list.push.apply(self.option_list, options);
           self.element.find('.modalSearchButton').removeAttr('disabled');
-          self._start_pager(can.map(options, function(op) {
+          self._start_pager(can.map(options, function (op) {
               return op.instance;
             }), 20, active_fn, draw_fn);
         });
@@ -1831,9 +1831,9 @@
       }
     }
 
-    , set_option_descriptor: function(option_type) {
+    , set_option_descriptor: function (option_type) {
       //Set option descriptor for all objects
-      if(option_type === "AllObjects") {
+      if (option_type === "AllObjects") {
         var all_descriptor = {
           column_view : "/static/mustache/selectors/multitype_multiselect_option_column.mustache",
           detail_view: "/static/mustache/selectors/multitype_option_detail.mustache",
@@ -1860,7 +1860,7 @@
       this.context.attr('option_detail_view', descriptor.detail_view);
       this.context.attr('option_descriptor', descriptor);
       this.context.selected_options = [];
-      this.context.attr('selected_result', can.compute(function() {
+      this.context.attr('selected_result', can.compute(function () {
         return self.get_result_for_option(self.context.attr('selected_options'));
       }));
       this.context.attr('related_table_plural', descriptor.related_table_plural);
@@ -1877,10 +1877,10 @@
       //this.refresh_option_list();
     }
 
-    , on_map: $.debounce(500, true, function(el, ev) {
+    , on_map: $.debounce(500, true, function (el, ev) {
         var that = this, ajd;
 
-        if(el.hasClass('disabled')){
+        if (el.hasClass('disabled')){
           return;
         }
         var join_instance, its;
@@ -1889,7 +1889,7 @@
 
         function map_post_process(obj) {
           // FIXME: Extension isolation violation
-          if(that.options.mapTaskGroup) {
+          if (that.options.mapTaskGroup) {
             //Modify the object to map to task group
             var id = obj.object.id,
                 shortName = obj.object.type,
@@ -1906,8 +1906,8 @@
             obj_arr.push(obj);
           }
           pass += 1;
-          if(pass == its){
-              if(obj_arr.length >= 1){
+          if (pass == its){
+              if (obj_arr.length >= 1){
                 var obj_set = {};
                 obj_set.multi_map = true;
                 obj_set.arr = obj_arr;
@@ -1924,17 +1924,17 @@
             error: "Select an object to map" });
         }
         else {
-          if(that.options.deferred) {
+          if (that.options.deferred) {
             join_instance = that.sync_selected_options();
             its = join_instance.length;
             can.each(join_instance, map_post_process);
           } else {
             join_instance = this.create_join();
             its = join_instance.length;
-            for(var i = 0; i < its; i++){
+            for (var i = 0; i < its; i++){
             //We have multiple join_instances
               ajd = join_instance[i].save().done(map_post_process)
-              .fail(function(xhr) {
+              .fail(function (xhr) {
                   // Currently, the only error we encounter here is uniqueness
                   // constraint violations.  Let's use a nicer message!
                   //that.element.trigger("ajax:flash", { error : xhr.responseText });
@@ -1943,7 +1943,7 @@
                     var message = "That object is already mapped";
                     pass += 1;
                     $(document.body).trigger("ajax:flash", { error: message });
-                    if(pass == its){
+                    if (pass == its){
                       $(that.element).modal_form('hide');
                     }
                   }
@@ -1956,11 +1956,11 @@
     })//end on_map
 
 
-    , sync_selected_options : function() {
+    , sync_selected_options : function () {
 
       var that = this,
         $check = $(this.element).find('.object-check-single:checked'),
-        selected = $check.filter(function() { return !this.disabled; }),
+        selected = $check.filter(function () { return !this.disabled; }),
         len = selected.length;
 
       for (var i = 0; i < len; i++){
@@ -1971,12 +1971,12 @@
       return this.context.selected_options;
     }
 
-    , create_join: function() {
+    , create_join: function () {
       //If the object type === allObjects, the option descriptor is not set for mapping, so
       //One has to again set option descriptor and then call a mapping
 
       var that = this,
-        joins = can.map(this.sync_selected_options(), function(option) {
+        joins = can.map(this.sync_selected_options(), function (option) {
           var join, context_object, model, descriptor
               context_id = null
               ;
@@ -1996,12 +1996,12 @@
           if (context_object.context && context_object.context.id) {
             context_id = context_object.context.id;
           }
-          if(that.context.option_descriptor.model === "AllObject") {
+          if (that.context.option_descriptor.model === "AllObject") {
             // Get the appropriate option descriptor from all descriptors
             // Then create the join
             model = option.type;
             descriptor = that.context.option_descriptors[model];
-            if(descriptor !== undefined || descriptor !== null) {
+            if (descriptor !== undefined || descriptor !== null) {
               join = descriptor.get_new_join(
                 that.context.selected_object, option, context_id);
             }
@@ -2016,8 +2016,8 @@
       return joins;
     }
 
-    , autocomplete_select : function(el, ev, ui) {
-      setTimeout(function(){
+    , autocomplete_select : function (el, ev, ui) {
+      setTimeout(function (){
         el.val(ui.item.name || ui.item.email || ui.item.title, ui.item);
         el.trigger('change');
       }, 0);
@@ -2051,7 +2051,7 @@
       join_descriptors[option_model_name] = GGRC.Mappings.get_canonical_mapping(object_model_name, option_model_name);
     }
 
-    can.each(join_descriptors, function(descriptor, far_model_name) {
+    can.each(join_descriptors, function (descriptor, far_model_name) {
       //  If the resource type doesn't exist, short-circuit
       if (!CMS.Models[far_model_name]) {
         return;
@@ -2098,16 +2098,16 @@
 
 
   ////Set up handler for all multiselect -modal-selector
-  $(function() {
-    $('body').on('click', '[data-toggle="multitype-multiselect-modal-selector"]', function(e) {
+  $(function () {
+    $('body').on('click', '[data-toggle="multitype-multiselect-modal-selector"]', function (e) {
       var $this = $(this)
         , options
         , data_set = can.extend({}, $this.data())
         ;
 
-      can.each($this.data(), function(v, k) {
-        data_set[k.replace(/[A-Z]/g, function(s) { return "_" + s.toLowerCase(); })] = v; //this is just a mapping of keys to underscored keys
-        if(/[A-Z]/.test(k)) //if we haven't changed the key at all, don't delete the original
+      can.each($this.data(), function (v, k) {
+        data_set[k.replace(/[A-Z]/g, function (s) { return "_" + s.toLowerCase(); })] = v; //this is just a mapping of keys to underscored keys
+        if (/[A-Z]/.test(k)) //if we haven't changed the key at all, don't delete the original
           delete data_set[k];
       });
 
@@ -2134,7 +2134,7 @@
 
       // Trigger the controller
       GGRC.Controllers.MultitypeMultiSelectModalSelector.launch($this, options)
-      .on("relationshipcreated relationshipdestroyed", function(ev, data) {
+      .on("relationshipcreated relationshipdestroyed", function (ev, data) {
         $this.trigger("modal:" + ev.type, data);
       });
     });
@@ -2162,13 +2162,13 @@
         , join_model: null
       }
   }, {
-    init: function(){
+    init: function (){
       GGRC.Controllers.MultitypeModalSelector.prototype.init.apply(this, arguments);
       //this.refresh_option_list();
     }
 
     //Over write this for search button to update the list
-    , on_select_option_type: function(el, ev) {
+    , on_select_option_type: function (el, ev) {
     }
 
     , "select.option-type-selector change": "on_select_option_type"
@@ -2178,7 +2178,7 @@
      * no create button on this modal. So we donot have to re-set search. Modal success is triggered after
      * editing an object.
     */
-    , " modal:success" : function(el, ev, data, options) {
+    , " modal:success" : function (el, ev, data, options) {
       //no op
       this.options.$trigger.trigger("modal:success", [data, options]);
     }
@@ -2186,16 +2186,16 @@
   });
 
 
-  $(function() {
-    $('body').on('click', '[data-toggle="multitype-object-modal-selector"]', function(e) {
+  $(function () {
+    $('body').on('click', '[data-toggle="multitype-object-modal-selector"]', function (e) {
       var $this = $(this)
         , options
         , data_set = can.extend({}, $this.data())
         ;
 
-      can.each($this.data(), function(v, k) {
-        data_set[k.replace(/[A-Z]/g, function(s) { return "_" + s.toLowerCase(); })] = v; //this is just a mapping of keys to underscored keys
-        if(/[A-Z]/.test(k)) //if we haven't changed the key at all, don't delete the original
+      can.each($this.data(), function (v, k) {
+        data_set[k.replace(/[A-Z]/g, function (s) { return "_" + s.toLowerCase(); })] = v; //this is just a mapping of keys to underscored keys
+        if (/[A-Z]/.test(k)) //if we haven't changed the key at all, don't delete the original
           delete data_set[k];
       });
 
@@ -2221,7 +2221,7 @@
 
       // Trigger the controller
       GGRC.Controllers.MultitypeObjectModalSelector.launch($this, options)
-      .on("relationshipcreated relationshipdestroyed", function(ev, data) {
+      .on("relationshipcreated relationshipdestroyed", function (ev, data) {
         $this.trigger("modal:" + ev.type, data);
       });
     });

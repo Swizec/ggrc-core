@@ -7,7 +7,7 @@
 
 //= require can.jquery-all
 
-(function(can, $) {
+(function (can, $) {
 
 can.Control("CMS.Controllers.Filterable", {
   defaults : {
@@ -23,22 +23,22 @@ can.Control("CMS.Controllers.Filterable", {
   }
   //static
 }, {
-  filter : function(str, extra_params, dfd) {
+  filter : function (str, extra_params, dfd) {
     var that = this
     , spinner
     , search_dfds = str ? [GGRC.Models.Search.search(str, extra_params)] : [$.when(null)];
     dfd && search_dfds.push(dfd);
 
-    if(this.options.spinner_while_filtering) {
+    if (this.options.spinner_while_filtering) {
       spinner = new Spinner().spin();
       $(spinner.el).css(this.options.spinner_style);
       this.element.append(spinner.el);
     }
-    return $.when.apply($, search_dfds).then(function(data) {
+    return $.when.apply($, search_dfds).then(function (data) {
       var _filter = null, ids = null;
-      if(data) {
+      if (data) {
         _filter = that.options.model ? data.getResultsFor(that.options.model) : data;
-        ids = data ? can.map(data.entries, function(v) { return v.id; }) : null;
+        ids = data ? can.map(data.entries, function (v) { return v.id; }) : null;
       }
       that.last_filter_ids = ids;
       that.last_filter = _filter;
@@ -48,12 +48,12 @@ can.Control("CMS.Controllers.Filterable", {
     });
   }
 
-  , redo_last_filter : function(id_to_add) {
+  , redo_last_filter : function (id_to_add) {
     id_to_add && this.last_filter_ids.push(id_to_add);
     var that = this;
-    that.element.find(that.options.filterable_items_selector).each(function() {
+    that.element.find(that.options.filterable_items_selector).each(function () {
       var $this = $(this);
-      if(that.last_filter_ids == null || can.inArray($this.data("model").id, that.last_filter_ids) > -1)
+      if (that.last_filter_ids == null || can.inArray($this.data("model").id, that.last_filter_ids) > -1)
         $this.show();
       else
         $this.hide();

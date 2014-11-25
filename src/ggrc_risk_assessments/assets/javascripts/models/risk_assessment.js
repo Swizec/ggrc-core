@@ -1,7 +1,7 @@
 /*
  */
 
-(function(can) {
+(function (can) {
 
   _mustache_path = GGRC.mustache_path + "/risk_assessments";
   can.Model.Cacheable("CMS.Models.RiskAssessment", {
@@ -33,7 +33,7 @@
         footer_view: _mustache_path + "/documents_footer.mustache"
       }],
     }
-    , init : function() {
+    , init : function () {
         this._super && this._super.apply(this, arguments);
         this.validateNonBlank("title");
         this.validateNonBlank("start_date");

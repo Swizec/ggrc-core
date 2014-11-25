@@ -7,7 +7,7 @@
 
 //= require can.jquery-all
 //= require models/cacheable
-(function(namespace, $){
+(function (namespace, $){
 can.Model.Cacheable("CMS.Models.Control", {
   // static properties
     root_object : "control"
@@ -78,17 +78,17 @@ can.Model.Cacheable("CMS.Models.Control", {
     }]
   }
 
-  , init : function() {
+  , init : function () {
     this.validateNonBlank("title");
     this._super.apply(this, arguments);
   }
 }
 , {
-  init : function() {
+  init : function () {
     var that = this;
     this._super.apply(this, arguments);
 
-    this.bind("change", function(ev, attr, how, newVal, oldVal) {
+    this.bind("change", function (ev, attr, how, newVal, oldVal) {
       // Emit the "orphaned" event when the directive attribute is removed
       if (attr === "directive" && how === "remove" && oldVal && newVal === undefined) {
         // It is necessary to temporarily add the attribute back for orphaned
