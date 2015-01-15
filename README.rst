@@ -2,6 +2,9 @@
 gGRC-Core
 *********
 
+.. image:: https://travis-ci.org/Swizec/ggrc-core.svg?branch=towards-proper-tests
+    :target: https://travis-ci.org/Swizec/ggrc-core
+
 Google Governance, Risk and Compliance. Migrated from `Google <https://code.google.com/p/compliance-management/>`_ `Code <https://code.google.com/p/ggrc-core>`_.
 
 Requirements
