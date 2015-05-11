@@ -36,6 +36,7 @@ class TestEnableAndDisableNotifications(TestCase):
 
     self.random_objects = self.ggrc_generator.generate_random_objects(2)
     _, self.user = self.ggrc_generator.generate_person(user_role="gGRC Admin")
+    _, self.user2 = self.ggrc_generator.generate_person(user_role="gGRC Admin")
     self.create_test_cases()
 
     def init_decorator(init):
@@ -165,6 +166,43 @@ class TestEnableAndDisableNotifications(TestCase):
       self.assertIn(wf_forced.id, notif_data[user.email]["cycle_starts_in"])
       self.assertIn(wf.id, notif_data[user.email]["cycle_starts_in"])
 
+  @patch("ggrc.notification.email.send_email")
+  def test_user_task_bleed(self, mock_mail):
+    def enable_notifications(user):
+      data = {
+          "notification_config": {
+              "person_id": user.id,
+              "notif_type": "Email_Digest",
+              "enable_flag": True,
+              "context": None,
+              "type": "NotificationConfig",
+          }
+      }
+      response = self.ggrc_generator.api.post(NotificationConfig, data)
+
+    with freeze_time("2015-02-01 13:39:20"):
+      _, wf = self.wf_generator.generate_workflow(self.quarterly_wf_two_users)
+      response, wf = self.wf_generator.activate_workflow(wf)
+
+      self.assert200(response)
+
+      user1 = Person.query.get(self.user.id)
+      user2 = Person.query.get(self.user2.id)
+
+    with freeze_time("2015-02-01 13:39:20"):
+      enable_notifications(user1)
+      enable_notifications(user2)
+
+      notifications, notif_data = notification.get_todays_notifications()
+
+      print notif_data
+
+      self.assertIn(user1.email, notif_data)
+      self.assertIn(user2.email, notif_data)
+
+      # check that user1 my_tasks include only "task 1"
+      # check that user2 my_tasks include only "task 2"
+
   def create_test_cases(self):
     def person_dict(person_id):
       return {
@@ -214,4 +252,32 @@ class TestEnableAndDisableNotifications(TestCase):
             ],
         },
         ]
+    }
+
+    self.quarterly_wf_two_users = {
+      "title": "quarterfly wf 2",
+      "description": "",
+      "owners": [person_dict(self.user.id)],
+      "frequency": "quarterly",
+      "task_groups": [{
+        "title": "tg_1",
+        "contact": person_dict(self.user.id),
+        "task_group_tasks": [{
+            "contact": person_dict(self.user.id),
+            "description": "task 1",
+            "relative_start_day": 5,
+            "relative_start_month": 2,
+            "relative_end_day": 25,
+            "relative_end_month": 2
+          },
+          {
+            "contact": person_dict(self.user2.id),
+            "description": "task 2",
+            "relative_start_day": 5,
+            "relative_start_month": 2,
+            "relative_end_day": 25,
+            "relative_end_month": 2
+          }
+        ],
+      }]
     }
